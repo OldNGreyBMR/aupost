@@ -1,7 +1,7 @@
 # aupost
  aupost zen cart Australia postage plug in
 ----------------------------------
-Australia Post Shipping Module 2.4
+Australia Post Shipping Module 2.4.1
 ----------------------------------
 Updated: 20 February 2022 by browe BMH
 Updated: 08 June 2018 by millsii
@@ -21,7 +21,13 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
 The aupost.php module is required for postage rates within Australia only.
 The aupostoverseas.php module is required for postage rates overseas only.
 
-Australian Delivery Options:
+Australian Letter Delivery Options:
+============================
+Standard Letters
+Priority Letters
+Express Post Letters
+
+Australian Parcel Delivery Options:
 ============================
 Regular Parcels
 Express Post Parcels
