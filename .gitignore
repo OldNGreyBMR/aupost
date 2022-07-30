@@ -1,0 +1,4 @@
+*.bak
+nppBackup/
+*.php2
+_*

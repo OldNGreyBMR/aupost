@@ -1,6 +1,6 @@
 <?php
 /*
-  Copyright (c) 2007-2009 Rod Gasson / VCSWEB
+  Original Copyright (c) 2007-2009 Rod Gasson / VCSWEB
  
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,15 +15,36 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- $Id: overseasaupost.php,v2.3  Jun 2018
+ $Id: overseasaupost.php,v2.4  April 2022
 
 */ 
 /* BMH 2022-01-30 
-		Line 26 define  MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL
-		line 144 process only international destinations
-		line 488 correct URL for AusPost API
+            Line 26    define  MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL
+            line 144   process only international destinations
+            line 488   correct URL for AusPost API
+    BMH 2022-04-01  line 196    Undefined array key "products_weight"
+                    line 405    changed logic for debug so invalid options are not included in final list
+                    separated out 2nd level debug WITH Constant BMHDEBUGI
+        2022-07-22  BMHDEBUGI1 and BMHDEBUGI2
 */
-//if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } // BMH line 294
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } // BMH line 294
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TYPES1')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TYPES1',''); }
+
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_STATUS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_STATUS',''); }
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_SORT_ORDER')) { define('MODULE_SHIPPING_OVERSEASAUPOST_SORT_ORDER',''); }
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_ICONS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_ICONS',''); }
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
+
+/*
+define('MODULE_SHIPPING_OVERSEASAUPOST_STATUS','');
+define('MODULE_SHIPPING_OVERSEASAUPOST_SORT_ORDER','');
+define('MODULE_SHIPPING_OVERSEASAUPOST_ICONS','');
+define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS','');
+define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS','');
+*/
+define('BMHDEBUGI1',"Yes"); // BMH 2nd level debug to display all returned data from Aus Post
+define('BMHDEBUGI2',"Yes"); // BMH 3rd level debug to display all returned data from Aus Post
 
 // class constructor
 
@@ -186,12 +207,12 @@ function quote($method = '')
         if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" )
         {
             $dim_query = "select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id='$t' limit 1 ";
-            $name = $db->Execute($dim_query);
+            $name = $db->Execute($dim_query); // BMH Undefined array key "products_weight"
 
             echo "<center><table border=1 width=95% ><th colspan=8>Debugging information</hr>
             <tr><th>Item " . ($x + 1) . "</th><td colspan=7>" . $name->fields['products_name'] . "</td>
             <tr><th width=1%>Attribute</th><th colspan=3>Item</th><th colspan=4>Parcel</th></tr>
-            <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . $dims->fields['products_weight'] . "</td>
+            <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . ($dims->fields['products_weight'] ?? '') . "</td>
             <th>Qty</th><td>&nbsp;$packageitems</td><th>Weight</th><td>&nbsp;" ; echo $parcelweight + (($parcelweight* $tare)/100) ; echo "</td></tr>
             <tr><th>Dimensions</th><td colspan=3>&nbsp; " . $dims->fields['products_length'] . " x " . $dims->fields['products_width'] . " x "  . $dims->fields['products_height'] . "</td>
             <td colspan=4>&nbsp;$parcellength  x  $parcelwidth  x $parcelheight </td></tr>
@@ -303,13 +324,17 @@ return $this->quotes ;
     // Server query string //
 	$qu = $this->get_auspost_api("https://digitalapi.auspost.com.au/postage/parcel/international/service.xml?country_code=$dcode&weight=$parcelweight");
 
-    if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" )  { echo "<table><tr><td>Server Returned:<br>" . $qu . "</td></tr></table>" ; }
+    if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUGI1 == "Yes")) { echo "<table><tr><td>Server Returned: aupostint ln325<br>" . $qu . "</td></tr></table>" ; }
 
     // If we have any results, parse them into an array   
     $xml = ($qu == '') ? array() : new SimpleXMLElement($qu)  ;
+	if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUGI1 == "Yes") && (BMHDEBUGI2 == "Yes")) {
+				echo "<div ><strong>>> Server Returned BMHDEBUGI1+2 line 331 << </strong><textarea rows=50 cols=100 style=\"margin:0;\"> ";
+				print_r($xml) ; // exit ; // ORIG DEBUG to output api xml // BMH DEBUG
+				echo "</textarea><div>";
+			}
 
- // print_r($xml) ; exit ;
-    /////  Initialise our quote array(s)
+    /////  Initialise our quotes['id'] required in includes/classes/shipping.php
     $this->quotes = array('id' => $this->code, 'module' => $this->title);
     $methods = array() ;
 	
@@ -321,14 +346,17 @@ return $this->quotes ;
     $i = 0 ;  // counter
     foreach($xml as $foo => $bar)
     {
+		//BMH keep API code for label
+            $code = ($xml->service[$i]->code); $code = str_replace("_", " ", $code); $code = substr($code,11);
+			
         $id = str_replace("_", "", $xml->service[$i]->code);
 	// remove underscores from AusPost methods. Zen Cart uses underscore as delimiter between module and method.
 	// underscores must also be removed from case statements below.
         $cost = (float)($xml->service[$i]->price);
-        $description = ($xml->service[$i]->name);
+        $description =  "PARCEL " . ($code) ;// 		$description = ($xml->service[$i]->name);
         $i++ ;
 
-if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" )  { echo "<table><tr><td>" ; echo "ID $id COST $cost DESC $description" ; echo "</td></tr></table>" ; }
+if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUGI1 == "Yes")) { echo "<table><tr><td>" ; echo "ID $id COST $cost DESC $description" ; echo "</td></tr></table>" ; }
 
         $add = 0 ; $f = 0 ; $info=0 ;
 		
@@ -366,12 +394,40 @@ if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" )  { echo "<table><tr><td>" ;
 		if (in_array("Courier International", $this->allowed_methods))     
         {
             $add = MODULE_SHIPPING_OVERSEASAUPOST_COURIER_HANDLING ; $f = 1 ;
-        }
+        } 
+        
 		break;
 	}
 
-        //////////////////////////////
-        if ((($cost > 0) && ($f == 1)) || ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ))
+        ////////////////////////////// list options and all values
+        if ((($cost > 0) && ($f == 1)) && ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" )) //BMH DEBUG
+        {
+            $cost = $cost + $add ;
+
+            if (($dest_country == "AU") && (($this->tax_class) > 0))
+            {
+                $t = $cost - ($cost / (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id'])+1)) ;
+
+                if ($t > 0) $cost = $t ;
+            }
+            if  (MODULE_SHIPPING_OVERSEASAUPOST_HIDE_HANDLING !='Yes')
+            {
+                $details = ' (Includes ' . $currencies->format($add / $aus_rate ). ' Packaging &amp; Handling ';
+
+                if ($info > 0)  {
+                    $details = $details." +$".$info." fee)." ;
+
+                }  else {$details = $details.")" ;}
+
+
+            }
+
+            $cost = $cost / $aus_rate;
+
+            $methods[] = array('id' => "$id",  'title' => " ".$description . " " . $details, 'cost' => ($cost ));
+        }
+        //////////////////////// only list valid options without debug info BMH
+        if ((($cost > 0) && ($f == 1)) && ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "No" )) // BMH DEBUG = ONLY if not debug mode
         {
             $cost = $cost + $add ;
 
