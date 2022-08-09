@@ -3,6 +3,7 @@
 ----------------------------------
 Australia Post Shipping Module 2.4.2
 ----------------------------------
+Updated: 09 August 2022 by browe BMH
 Updated: 31 July 2022 by browe BMH
 Updated: 08 June 2018 by millsii
 Updated: 19 April 2018 by http://www.avantmarketing.com.au
@@ -53,11 +54,25 @@ Prepaid Express Satchel Insured (no sig)
 
 International Delivery Options:
 ===============================
+Letters are not offered as no items of commercial value can be send by International Letter
 Sea Mail
+Sea Mail +sig
+Sea Mail Insured +sig
+Sea Mail Insured (no sig)
 Economy Air Mail
+Economy Air Mail +sig
+Economy Air Mail Insured +sig
+Economy Air Mail Insured (no sig)
 Standard Post International
+Standard Post International +sig
+Standard Post International Insured +sig
+Standard Post International Insured (no sig)
 Express Post International
+Express Post International International +sig
+Express Post International International Insured +sig
+Express Post International International Insured (no sig)
 Courier International
+Courier International Insured
 
 -------------
 Installation:
@@ -86,7 +101,7 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
  
 3 Configuration - Australia Post
 ===============
-3.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code
+3.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
 3.2 Upload the 'includes' folder to the root folder of your Zen Cart store.
 3.3 A CSS file is uploaded to \includes\templates\template_default\css\. A new icon file is uploaded \includes\templates\template_default\images\icons. Upload the icons folder and the css folder to the template use don you site.
 3.4 In Admin go to: modules > shipping > Australia Post > click install
@@ -126,6 +141,6 @@ A complete removal and reinstall is recommended.
 ====================================================
 Changelog Version 2.4.2
 -------------------------------------------------
-See separate file Changelog.md
+See separate file CHANGELOG.md
 
 
