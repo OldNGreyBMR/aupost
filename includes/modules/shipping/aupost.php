@@ -15,8 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- $Id: aupost.php,v2.4.2 July 2022
-  V2.4.2_0729
+ $Id: aupost.php,v2.4.2 August 2022
+  V2.4.2_0809
 
   BMH 2022-02-13    line 23 declare constants
                     line 154 abort if NOT AU address
@@ -37,10 +37,11 @@
     2022-07-24      added options for regular parcels, express parcels
     2022-07-27      round up extra cover value
     2022-07-28      added options for regular satchels, express satchels
+    2022-08-09      do not check insurance if below min cover amt
 */
 // BMHDEBUG switches
-define('BMHDEBUG1','Yes'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
-define('BMHDEBUG2','Yes'); // No or Yes // BMH 3nd level debug to display all returned XML data from Aus Post 
+define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
+define('BMHDEBUG2','No'); // No or Yes // BMH 3nd level debug to display all returned XML data from Aus Post 
 // **********************
 
 //BMH declare constants
@@ -113,7 +114,7 @@ class aupost extends base
         $this->title = MODULE_SHIPPING_AUPOST_TEXT_TITLE ;
         $this->description = MODULE_SHIPPING_AUPOST_TEXT_DESCRIPTION;
         $this->sort_order = MODULE_SHIPPING_AUPOST_SORT_ORDER;
-        $this->icon = $template->get_template_dir('aupost.jpg', '' ,'','images/icons'). '/aupost.jpg';
+        $this->icon = $template->get_template_dir('aupost_logo.jpg', '' ,'','images/icons'). '/aupost_logo.jpg';
         if (zen_not_null($this->icon)) $this->quotes['icon'] = zen_image($this->icon, $this->title);
         $this->logo = $template->get_template_dir('aupost_logo.jpg', '','' ,'images/icons'). '/aupost_logo.jpg';
         $this->tax_class = MODULE_SHIPPING_AUPOST_TAX_CLASS;
@@ -774,6 +775,7 @@ class aupost extends base
                     }
                     
                     if ( in_array("Prepaid Satchel Insured +sig", $this->allowed_methods) ) {
+                        if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -807,6 +809,7 @@ class aupost extends base
                     }
                     
                     if ( in_array("Prepaid Satchel Insured (no sig)", $this->allowed_methods) ) {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -840,6 +843,7 @@ class aupost extends base
                         $add =  MODULE_SHIPPING_AUPOST_PPSE_HANDLING ; $f = 1 ;
                     }
                     if ( in_array("Prepaid Express Satchel Insured +sig", $this->allowed_methods) ) {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -869,6 +873,7 @@ class aupost extends base
                     }
                     
                     if ( in_array("Prepaid Express Satchel Insured (no sig)", $this->allowed_methods) ) {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $allowed_option = "Prepaid Express Satchel Insured (no sig)";
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
@@ -892,6 +897,7 @@ class aupost extends base
                     }
  
                     if ( in_array("Regular Parcel Insured +sig", $this->allowed_methods) ) {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -924,6 +930,7 @@ class aupost extends base
                     }
                     
                     if ( in_array("Regular Parcel Insured (no sig)", $this->allowed_methods) ) {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -960,6 +967,7 @@ class aupost extends base
                     }
                      
                     if ( in_array("Express Parcel Insured +sig", $this->allowed_methods) ) {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -990,6 +998,7 @@ class aupost extends base
                     
                     if ( in_array("Express Parcel Insured (no sig)", $this->allowed_methods) )
                     {
+                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
                         $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
@@ -1418,3 +1427,4 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
     
 
 }  // end class
+

@@ -1,4 +1,4 @@
-php code <?php
+<?php
 /*
 Original Copyright (c) 2007-2009 Rod Gasson / VCSWEB
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
@@ -7,7 +7,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- $Id: overseasaupost.php,v2.4.2-0809  August 2022
+ $Id: overseasaupost.php,v2.4.2  August 2022
+ v2.4.2-0809
 
 */ 
 /* BMH 2022-01-30   Line 26    define  MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL
