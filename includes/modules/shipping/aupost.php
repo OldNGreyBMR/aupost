@@ -15,8 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- $Id: aupost.php,v2.4.2 August 2022
-  V2.4.2_0809
+ $Id:   aupost.php,v2.5.0 August 2022
+        V2.5.0_0817
 
   BMH 2022-02-13    line 23 declare constants
                     line 154 abort if NOT AU address
@@ -38,6 +38,8 @@
     2022-07-27      round up extra cover value
     2022-07-28      added options for regular satchels, express satchels
     2022-08-09      do not check insurance if below min cover amt
+    2022-08-16      Version 2.5 runs on Zen Cart 158
+                    rearrange logic for PHP8.1
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
@@ -83,10 +85,12 @@ $lettersize = 0; //set flag for letters
 } 
 */
 /// if test mode replace with test variables - url + api key // move to line 343 inside function quote(method)
+/*
 if (AUPOST_MODE == 'Test') { 
     $aupost_url_string = AUPOST_URL_TEST ;
     $aupost_url_apiKey = AUPOST_TESTMODE_AUTHKEY;
 }
+*/
     /*if (BMHDEBUG2 == "Yes") { // outputs on admin | modules | shipping page
         echo '<br>line88 MODE= ' . AUPOST_MODE . ' aupost_url_apiKey= ' . $aupost_url_apiKey ;
     } 
@@ -102,13 +106,9 @@ class aupost extends base
     var $icon;         // Shipping module icon filename/path
     var $enabled;      // Shipping module status    
 
-    function __construct()
+    public function __construct()
     {
         global $order, $db, $template ;
-
-        // disable only when entire cart is free shipping
-        if (zen_get_shipping_enabled($this->code))  
-            $this->enabled = ((MODULE_SHIPPING_AUPOST_STATUS == 'True') ? true : false);
 
         $this->code = 'aupost';
         $this->title = MODULE_SHIPPING_AUPOST_TEXT_TITLE ;
@@ -119,6 +119,11 @@ class aupost extends base
         $this->logo = $template->get_template_dir('aupost_logo.jpg', '','' ,'images/icons'). '/aupost_logo.jpg';
         $this->tax_class = MODULE_SHIPPING_AUPOST_TAX_CLASS;
         $this->tax_basis = 'Shipping' ;    // It'll always work this way, regardless of any global settings
+
+        // disable only when entire cart is free shipping
+        // placed after variables declared ZC158 PHP8.1
+        if (zen_get_shipping_enabled($this->code))  
+            $this->enabled = ((MODULE_SHIPPING_AUPOST_STATUS == 'True') ? true : false);
 
         if (MODULE_SHIPPING_AUPOST_ICONS != "No" ) {
             if (zen_not_null($this->logo)) $this->title = zen_image($this->logo, $this->title) ;
@@ -134,7 +139,7 @@ class aupost extends base
 // // functions
 
 
-    function quote($method = '')
+    public function quote($method = '')
     {
         global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems;
         //    $module = substr($_SESSION['shipping'], 0,6);

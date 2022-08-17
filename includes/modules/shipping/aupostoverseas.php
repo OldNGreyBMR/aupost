@@ -7,8 +7,8 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- $Id: overseasaupost.php,v2.4.2  August 2022
- v2.4.2-0809
+ $Id:   overseasaupost.php,v2.5.0 August 2022
+        V2.5.0_0817
 
 */ 
 /* BMH 2022-01-30   Line 26    define  MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL
@@ -23,6 +23,8 @@ You should have received a copy of the GNU General Public License along with thi
                     Economy Air quoted fro AP has a bug that does not allow extra cover 
                     Added check for min insurance cover 
                     Included Courier ins
+        2022-08-16  Version 2.5 runs on Zen Cart 158
+                    rearrange logic for PHP8.1
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No'); // BMH 2nd level debug to display all returned data from Aus Post
@@ -81,10 +83,7 @@ class aupostoverseas extends base
     function __construct()
     {
         global $order, $db, $template ;
-    
-        // disable only when entire cart is free shipping
-        if (zen_get_shipping_enabled($this->code))  $this->enabled = ((MODULE_SHIPPING_OVERSEASAUPOST_STATUS == 'True') ? true : false);
-    
+       
         $this->code = 'aupostoverseas';
         $this->title = MODULE_SHIPPING_OVERSEASAUPOST_TEXT_TITLE ;
         $this->description = MODULE_SHIPPING_OVERSEASAUPOST_TEXT_DESCRIPTION;
@@ -94,6 +93,10 @@ class aupostoverseas extends base
         $this->logo = $template->get_template_dir('aupost_logo.jpg', '','' ,'images/icons'). '/aupost_logo.jpg';
         $this->tax_class = MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS;
         $this->tax_basis = 'Shipping' ;    // It'll always work this way, regardless of any global settings
+
+        // disable only when entire cart is free shipping
+        // placed after variables declared ZC158 PHP8.1
+        if (zen_get_shipping_enabled($this->code))  $this->enabled = ((MODULE_SHIPPING_OVERSEASAUPOST_STATUS == 'True') ? true : false);
 
         if (MODULE_SHIPPING_OVERSEASAUPOST_ICONS != "No" ) {
             if (zen_not_null($this->logo)) $this->title = zen_image($this->logo, $this->title) ;
