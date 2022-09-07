@@ -40,6 +40,7 @@
     2022-08-09      do not check insurance if below min cover amt
     2022-08-16      Version 2.5 runs on Zen Cart 158
                     rearrange logic for PHP8.1
+    2022-09-06      quotes on AUS; hide ins for parcels where value less than min ins value
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
@@ -66,12 +67,12 @@ define('AUPOST_MODE','Test'); //Test OR PROD // Test uses test URL and Test Auth
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_AUPOST_AUTHKEY')) { define('MODULE_SHIPPING_AUPOST_AUTHKEY','') ;}
 if (!defined('AUPOST_TESTMODE_AUTHKEY')) { define('AUPOST_TESTMODE_AUTHKEY','28744ed5982391881611cca6cf5c240') ;} // DO NOT CHANGE
-define('AUPOST_URL_TEST','test.npe.auspost.com.au'); // No longer used - leave as prod url
-define('AUPOST_URL_PROD','digitalapi.auspost.com.au');
-define('LETTER_URL_STRING','/postage/letter/domestic/service.xml?'); // 
-define('LETTER_URL_STRING_CALC','/postage/letter/domestic/calculate.xml?'); //
-define('PARCEL_URL_STRING','/postage/parcel/domestic/service.xml?from_postcode='); // 
-define('PARCEL_URL_STRING_CALC','/postage/parcel/domestic/calculate.xml?from_postcode='); // 
+if (!defined('AUPOST_URL_TEST')) { define('AUPOST_URL_TEST','test.npe.auspost.com.au'); }// No longer used - leave as prod url
+if (!defined('AUPOST_URL_PROD')) { define('AUPOST_URL_PROD','digitalapi.auspost.com.au'); }
+if (!defined('LETTER_URL_STRING')) { define('LETTER_URL_STRING','/postage/letter/domestic/service.xml?');  }// 
+if (!defined('LETTER_URL_STRING_CALC')) { define('LETTER_URL_STRING_CALC','/postage/letter/domestic/calculate.xml?'); } //
+if (!defined('PARCEL_URL_STRING')) { define('PARCEL_URL_STRING','/postage/parcel/domestic/service.xml?from_postcode='); } // 
+if (!defined('PARCEL_URL_STRING_CALC')) { define('PARCEL_URL_STRING_CALC','/postage/parcel/domestic/calculate.xml?from_postcode='); } // 
 
 // set product variables
 $aupost_url_string = AUPOST_URL_PROD ;
@@ -262,7 +263,7 @@ class aupost extends base
         // EOF PARCELS - values
         
         if ($aus_rate == 0) {                                   // included by BMH to avoid possible divide  by zero error 
-            $aus_rate = (float)$currencies->get_value(AUS);     // if AUD zero/undefined then try AUS
+            $aus_rate = (float)$currencies->get_value('AUS') ;     // if AUD zero/undefined then try AUS // BMH quotes added
             if ($aus_rate == 0) {
                 $aus_rate = 1;                                  // if still zero initialise to 1.00 to avoid divide by zero error
             }
@@ -750,7 +751,8 @@ class aupost extends base
        
         ///////////////////////////////////////
         //  loop through the Parcel quotes retrieved //
-        $i = 0 ;  // counter
+        $i = 0 ;  // counterecho '<br> ln 755 $this->allowed_methods = '; var_dump($this->allowed_methods); // BMH ** DEBUG
+        
         foreach($xml as $foo => $bar) {    
            
             $code = ($xml->service[$i]->code); $code = str_replace("_", " ", $code); $code = substr($code,11); //strip first 11 chars;     //BMH keep API code for label
@@ -762,7 +764,7 @@ class aupost extends base
                 
             if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
                 echo "<table class='aupost-debug'><tr><td>" ;  
-                echo "ln 775 ID= $id  DESC= $description COST= $cost inc" ; 
+                echo "ln 766 ID= $id  DESC= $description COST= $cost inc" ; 
                 echo "</td></tr></table>" ; 
               } // BMH 2nd level debug each line of quote parsed
               
@@ -780,20 +782,21 @@ class aupost extends base
                     }
                     
                     if ( in_array("Prepaid Satchel Insured +sig", $this->allowed_methods) ) {
-                        if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = $id;
-                        
-                        $allowed_option = "Prepaid Satchel Insured +sig";
-                        $option_offset = 0;
-                        
-                       $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
-                       
-                        if (strlen($id) >1) {
-                            $methods[] = $result_secondary_options ;
-                        }
+                       if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = $id;
+                            
+                            $allowed_option = "Prepaid Satchel Insured +sig";
+                            $option_offset = 0;
+                            
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                            
+                            if (strlen($id) >1) {
+                                $methods[] = $result_secondary_options ;
+                            }
+                       }
                     }
                     
                     if ( in_array("Prepaid Satchel +sig", $this->allowed_methods) ) {
@@ -814,28 +817,27 @@ class aupost extends base
                     }
                     
                     if ( in_array("Prepaid Satchel Insured (no sig)", $this->allowed_methods) ) {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = $id;
-                        $allowed_option = "Prepaid Satchel Insured (no sig)";
-                        $option_offset1 = 0;
-                       
-                        $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
-                        
-                        if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) { 
-                            echo '<p class="aupost-debug"> ln840 $result_secondary_options = ' ; //BMH ** DEBUG
-                            var_dump($result_secondary_options);
-                            echo ' <\p>';
+                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = $id;
+                            $allowed_option = "Prepaid Satchel Insured (no sig)";
+                            $option_offset1 = 0;
+                            
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                            
+                            if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) { 
+                                echo '<p class="aupost-debug"> ln840 $result_secondary_options = ' ; //BMH ** DEBUG
+                                var_dump($result_secondary_options);
+                                echo ' <\p>';
+                            }
+                            
+                            if (strlen($id) >1){
+                                $methods[] = $result_secondary_options ;
+                            }
                         }
-                        
-                        if (strlen($id) >1){
-                            $methods[] = $result_secondary_options ;
-                        }
-                    
                     }
-                    
                     
                     break;
                     
@@ -843,24 +845,28 @@ class aupost extends base
                 case  "AUSPARCELEXPRESSSATCHELLARGE" ;
                 case  "AUSPARCELEXPRESSSATCHELMEDIUM" ;
                 case  "AUSPARCELEXPRESSSATCHELSMALL" ;
+                    if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
+                    echo '<br> ln848 parcel express satchel'; }
+                    
                     if ((in_array("Prepaid Express Satchel", $this->allowed_methods)))
                     {
                         $add =  MODULE_SHIPPING_AUPOST_PPSE_HANDLING ; $f = 1 ;
                     }
                     if ( in_array("Prepaid Express Satchel Insured +sig", $this->allowed_methods) ) {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = $id;                        
-                        $allowed_option = "Prepaid Express Satchel Insured +sig";
-                        $option_offset = 0;
-                        
-                       $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details,$dest_country, $order, $currencies, $aus_rate);
-                        
-                        if (strlen($id) >1) {
-                            $methods[] = $result_secondary_options ;
-                        }
+                       if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = $id;                        
+                            $allowed_option = "Prepaid Express Satchel Insured +sig";
+                            $option_offset = 0;
+                            
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details,$dest_country, $order, $currencies, $aus_rate);
+                            
+                            if (strlen($id) >1) {
+                                $methods[] = $result_secondary_options ;
+                            }
+                       }
                     }
                     
                     if ( in_array("Prepaid Express Satchel +sig", $this->allowed_methods) ) {
@@ -878,47 +884,50 @@ class aupost extends base
                     }
                     
                     if ( in_array("Prepaid Express Satchel Insured (no sig)", $this->allowed_methods) ) {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $allowed_option = "Prepaid Express Satchel Insured (no sig)";
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = $id;
- 
-                        $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
-                        
-                        if (strlen($id) >1) {
-                            $methods[] = $result_secondary_options ;
+                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $allowed_option = "Prepaid Express Satchel Insured (no sig)";
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = $id;
+        
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                            
+                            if (strlen($id) >1) {
+                                $methods[] = $result_secondary_options ;
+                            }
                         }
-                    
                     }
                     break;
                     
                
                 case  "AUSPARCELREGULAR"; // normal mail - own packaging
+                    if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
+                        echo '<br> ln904 parcel regular'; }
+                        
                     if ((in_array("Regular Parcel", $this->allowed_methods))) {
                         $add = MODULE_SHIPPING_AUPOST_RPP_HANDLING ; $f = 1 ;
                         $apr = 1; 
                     }
  
                     if ( in_array("Regular Parcel Insured +sig", $this->allowed_methods) ) {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
-                        $allowed_option = "Regular Parcel Insured +sig";
-                        $option_offset = 0;
+                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                            $allowed_option = "Regular Parcel Insured +sig";
+                            $option_offset = 0;
                         
-                       $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                        $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
                        
-                        if (strlen($id) >1) {
+                            if (strlen($id) >1) {
                             $methods[] = $result_secondary_options ;
+                            }
                         }
                     }
                     
                     if ( in_array("Regular Parcel +sig", $this->allowed_methods) ) {
-
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = '';
@@ -935,25 +944,25 @@ class aupost extends base
                     }
                     
                     if ( in_array("Regular Parcel Insured (no sig)", $this->allowed_methods) ) {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONEXTRACOVER";
-                        $allowed_option = "Regular Parcel Insured (no sig)";
-                        $option_offset1 = 0;
+                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONEXTRACOVER";
+                            $allowed_option = "Regular Parcel Insured (no sig)";
+                            $option_offset1 = 0;
                        
-                        $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
                         
-                        if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) { 
-                            echo '<p class="aupost-debug"> ln889 $result_secondary_options = ' ; //BMH ** DEBUG
-                            var_dump($result_secondary_options);
-                            echo ' <\p>';
+                            if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) { 
+                                echo '<p class="aupost-debug"> ln889 $result_secondary_options = ' ; //BMH ** DEBUG
+                                var_dump($result_secondary_options);
+                                echo ' <\p>';
+                            }
+                            if (strlen($id) >1){
+                                $methods[] = $result_secondary_options ;
+                            }
                         }
-                        if (strlen($id) >1){
-                            $methods[] = $result_secondary_options ;
-                        }
-                    
                     }
                 break;
                     
@@ -964,29 +973,30 @@ class aupost extends base
                     //}
                     //break; // BMH NOTE: $info NOT REQUIRED IF REGISTERED NOT CODED
                     
-                case  "AUSPARCELEXPRESS" ;
-
-                    if (in_array("Express Parcel", $this->allowed_methods)) 
+                case  "AUSPARCELEXPRESS" ;                       
+                    if (in_array("Express Parcel", $this->allowed_methods,$strict = true)) 
                     {
                         $add = MODULE_SHIPPING_AUPOST_EXP_HANDLING ; $f = 1 ;
                     }
                      
-                    if ( in_array("Express Parcel Insured +sig", $this->allowed_methods) ) {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = "AUSPARCELEXPRESS" . "AUSSERVICEOPTIONSIGNATUREONDELIVERYEXTRACOVER";
-                        $allowed_option = "Express Parcel Insured +sig";
-                         
-                        $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
-                        
-                        if (strlen($id) >1){
-                            $methods[] = $result_secondary_options ;
+                    if ( in_array("Express Parcel Insured +sig", $this->allowed_methods, $strict = true) ) {
+                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = "AUSPARCELEXPRESS" . "AUSSERVICEOPTIONSIGNATUREONDELIVERYEXTRACOVER";
+                            $allowed_option = "Express Parcel Insured +sig";
+                                
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                            
+                            if (strlen($id) >1){
+                                $methods[] = $result_secondary_options ;
+                            }
                         }
                     }
                     
-                    if ( in_array("Express Parcel +sig", $this->allowed_methods) ) {
+                    if ( in_array("Express Parcel +sig", $this->allowed_methods, $strict = true) ) {
+
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = '';
@@ -1003,17 +1013,18 @@ class aupost extends base
                     
                     if ( in_array("Express Parcel Insured (no sig)", $this->allowed_methods) )
                     {
-                         if ($ordervalue <= $MINVALUEEXTRACOVER) { break; }
-                        $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
-                        $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                        $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                        $id_option = "AUSPARCELEXPRESS" . "AUSSERVICEOPTIONEXTRACOVER";
-                        $allowed_option = "Express Parcel Insured (no sig)";
-             
-                        $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
-                        
-                        if (strlen($id) >1){
-                            $methods[] = $result_secondary_options ;
+                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
+                            $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
+                            $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
+                            $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                            $id_option = "AUSPARCELEXPRESS" . "AUSSERVICEOPTIONEXTRACOVER";
+                            $allowed_option = "Express Parcel Insured (no sig)";
+                    
+                            $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
+                            
+                            if (strlen($id) >1){
+                                $methods[] = $result_secondary_options ;
+                            }
                         }
                     }
 
@@ -1038,17 +1049,14 @@ class aupost extends base
                     
                 case  "AUSPARCELEXPRESSSATCHEL5KG" ;
                 case  "AUSPARCELEXPRESSSATCHEL3KG" ;
-                case  "AUS_PARCEL_EXPRESS_SATCHEL_1KG" ;
                 case  "AUSPARCELEXPRESSSATCHEL1KG" ;
                 case  "AUSPARCELEXPRESSSATCHEL500G";        // superceded by AUSPARCELEXPRESSSATCHELSMALL 
-                case  "AUS_PARCEL_REGULAR_SATCHEL_5KG" ;    // superceded by 
                 case  "AUSPARCELREGULARSATCHEL5KG" ;        // superceded by 
-                case  "AUS_PARCEL_REGULAR_SATCHEL_3KG" ;    // superceded by AUSPARCELREGULARSATCHELLARGE
-                case  "AUS_PARCEL_REGULAR_SATCHEL_1KG" ;
+                case  "AUSPARCELREGULARSATCHEL3KG" ;    // superceded by AUSPARCELREGULARSATCHELLARGE
+                case  "AUSPARCELREGULARSATCHEL1KG" ;
                 case  "AUSPARCELREGULARSATCHEL500G";        // superceded by AUSPARCELREGULARSATCHELSMALL
                 case  "AUSPARCELEXPRESSPACKAGESMALL";       // This is cheaper but requires extra purchase of Aus Post packaging
-                case  "AUS_PARCEL_REGULAR_PACKAGE_SMALL";   // This is cheaper but requires extra purchase of Aus Post packaging
-                case  "AUSPARCELREGULARPACKAGESMALL";       // 
+                case  "AUSPARCELREGULARPACKAGESMALL";   // This is cheaper but requires extra purchase of Aus Post packaging
                 case  "AUSPARCELREGULARPACKAGEMEDIUM";      // This is cheaper but requires extra purchase of Aus Post packaging
                 case  "AUSPARCELREGULARPACKAGELARGE";       // This is cheaper but requires extra purchase of Aus Post packaging
                     $cost = 0;$f=0; $add= 0;
@@ -1154,7 +1162,8 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
             $ordervalue = ceil($ordervalue);  // round up to next integer
             
             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
-                echo '<p class="aupost-debug"><br> ln1136 ' . PARCEL_URL_STRING_CALC . MODULE_SHIPPING_AUPOST_SPCODE ."&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=$ordervalue" . "<\p>"; // BMH ** DEBUG
+                echo '<br> ln1172 allowed option = ' . $allowed_option;
+                echo '<p class="aupost-debug"><br> ln1166 ' . PARCEL_URL_STRING_CALC . MODULE_SHIPPING_AUPOST_SPCODE ."&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=$ordervalue" . "<\p>"; // BMH ** DEBUG
             }
             
             $qu2 = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_URL_STRING_CALC. MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=$ordervalue") ;
@@ -1163,7 +1172,8 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
             $xmlquote_2 = ($qu2 == '') ? array() : new SimpleXMLElement($qu2); // XML format
 
             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
-                    echo "<p class=\"aupost-debug\"><strong>>> Server Returned BMHDEBUG1+2 ln1154 options<< </strong> <br> <textarea> ";
+                echo '<br> ln1182 $allowed_option = ' . $allowed_option;
+                    echo "<p class=\"aupost-debug\"><strong>>> Server Returned BMHDEBUG1+2 ln1181 options<< </strong> <br> <textarea> ";
                     print_r($xmlquote_2) ; // exit ; // // BMH DEBUG
                     echo "</textarea>";
             }
@@ -1308,7 +1318,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         //$db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) VALUES ('Handling Fee - Platinum Satchels', 'MODULE_SHIPPING_AUPOST_PLATSATCH_HANDLING', '0.00', 'Handling Fee for Platinum Satchels.', '6', '11', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Hide Handling Fees?', 'MODULE_SHIPPING_AUPOST_HIDE_HANDLING', 'Yes', 'The handling fees are still in the total shipping cost but the Handling Fee is not itemised on the invoice.', '6', '16', 'zen_cfg_select_option(array(\'Yes\', \'No\'), ', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) VALUES ('Default Parcel Dimensions', 'MODULE_SHIPPING_AUPOST_DIMS', '10,10,2', 'Default Parcel dimensions (in cm). Three comma separated values (eg 10,10,2 = 10cm x 10cm x 2cm). These are used if the dimensions of individual products are not set', '6', '40', now())");
-        $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) VALUES ('Cost on Error', 'MODULE_SHIPPING_AUPOST_COST_ON_ERROR', '25', 'If an error occurs this Flat Rate fee will be used.</br> A value of zero will disable this module on error.', '6', '20', now())");
+        $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) VALUES ('Cost on Error', 'MODULE_SHIPPING_AUPOST_COST_ON_ERROR', '99', 'If an error occurs this Flat Rate fee will be used.</br> A value of zero will disable this module on error.', '6', '20', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Parcel Weight format', 'MODULE_SHIPPING_AUPOST_WEIGHT_FORMAT', 'gms', 'Are your store items weighted by grams or Kilos? (required so that we can pass the correct weight to the server).', '6', '25', 'zen_cfg_select_option(array(\'gms\', \'kgs\'), ', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Show AusPost logo?', 'MODULE_SHIPPING_AUPOST_ICONS', 'Yes', 'Show Auspost logo in place of text?', '6', '19', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) VALUES ('Enable Debug?', 'MODULE_SHIPPING_AUPOST_DEBUG', 'No', 'See how parcels are created from individual items.</br>Shows all methods returned by the server, including possible errors. <strong>Do not enable in a production environment</strong>', '6', '40', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
