@@ -10,5 +10,5 @@ define('MODULE_SHIPPING_AUPOST_TEXT_DESCRIPTION' , 'Australia Post Shipping Modu
 define('MODULE_SHIPPING_AUPOST_TEXT_ERROR', '<font color="#FF0000">Estimate only:</font> We were unable to obtain a valid quote from the Australia Post Server.<br />You may still checkout using this method or contact us for accurate postage costs.');
 
 //// LETTERS – Australia Post (national & international) //
-define('LETTER_SMALL_description', 'Small Letter-Regular (NO TRACKING)') ;
-define('LETTER_LARGE_description', 'Large Letter (NO TRACKING) ;
+define('LETTER_SMALL_description', 'Small Letter-Regular (NO TRACKING)' ) ;
+define('LETTER_LARGE_description', 'Large Letter (NO TRACKING)' ) ;
