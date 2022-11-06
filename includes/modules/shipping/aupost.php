@@ -23,9 +23,9 @@
                     heavily modded return codes to remove zero values and eliminate potential duplicate postage rates with alternative names
                     line 606 corrected AusPost URL
                     updated coding standards tabs => 4 spaces; { etc
-      2022-04-01    rechecked all codes returned from Aus Post
+    2022-04-01    rechecked all codes returned from Aus Post
                     separated out 2nd level debug WITH Constant BMHDEBUG1
-      2022-05-06    use variables for url and API key to allow test mode
+    2022-05-06    use variables for url and API key to allow test mode
                     3rd level debug BMHDEBUG2
                     MySQL keywords changed to uppercase , VALUES, INSERT INTO
                     check for XML on install
@@ -41,6 +41,8 @@
     2022-08-16      Version 2.5 runs on Zen Cart 158
                     rearrange logic for PHP8.1
     2022-09-06      quotes on AUS; hide ins for parcels where value less than min ins value
+    2022-10-01      ln1279 remove div for standard formatting
+    2022-1-16       ensure each option has unique identifier
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
@@ -83,7 +85,7 @@ $lettersize = 0; //set flag for letters
 /*  if (BMHDEBUG2 == "Yes") {  // outputs on admin | modules | shipping page
 
     echo ' <br>ln80 MODE= ' . AUPOST_MODE . ' //$aupost_url_string = ' .$aupost_url_string . ' aupost_url_apiKey= ' . $aupost_url_apiKey ;
-    } 
+} 
 */
 /// if test mode replace with test variables - url + api key // move to line 343 inside function quote(method)
 /*
@@ -143,11 +145,11 @@ class aupost extends base
     public function quote($method = '')
     {
         global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems;
-    //    $module = substr($_SESSION['shipping'], 0,6);
-    //    $method = substr($_SESSION['shipping'],7);
-    // removed misguided attempt to retrieve user selection from session.
-    // method argument is supplied to this module by Zen Cart if required (single quote).
-    // see later comments on removing underscores from AusPost-defined shipping methods.
+        //    $module = substr($_SESSION['shipping'], 0,6);
+        //    $method = substr($_SESSION['shipping'],7);
+        // removed misguided attempt to retrieve user selection from session.
+        // method argument is supplied to this module by Zen Cart if required (single quote).
+        // see later comments on removing underscores from AusPost-defined shipping methods.
 
         if (zen_not_null($method) && (isset($_SESSION['aupostQuotes']))) {
             $testmethod = $_SESSION['aupostQuotes']['methods'] ;
@@ -156,7 +158,7 @@ class aupost extends base
                 $search = array_search("$method", $temp) ;
                 if (strlen($search) > 0 && $search >= 0) break ; 
             }
-
+            
             $usemod = $this->title ; 
             $usetitle = $temp['title'] ;
             if (MODULE_SHIPPING_AUPOST_ICONS != "No" ) {  // strip the icons //
@@ -169,17 +171,17 @@ class aupost extends base
             $this->quotes = ['id' => $this->code, 'module' => $this->title];
             $methods = [] ;
             $this->quotes = [
-                'id' => $this->code,
-                'module' => $usemod,
+              'id' => $this->code,
+              'module' => $usemod,
               'methods' => [
                 [
-                        'id' => $method,
-                        'title' => $usetitle,
-                        'cost' =>  $temp['cost']
+                'id' => $method,
+                'title' => $usetitle,
+                'cost' =>  $temp['cost']
                 ]
               ]
             ];
-
+            
             if ($this->tax_class >  0) {
                 $this->quotes['tax'] = zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
             }
@@ -188,20 +190,20 @@ class aupost extends base
         
         // // /// LETTERS - values
 
-    if (MODULE_SHIPPING_AUPOST_TYPE_LETTERS  <> null) {
-        
-        $MAXLETTERFOLDSIZE = 15;                        // mm for edge of envelope
+        if (MODULE_SHIPPING_AUPOST_TYPE_LETTERS  <> null) {
+            
+            $MAXLETTERFOLDSIZE = 15;                        // mm for edge of envelope
             $MAXLETTERPACKINGDIM = 4;                       // mm thickness of packing. Letter max height is 20mm including packing
-        $MAXWEIGHT_L = 500 ;                            // 500g
-        $MAXLENGTH_L = (360 - $MAXLETTERFOLDSIZE);      // 360mm max letter length  less fold size on edges
-        $MAXWIDTH_L =  (260 - $MAXLETTERFOLDSIZE);      // 260mm max letter width  less fold size on edges
+            $MAXWEIGHT_L = 500 ;                            // 500g
+            $MAXLENGTH_L = (360 - $MAXLETTERFOLDSIZE);      // 360mm max letter length  less fold size on edges
+            $MAXWIDTH_L =  (260 - $MAXLETTERFOLDSIZE);      // 260mm max letter width  less fold size on edges
             $MAXHEIGHT_L = (20 - $MAXLETTERPACKINGDIM);     // 20mm max letter height LESS packing thickness
-        $MAXHEIGHT_L_SM = 5;                            // 5mm max small letter height
-        $MAXLENGTH_L_SM = (240 - $MAXLETTERFOLDSIZE);   // 240mm
-        $MAXWIDTH_L_SM = (130 - $MAXLETTERFOLDSIZE);    // 130mm
-        $MAXWEIGHT_L_WT1 = 125;                         // weight 125
-        $MAXWEIGHT_L_WT2 = 250;                         //
-        $MAXWEIGHT_L_WT3 = 500;                         //
+            $MAXHEIGHT_L_SM = 5;                            // 5mm max small letter height
+            $MAXLENGTH_L_SM = (240 - $MAXLETTERFOLDSIZE);   // 240mm
+            $MAXWIDTH_L_SM = (130 - $MAXLETTERFOLDSIZE);    // 130mm
+            $MAXWEIGHT_L_WT1 = 125;                         // weight 125
+            $MAXWEIGHT_L_WT2 = 250;                         //
+            $MAXWEIGHT_L_WT3 = 500;                         //
             $MSGLETTERTRACKING =  " (No tracking)";         // label append
             $MAXWIDTH_L_SM_EXP = 110;                       // DL envelope prepaid Express envelopes
             $MAXLENGTH_L_SM_EXP = 220;                      // DL envelope prepaid Express envelopes
@@ -210,44 +212,44 @@ class aupost extends base
             $MAXWIDTH_L_LRG_EXP = 250;                      // B4 envelope prepaid Express envelopes
             $MAXLENGTH_L_LRG_EXP = 353;                     // B4 envelope prepaid Express envelopes
             $MINVALUEEXTRACOVER = 101;                      // Aust Post amount for min insurance charge
-        
-        // initialise variables  
-        $letterwidth = 0 ;
-        $letterwidthcheck = 0 ;
-        $letterwidthchecksmall = 0 ;
-        $letterlength = 0 ;
-        $letterlengthcheck = 0 ;
-        $letterlengthchecksmall = 0 ;
-        $letterheight = 0 ;
-        $letterheightcheck = 0 ;
-        $letterheightchecksmall = 0 ;
-        $letterweight = 0 ;
-        $lettercube = 0 ;
-        $letterchecksmall = 0 ;
-        $lettercheck = 0 ;
-        $lettersmall = 0;
-        $letterlargewt1 = 0;
-        $letterlargewt2 = 0;
-        $letterlargewt3 = 0;
+            
+            // initialise variables  
+            $letterwidth = 0 ;
+            $letterwidthcheck = 0 ;
+            $letterwidthchecksmall = 0 ;
+            $letterlength = 0 ;
+            $letterlengthcheck = 0 ;
+            $letterlengthchecksmall = 0 ;
+            $letterheight = 0 ;
+            $letterheightcheck = 0 ;
+            $letterheightchecksmall = 0 ;
+            $letterweight = 0 ;
+            $lettercube = 0 ;
+            $letterchecksmall = 0 ;
+            $lettercheck = 0 ;
+            $lettersmall = 0;
+            $letterlargewt1 = 0;
+            $letterlargewt2 = 0;
+            $letterlargewt3 = 0;
             $letterexp_small = 0;
             $letterexp_med = 0;
             $letterexp_lrg = 0;
             $letterprefix = 'LETTER ';               // prefix label to differentiate from parcel - include space
             
-    }
+        }
         // EOF LETTERS - values
     
         // PARCELS - values
-      // Maximums - parcels
+        // Maximums - parcels
         $MAXWEIGHT_P = 22 ;     // BMH change from 20 to 22kg 2021-10-07
         $MAXLENGTH_P = 105 ;    // 105cm max parcel length
         $MAXGIRTH_P =  140 ;    // 140cm max parcel girth  ( (width + height) * 2)
-
+        
         // default dimensions   // parcels
         $x = explode(',', MODULE_SHIPPING_AUPOST_DIMS) ;
         $defaultdims = array($x[0],$x[1],$x[2]) ;
         sort($defaultdims) ;    // length[2]. width[1], height=[0]
-
+        
         // initialise  variables // parcels
         $parcelwidth = 0 ;
         $parcellength = 0 ;
@@ -255,7 +257,7 @@ class aupost extends base
         $parcelweight = 0 ;
         $cube = 0 ;
         $details = ' ';
-
+        
         $frompcode = MODULE_SHIPPING_AUPOST_SPCODE;
         $dest_country=$order->delivery['country']['iso_code_2'];
         $topcode = str_replace(" ","",($order->delivery['postcode'] ?? ''));
@@ -274,7 +276,7 @@ class aupost extends base
         $tare = MODULE_SHIPPING_AUPOST_TARE ;                           // percentage to add for packing etc
         // BMH Only proceed for AU addresses
         if ($dest_country <> "AU") {
-         return $this->quotes ;     // BMH exit if NOT AU
+            return $this->quotes ;     // BMH exit if NOT AU
         } 
          
         $FlatText = " Using AusPost Flat Rate." ;
@@ -331,62 +333,62 @@ class aupost extends base
         }
             
             
-// /////////////////////// LETTERS //////////////////////////////////
+        // /////////////////////// LETTERS //////////////////////////////////
         // BMH for letter dimensions 
-            // letter height for starters
+        // letter height for starters
         $letterheight = $parcelheight *10;      // letters are in mm
         $letterheight = $letterheight + $MAXLETTERPACKINGDIM;   // add packaging thickness to letter height
         
-            if (($letterheight ) <= $MAXHEIGHT_L ){ 
-                $letterheightcheck = 1;         // maybe can be sent as letter by height limit
-                $lettercheck = 1;
-                // check letter height small
-                if (($letterheight) <= $MAXHEIGHT_L_SM ) {
-                    $letterheightchecksmall = 1;
-                    $letterchecksmall = 1;
+        if (($letterheight ) <= $MAXHEIGHT_L ){ 
+            $letterheightcheck = 1;             // maybe can be sent as letter by height limit
+            $lettercheck = 1;
+            // check letter height small
+            if (($letterheight) <= $MAXHEIGHT_L_SM ) {
+                $letterheightchecksmall = 1;
+                $letterchecksmall = 1;
                  // BMH DEBUG echo '<br> ln331 $letterlengthcheckSmall=' . $letterlengthcheckSmall;
-                }
-                
-                // letter length in range for small
-                $letterlength = ($parcellength *10);
-                if ($letterlength < $MAXLENGTH_L_SM ) {
-                    $letterlengthchecksmall = 1;
-                    $letterchecksmall = $letterchecksmall + 1;
-                }
+            }
             
-                // check letter length in range
-                if (($letterlength  > $MAXLENGTH_L_SM ) || ($letterlength <= $MAXLENGTH_L ) ) {
-                    $letterlengthcheck = 1;
-                    $lettercheck = $lettercheck + 1;
-                }
-                // letter width in range
-                $letterwidth = $parcelwidth *10;
-                if ($letterwidth < $MAXWIDTH_L_SM ) {
-                    $letterwidthchecksmall = 1;
-                    $letterchecksmall = $letterchecksmall + 1;
-                }
-                
-                if (($letterwidth > $MAXWIDTH_L_SM ) || (($parcelwidth *10) <= $MAXWIDTH_L) ) { 
-                    $letterwidthcheck = 1;
-                    $lettercheck = $lettercheck + 1;
-                } 
-                
-                // check letter weight // in grams
-                $letterweight = ($parcelweight + ($parcelweight* $tare/100));
-                if ((($letterweight ) <= $MAXWEIGHT_L_WT1 ) && ($letterchecksmall == 3) ){ 
-                    $lettersmall = 1;
-                }
-                if ((($letterweight ) <= $MAXWEIGHT_L_WT1 ) && ($lettercheck == 3) ) { 
-                    $letterlargewt1 = 1;
-                }
-                if  (($letterweight  >= $MAXWEIGHT_L_WT1 ) && ($letterweight <= $MAXWEIGHT_L_WT2 ) && ($lettercheck == 3)  ) { 
-                    $letterlargewt2 = 1;
-                }
-               
+            // letter length in range for small
+            $letterlength = ($parcellength *10);
+            if ($letterlength < $MAXLENGTH_L_SM ) {
+                $letterlengthchecksmall = 1;
+                $letterchecksmall = $letterchecksmall + 1;
+            }
+            
+            // check letter length in range
+            if (($letterlength  > $MAXLENGTH_L_SM ) || ($letterlength <= $MAXLENGTH_L ) ) {
+                $letterlengthcheck = 1;
+                $lettercheck = $lettercheck + 1;
+            }
+            // letter width in range
+            $letterwidth = $parcelwidth *10;
+            if ($letterwidth < $MAXWIDTH_L_SM ) {
+                $letterwidthchecksmall = 1;
+                $letterchecksmall = $letterchecksmall + 1;
+            }
+
+            if (($letterwidth > $MAXWIDTH_L_SM ) || (($parcelwidth *10) <= $MAXWIDTH_L) ) { 
+                $letterwidthcheck = 1;
+                $lettercheck = $lettercheck + 1;
+            } 
+            
+            // check letter weight // in grams
+            $letterweight = ($parcelweight + ($parcelweight* $tare/100));
+            if ((($letterweight ) <= $MAXWEIGHT_L_WT1 ) && ($letterchecksmall == 3) ){ 
+                $lettersmall = 1;
+            }
+            if ((($letterweight ) <= $MAXWEIGHT_L_WT1 ) && ($lettercheck == 3) ) { 
+                $letterlargewt1 = 1;
+            }
+            if  (($letterweight  >= $MAXWEIGHT_L_WT1 ) && ($letterweight <= $MAXWEIGHT_L_WT2 ) && ($lettercheck == 3)  ) { 
+                $letterlargewt2 = 1;
+            }
+ 
             // BMH DEBUG2 display the letter values ';
             if ((BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
                  echo ' <br> aupost ln379 $lettercheck=' . $lettercheck . ' $letterchecksmall=' . $letterchecksmall . ' $letterlengthcheck = ' . $letterlengthcheck . ' $letterwidthcheck = ' . $letterwidthcheck . ' $letterheightcheck=' . $letterheightcheck;
-                    if ($letterchecksmall == 3) {
+                if ($letterchecksmall == 3) {
                     echo ' <br> ln375 it is a  small letter';
                     if ($lettercheck == 3) {
                         echo ' <br> ln378 it is a  large letter';
@@ -403,33 +405,33 @@ class aupost extends base
                 }
                 ////
             } // BMH DEBUG2 eof display the letter values ';
-                $aupost_url_string = AUPOST_URL_PROD;
+            $aupost_url_string = AUPOST_URL_PROD;
 
-                if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
+            if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
                 echo '<br>aupost line 404 ' .'https://' . $aupost_url_string . LETTER_URL_STRING . "length=$letterlength&width=$letterwidth&thickness=$letterheight&weight=$letterweight" ; 
             } // eof debug URL
-                
+    
             // +++++++++++++++++ get the letter quote +++++++++++++++++++
             // letter quote request is different format to parcel quote request
-                $quL = $this->get_auspost_api( 
-                    'https://' . $aupost_url_string . LETTER_URL_STRING . "length=$letterlength&width=$letterwidth&thickness=$letterheight&weight=$letterweight") ; 
+            $quL = $this->get_auspost_api( 
+                'https://' . $aupost_url_string . LETTER_URL_STRING . "length=$letterlength&width=$letterwidth&thickness=$letterheight&weight=$letterweight") ; 
     
-                // If we have any results, parse them into an array   
-                $xmlquote_letter = ($quL == '') ? array() : new SimpleXMLElement($quL)  ;
-        
+            // If we have any results, parse them into an array   
+            $xmlquote_letter = ($quL == '') ? array() : new SimpleXMLElement($quL)  ;
+    
             //  bof XML formatted output
-                if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
+            if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
                 echo "<p class=\"aupost-debug\"><strong>>> Server Returned - LETTERS BMHDEBUG1+2 line 417 << <br> </strong><textarea > " ;
                 print_r($xmlquote_letter) ; //  BMH DEBUG
                 echo "</textarea></p>" ;
             } //eof debug server return
             
-                if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) { 
+            if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) { 
                 echo "<table class=\"aupost-debug\"  ><tr><td><b>auPost - Server Returned BMHDEBUG2 ln423 LETTERS: output \$quL</b><br>" . $quL . "</td></tr></table>" ; 
             } // BMH DEBUG eof XML formatted output
-        
-        // ======================================
-        //  loop through the LETTER quotes retrieved //
+    
+            // ======================================
+            //  loop through the LETTER quotes retrieved //
             // create array
             $arrayquotes = array( array("qid" => "","qcost" => 0,"qdescription" => "") );
             
@@ -453,7 +455,7 @@ class aupost extends base
                 $descx = ucwords(strtolower($description));  // make sentence case
                 $description = $letterprefix . $descx . $MSGLETTERTRACKING;     // BMH Prepend LETTER to CODE to differentiate from Parcels code + ADD letter tracking note
 
-            if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
+                if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
                     echo "<table class=\"aupost-debug\"><tr><td>" ; echo " ln451 LETTER ID= $id DESC= $description COST= $cost " ; echo "</td></tr></table>" ; 
                 }  // BMH Debug 2nd level debug each line of quote parsed /// 3rd
                 
@@ -466,7 +468,7 @@ class aupost extends base
 
                 $add = 0 ; $f = 0 ; $info=0 ;
               
-            switch ($id) {
+                switch ($id) {
 
                 case  "AUSLETTEREXPRESSSMALL" ;
                 case  "AUSLETTEREXPRESSMEDIUM" ;
@@ -556,8 +558,8 @@ class aupost extends base
                                 if (strlen($id) >1) {
                                     $methods[] = array('id' => $id_exc,  'title' => $letterprefix . ' '. $desc_excover . ' ' .$details, 'cost' => $cost_excover);
                                  }
-                    }
-                    
+                            }
+
                             if (in_array("Aust Express +sig", $this->allowed_methods_l)) {
                                 if (strlen($id) >1) {
                                     $methods[] = array('id' => $id_sig,  'title' => $letterprefix . ' '. $desc_sig . ' ' .$details, 'cost' => $cost_sig);
@@ -581,7 +583,7 @@ class aupost extends base
                     break;
                     
                 case  "AUSLETTERREGULARSMALL";      // normal mail - own packaging
-                case  "AUSLETTERREGULARLARGE125";  // normal mail - own packaging
+                case  "AUSLETTERREGULARLARGE125";   // normal mail - own packaging
                 case  "AUSLETTERREGULARLARGE250";   // normal mail - own packaging
                 case  "AUSLETTERREGULARLARGE500";   // normal mail - own packaging
                     if (in_array("Aust Standard", $this->allowed_methods_l))
@@ -606,11 +608,11 @@ class aupost extends base
                     break;
 
                 }  // end switch
-                    
+                
                 //////// bof only list valid options without debug info // BMH
                  if ((($cost > 0) && ($f == 1)) ) { // 
                     $cost = $cost + $add ;          // add handling fee
-
+                    
                     // GST (tax) included in all prices in Aust
                     if (($dest_country == "AU") && (($this->tax_class) > 0)) {
                         $t = $cost - ($cost / (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id'])+1)) ;
@@ -635,11 +637,11 @@ class aupost extends base
                 $cost = $this->_get_error_cost($dest_country) ; // retrieve default rate
             
                if ($cost == 0)  return  ;
-
+               
                $methods[] = array( 'id' => "Error",  'title' =>MODULE_SHIPPING_AUPOST_TEXT_ERROR ,'cost' => $cost ) ;
-                }
+            }
         }
-            //// EOF LETTERS /////////
+        //// EOF LETTERS /////////
             
         //////////// // PACKAGE ADJUSTMENT FOR OPTIMAL PACKING // ////////////
         // package created, now re-orientate and check dimensions
@@ -699,19 +701,16 @@ class aupost extends base
                 ($test[6] == $ordervalue)
                )
             {
-                if ( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) {
+                if (MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) {
                     echo "<center><table border=1 width=95% ><td align=center><font color=\"#FF0000\">Using Cached quotes </font></td></table></center>" ;
                 }
-                
-            $this->quotes =  $_SESSION['aupostQuotes'] ;
-        return $this->quotes ;
 
-    ///////////////////////////////////  Cache Exit Point //////////////////////////////////
-
+                $this->quotes =  $_SESSION['aupostQuotes'] ;
+                return $this->quotes ;
+                ///////////////////////////////////  Cache Exit Point //////////////////////////////////
             } // No cache match -  get new quote from server //
-
         }  // No cache session -  get new quote from server //
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////
 
         // always save new session  CSV //
         $_SESSION['aupostParcel'] = implode(",", array($dest_country, $topcode, $parcelwidth, $parcelheight, $parcellength, $parcelweight, $ordervalue)) ;
@@ -731,13 +730,13 @@ class aupost extends base
         }
         if (BMHDEBUG2 == "Yes") { 
             echo '<p class="aupost-debug"> <br>parcels ***<br>aupost ln740 ' .'https://' . $aupost_url_string . PARCEL_URL_STRING . MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight" . '</p>'; 
-       }
+        }
         //// ++++++++++++++++++++++++++++++
         // get parcel api';
         $qu = $this->get_auspost_api( 
-       'https://' . $aupost_url_string . PARCEL_URL_STRING . MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight") ; 
+          'https://' . $aupost_url_string . PARCEL_URL_STRING . MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight") ; 
         // // +++++++++++++++++++++++++++++
-       
+        
         if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG2 == "Yes")) { 
             echo "<table class='aupost-debug'><tr><td><b>auPost - Server Returned BMHDEBUG2 ln748:</b><br>" . $qu . "</td></tr></table> " ; 
         }  //eof debug
@@ -748,48 +747,49 @@ class aupost extends base
             echo "<p class='aupost-debug1' ><strong> >> Server Returned BMHDEBUG1+2 line 749 << <br> </strong> <textarea  > ";
             print_r($xml) ; // output api xml // BMH DEBUG
             echo "</textarea> </p>";
-		}
+        }
         /////  Initialise our quotes['id'] required in includes/classes/shipping.php
         $this->quotes = array('id' => $this->code, 'module' => $this->title);
-
-    ///////////////////////////////////////
-    //  loop through the Parcel quotes retrieved //
+       
+        ///////////////////////////////////////
+        //  loop through the Parcel quotes retrieved //
         $i = 0 ;  // counterecho '<br> ln 755 $this->allowed_methods = '; var_dump($this->allowed_methods); // BMH ** DEBUG
-
+        
         foreach($xml as $foo => $bar) {    
-         
+           
             $code = ($xml->service[$i]->code); $code = str_replace("_", " ", $code); $code = substr($code,11); //strip first 11 chars;     //BMH keep API code for label
-
+                      
             $id = str_replace("_", "", $xml->service[$i]->code);    // remove underscores from AusPost methods. Zen Cart uses underscore as delimiter between module and method. // underscores must also be removed from case statements below.
             $cost = (float)($xml->service[$i]->price);
-            
-             $description =  "PARCEL " . (ucwords(strtolower($code))) ; // BMH prepend PARCEL to code in sentence case
 
+             $description =  "PARCEL " . (ucwords(strtolower($code))) ; // BMH prepend PARCEL to code in sentence case
+                
             if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
                 echo "<table class='aupost-debug'><tr><td>" ;  
                 echo "ln 766 ID= $id  DESC= $description COST= $cost inc" ; 
                 echo "</td></tr></table>" ; 
               } // BMH 2nd level debug each line of quote parsed
+              
+              $add = 0 ; $f = 0 ; $info=0 ;
+              
+            switch ($id) {
 
-            $add = 0 ; $f = 0 ; $info=0 ;
-          
-        switch ($id) {
-
-            case  "AUSPARCELREGULARSATCHELEXTRALARGE" ;
-            case  "AUSPARCELREGULARSATCHELLARGE" ;
-            case  "AUSPARCELREGULARSATCHELMEDIUM" ;
-            case  "AUSPARCELREGULARSATCHELSMALL" ;
+                case  "AUSPARCELREGULARSATCHELEXTRALARGE" ;
+                case  "AUSPARCELREGULARSATCHELLARGE" ;
+                case  "AUSPARCELREGULARSATCHELMEDIUM" ;
+                case  "AUSPARCELREGULARSATCHELSMALL" ;
 
                     if ((in_array("Prepaid Satchel", $this->allowed_methods))) { 
-                    $add = MODULE_SHIPPING_AUPOST_PPS_HANDLING ; $f = 1 ;
-                }
+                        $add = MODULE_SHIPPING_AUPOST_PPS_HANDLING ; $f = 1 ;
+                    }
                     
                     if ( in_array("Prepaid Satchel Insured +sig", $this->allowed_methods) ) {
                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
                             $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;
+                            //$id_option = $id;
+                            $id_option = $id . $optioncode . $suboptioncode;
                             
                             $allowed_option = "Prepaid Satchel Insured +sig";
                             $option_offset = 0;
@@ -807,7 +807,8 @@ class aupost extends base
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = '';
-                        $id_option = $id;
+                        //$id_option = $id . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";;
+                        $id_option = $id . $optioncode . $suboptioncode;
                         $allowed_option = "Prepaid Satchel +sig";
 
                         $option_offset = 0;
@@ -824,7 +825,8 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;
+                            //$id_option = $id;
+                            $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Prepaid Satchel Insured (no sig)";
                             $option_offset1 = 0;
                             
@@ -842,25 +844,26 @@ class aupost extends base
                         }
                     }
                     
-                break;
-                
+                    break;
+                    
                 case  "AUSPARCELEXPRESSSATCHELEXTRALARGE" ;
-            case  "AUSPARCELEXPRESSSATCHELLARGE" ;
-            case  "AUSPARCELEXPRESSSATCHELMEDIUM" ;
-            case  "AUSPARCELEXPRESSSATCHELSMALL" ;
+                case  "AUSPARCELEXPRESSSATCHELLARGE" ;
+                case  "AUSPARCELEXPRESSSATCHELMEDIUM" ;
+                case  "AUSPARCELEXPRESSSATCHELSMALL" ;
                     if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
                     echo '<br> ln848 parcel express satchel'; }
                     
-                if ((in_array("Prepaid Express Satchel", $this->allowed_methods)))
-                {
-                    $add =  MODULE_SHIPPING_AUPOST_PPSE_HANDLING ; $f = 1 ;
-                }
+                    if ((in_array("Prepaid Express Satchel", $this->allowed_methods)))
+                    {
+                        $add =  MODULE_SHIPPING_AUPOST_PPSE_HANDLING ; $f = 1 ;
+                    }
                     if ( in_array("Prepaid Express Satchel Insured +sig", $this->allowed_methods) ) {
                        if ($ordervalue > $MINVALUEEXTRACOVER) { 
                             $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;                        
+                           // $id_option = $id; 
+                           $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Prepaid Express Satchel Insured +sig";
                             $option_offset = 0;
                             
@@ -877,7 +880,8 @@ class aupost extends base
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $suboptioncode = '';
-                        $id_option = $id . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                        //$id_option = $id . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                        $id_option = $id . $optioncode . $suboptioncode;
 
                         $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details,$dest_country, $order, $currencies, $aus_rate);
 
@@ -892,7 +896,7 @@ class aupost extends base
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;
+                            $id_option = $id . $optioncode . $suboptioncode;
         
                             $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
                             
@@ -901,24 +905,24 @@ class aupost extends base
                             }
                         }
                     }
-                break;
-                
-           
-            case  "AUSPARCELREGULAR"; // normal mail - own packaging
+                    break;
+                    
+               
+                case  "AUSPARCELREGULAR"; // normal mail - own packaging
                     if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
                         echo '<br> ln904 parcel regular'; }
                         
                     if ((in_array("Regular Parcel", $this->allowed_methods))) {
-                    $add = MODULE_SHIPPING_AUPOST_RPP_HANDLING ; $f = 1 ;
+                        $add = MODULE_SHIPPING_AUPOST_RPP_HANDLING ; $f = 1 ;
                         $apr = 1; 
-                }
-                
+                    }
+ 
                     if ( in_array("Regular Parcel Insured +sig", $this->allowed_methods) ) {
                         if ($ordervalue > $MINVALUEEXTRACOVER) { 
                             $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                            $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Regular Parcel Insured +sig";
                             $option_offset = 0;
                         
@@ -934,7 +938,7 @@ class aupost extends base
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = '';
-                        $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                        $id_option = $id . $optioncode . $suboptioncode;
                         $allowed_option = "Regular Parcel +sig";
 
                         $option_offset = 0;
@@ -951,7 +955,7 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONEXTRACOVER";
+                            $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Regular Parcel Insured (no sig)";
                             $option_offset1 = 0;
                        
@@ -966,9 +970,9 @@ class aupost extends base
                                 $methods[] = $result_secondary_options ;
                             }
                         }
-                }
+                    }
                 break;
-                
+                    
                     //case  "REG" ; // BMH commented out only available via Post OFfice
                     //if (in_array("Registered Parcel", $this->allowed_methods))
                     //{
@@ -976,11 +980,11 @@ class aupost extends base
                     //}
                     //break; // BMH NOTE: $info NOT REQUIRED IF REGISTERED NOT CODED
                     
-            case  "AUSPARCELEXPRESS" ;
+                case  "AUSPARCELEXPRESS" ;                       
                     if (in_array("Express Parcel", $this->allowed_methods,$strict = true)) 
-                {
-                    $add = MODULE_SHIPPING_AUPOST_EXP_HANDLING ; $f = 1 ;
-                }
+                    {
+                        $add = MODULE_SHIPPING_AUPOST_EXP_HANDLING ; $f = 1 ;
+                    }
                      
                     if ( in_array("Express Parcel Insured +sig", $this->allowed_methods, $strict = true) ) {
                         if ($ordervalue > $MINVALUEEXTRACOVER) { 
@@ -1033,69 +1037,68 @@ class aupost extends base
 
 
                 break;
-            
-                //case  "AUSPARCELPLATINUM" ; 
-            //     if (in_array("Express Post Platinum Parcel", $this->allowed_methods))
-            //    {
-            //        $add = MODULE_SHIPPING_AUPOST_PLAT_HANDLING ; $f = 1 ;
-            //    }
-            //    break;
-            //    
-            //case  "AUSPARCELPLATINUMSATCHEL5KG" ; NOT AVAILABLE 2022-05-06
-            //case  "AUSPARCELPLATINUMSATCHEL3KG" ;
-            //case  "AUSPARCELPLATINUMSATCHEL500G" ;
-            //    if ((in_array("Express Post Platinum Satchel", $this->allowed_methods)))
-            //    {
-            //        $add = MODULE_SHIPPING_AUPOST_PLATSATCH_HANDLING ; $f = 1 ;
-            //    }
-            //    break;
                 
+                //case  "AUSPARCELPLATINUM" ; 
+                //     if (in_array("Express Post Platinum Parcel", $this->allowed_methods))
+                //    {
+                //        $add = MODULE_SHIPPING_AUPOST_PLAT_HANDLING ; $f = 1 ;
+                //    }
+                //    break;
+                //    
+                //case  "AUSPARCELPLATINUMSATCHEL5KG" ; NOT AVAILABLE 2022-05-06
+                //case  "AUSPARCELPLATINUMSATCHEL3KG" ;
+                //case  "AUSPARCELPLATINUMSATCHEL500G" ;
+                //    if ((in_array("Express Post Platinum Satchel", $this->allowed_methods)))
+                //    {
+                //        $add = MODULE_SHIPPING_AUPOST_PLATSATCH_HANDLING ; $f = 1 ;
+                //    }
+                //    break;
+                    
                 case  "AUSPARCELEXPRESSSATCHEL5KG" ;
                 case  "AUSPARCELEXPRESSSATCHEL3KG" ;
-            case  "AUSPARCELEXPRESSSATCHEL1KG" ;
+                case  "AUSPARCELEXPRESSSATCHEL1KG" ;
                 case  "AUSPARCELEXPRESSSATCHEL500G";        // superceded by AUSPARCELEXPRESSSATCHELSMALL 
                 case  "AUSPARCELREGULARSATCHEL5KG" ;        // superceded by 
-            case  "AUSPARCELREGULARSATCHEL3KG" ; // superceded by AUSPARCELREGULARSATCHELLARGE
-            case  "AUSPARCELREGULARSATCHEL1KG" ;
+                case  "AUSPARCELREGULARSATCHEL3KG" ;    // superceded by AUSPARCELREGULARSATCHELLARGE
+                case  "AUSPARCELREGULARSATCHEL1KG" ;
                 case  "AUSPARCELREGULARSATCHEL500G";        // superceded by AUSPARCELREGULARSATCHELSMALL
                 case  "AUSPARCELEXPRESSPACKAGESMALL";       // This is cheaper but requires extra purchase of Aus Post packaging
                 case  "AUSPARCELREGULARPACKAGESMALL";   // This is cheaper but requires extra purchase of Aus Post packaging
                 case  "AUSPARCELREGULARPACKAGEMEDIUM";      // This is cheaper but requires extra purchase of Aus Post packaging
                 case  "AUSPARCELREGULARPACKAGELARGE";       // This is cheaper but requires extra purchase of Aus Post packaging
                     $cost = 0;$f=0; $add= 0;
-                // echo "shouldn't be here"; //BMH debug
-                //do nothing - ignore the code
+                    // echo "shouldn't be here"; //BMH debug
+                    //do nothing - ignore the code
                 break;
-
+                    
                 if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  { 
                     echo "<table><tr><td>" ;  echo "ln959 ID= $id  DESC= $description COST= $cost" ; echo "</td></tr></table>" ; 
                 } // BMH 2nd level debug each line of quote parsed
-
+                
             }  // eof switch
-
+                        
             ////    only list valid options without debug info // BMH
-
+            
             if ((($cost > 0) && ($f == 1))) { //&& ( MODULE_SHIPPING_AUPOST_DEBUG == "No" )) { //BMH DEBUG = ONLY if not debug mode
-                        $cost = $cost + $add ;
+                $cost = $cost + $add ;
                 if ( MODULE_SHIPPING_AUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ; 
-
-                        if (($dest_country == "AU") && (($this->tax_class) > 0)) {
-                            $t = $cost - ($cost / (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id'])+1)) ;
-
-                            if ($t > 0) $cost = $t ;
-                        }
+            
+                if (($dest_country == "AU") && (($this->tax_class) > 0)) {
+                  $t = $cost - ($cost / (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id'])+1)) ;
+                  if ($t > 0) $cost = $t ;
+                }
 
                 $details= $this->_handling($details,$currencies,$add,$aus_rate,$info);  // check if handling rates included
-
+                
             }   // eof list option for normal operation
-
-                        $cost = $cost / $aus_rate;
-
+               
+            $cost = $cost / $aus_rate;
+            
             // parcel options that do not have sub options //
             if (strlen($id) >1){
                 $methods[] = array('id' => "$id",  'title' => $description . " " . $details, 'cost' => $cost);   // update method
-                    }
-
+            }
+            
             if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes"))  { 
                 echo '<p class="aupost-debug"> ln1071 $i=' .$i . "</p>";
             } // BMH 3rd level debug each line of quote parsed
@@ -1103,9 +1106,9 @@ class aupost extends base
             $i++; // increment the counter to match XML array index
         }  // end foreach loop
 
-    ///////////////////////////////////////////////////////////////////////
-    //
-    //  check to ensure we have at least one valid quote - produce error message if not.
+        //  //  ///////////////////////////////////////////////////////////////////
+        //
+        //  check to ensure we have at least one valid quote - produce error message if not.
         if  (sizeof($methods) == 0) {                       // no valid methods
             $cost = $this->_get_error_cost($dest_country) ; // give default cost
             if ($cost == 0)  return  ;                      // 
@@ -1144,11 +1147,11 @@ class aupost extends base
         if (BMHDEBUG2 == "Yes") { 
             echo '<p class="aupost-debug"> <br>parcels ***<br>aupost ln1170 ' .'https://' . $aupost_url_string . PARCEL_URL_STRING . MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight" . '</p>'; 
         }
-    $_SESSION['aupostQuotes'] = $this->quotes  ; // save as session to avoid reprocessing when single method required
-         
-    return $this->quotes;   //  all done //
+        $_SESSION['aupostQuotes'] = $this->quotes  ; // save as session to avoid reprocessing when single method required
 
-    ///////////////////////////////////  Final Exit Point //////////////////////////////////
+        return $this->quotes;   //  all done //
+
+        //  //  ///////////////////////////////  Final Exit Point //////////////////////////////////
     } // eof function quote method
 
 
@@ -1168,8 +1171,8 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
                 echo '<br> ln1172 allowed option = ' . $allowed_option;
                 echo '<p class="aupost-debug"><br> ln1166 ' . PARCEL_URL_STRING_CALC . MODULE_SHIPPING_AUPOST_SPCODE ."&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=$ordervalue" . "<\p>"; // BMH ** DEBUG
-    }
-
+            }
+            
             $qu2 = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_URL_STRING_CALC. MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=$ordervalue") ;
             
             
@@ -1227,23 +1230,20 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
     function _get_error_cost($dest_country) 
     {
         $x = explode(',', MODULE_SHIPPING_AUPOST_COST_ON_ERROR) ;
-
-            unset($_SESSION['aupostParcel']) ;  // don't cache errors.
-            $cost = $dest_country == "AU" ?  $x[0]:$x[1] ;
-
-                if ($cost == 0) {
-                $this->enabled = FALSE ;
-                unset($_SESSION['aupostQuotes']) ;
-                }
-            else 
-            {  
-            $this->quotes = array('id' => $this->code, 'module' => 'Flat Rate'); 
-            }
-
+        unset($_SESSION['aupostParcel']) ;  // don't cache errors.
+        $cost = $dest_country == "AU" ?  $x[0]:$x[1] ;
+        if ($cost == 0) {
+            $this->enabled = FALSE ;
+            unset($_SESSION['aupostQuotes']) ;
+        }
+        else 
+        {  
+        $this->quotes = array('id' => $this->code, 'module' => 'Flat Rate'); 
+        }
         return $cost;
     }
     
-    ////////////////////////////////////////////////////////////////
+    //  //  ////////////////////////////////////////////////////////////
     // BMH - parts for admin module 
     function check()
     {
@@ -1255,7 +1255,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         return $this->_check;
     }
     
-    ////////////////////////////////////////////////////////////////////////////
+    //  //  ////////////////////////////////////////////////////////////////////////
     function install()
     {
         global $db;
@@ -1264,12 +1264,12 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
 			$messageStack->add_session(
 			'Installation FAILED. AusPpost requires SimpleXMLElement to be installed on the system '
 		);
-		echo "This module requires SimpleXMLElement to work. Most Webhosts will support this.<br>Installation will NOT continue.<br>Press your back-page to continue ";
+		echo "This module requires SimpleXMLElement to work. Most Web hosts will support this.<br>Installation will NOT continue.<br>Press your back-page to continue ";
         exit;
 		}
         
-          $result = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'SHIPPING_ORIGIN_ZIP'"  ) ;
-          $pcode = $result->fields['configuration_value'] ;
+        $result = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'SHIPPING_ORIGIN_ZIP'"  ) ;
+        $pcode = $result->fields['configuration_value'] ;
           
         if (!$pcode) $pcode = "4121" ;  // default if not configured in Admin console
 
@@ -1283,13 +1283,13 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
 
         $db->Execute(
             "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function,  date_added)
-                VALUES ('</div><hr> <div>AustPost Letters (and small parcels@letter rates)', 'MODULE_SHIPPING_AUPOST_TYPE_LETTERS',
-                            'Aust Standard, Aust Priority, Aust Express',
-                            'Select the methods you wish to allow',
-                            '6','3',
-                            'zen_cfg_select_multioption(array(\'Aust Standard\',\'Aust Priority\',\'Aust Express\',\'Aust Express +sig\',\'Aust Express Insured +sig\',\'Aust Express Insured (no sig)\',), ',
-                            now())"
-			);
+                VALUES ('<hr>AustPost Letters (and small parcels@letter rates)', 'MODULE_SHIPPING_AUPOST_TYPE_LETTERS',
+                    'Aust Standard, Aust Priority, Aust Express',
+                    'Select the methods you wish to allow',
+                    '6','3',
+                    'zen_cfg_select_multioption(array(\'Aust Standard\',\'Aust Priority\',\'Aust Express\',\'Aust Express +sig\',\'Aust Express Insured +sig\',\'Aust Express Insured (no sig)\',), ',
+                    now())"
+        );
         
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
@@ -1355,7 +1355,6 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
           //  echo "update" ;
             $db->Execute("ALTER TABLE " .TABLE_PRODUCTS. " CHANGE `products_length` `products_length` FLOAT(6,2), CHANGE `products_height` `products_height` FLOAT(6,2), CHANGE `products_width`  `products_width`  FLOAT(6,2)" ) ;
         }
-
     }
     
     // // BMH removal of module in admin
@@ -1394,7 +1393,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
             'MODULE_SHIPPING_AUPOST_TAX_CLASS'
         );
     }
-
+    
     
 // // // extra functions
     //// auspost API
@@ -1450,3 +1449,4 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
     
 
 }  // end class
+
