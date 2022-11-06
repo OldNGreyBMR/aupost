@@ -41,6 +41,8 @@
     2022-08-16      Version 2.5 runs on Zen Cart 158
                     rearrange logic for PHP8.1
     2022-09-06      quotes on AUS; hide ins for parcels where value less than min ins value
+    2022-10-01      ln1279 remove div for standard formatting
+    2022-1-16       ensure each option has unique identifier
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
@@ -786,7 +788,8 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;
+                            //$id_option = $id;
+                            $id_option = $id . $optioncode . $suboptioncode;
                             
                             $allowed_option = "Prepaid Satchel Insured +sig";
                             $option_offset = 0;
@@ -804,7 +807,8 @@ class aupost extends base
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = '';
-                        $id_option = $id;
+                        //$id_option = $id . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";;
+                        $id_option = $id . $optioncode . $suboptioncode;
                         $allowed_option = "Prepaid Satchel +sig";
 
                         $option_offset = 0;
@@ -821,7 +825,8 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;
+                            //$id_option = $id;
+                            $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Prepaid Satchel Insured (no sig)";
                             $option_offset1 = 0;
                             
@@ -857,7 +862,8 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;                        
+                           // $id_option = $id; 
+                           $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Prepaid Express Satchel Insured +sig";
                             $option_offset = 0;
                             
@@ -874,7 +880,8 @@ class aupost extends base
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $suboptioncode = '';
-                        $id_option = $id . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                        //$id_option = $id . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                        $id_option = $id . $optioncode . $suboptioncode;
 
                         $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details,$dest_country, $order, $currencies, $aus_rate);
 
@@ -889,7 +896,7 @@ class aupost extends base
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = $id;
+                            $id_option = $id . $optioncode . $suboptioncode;
         
                             $result_secondary_options = $this-> _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode, $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate);
                             
@@ -915,7 +922,7 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                            $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Regular Parcel Insured +sig";
                             $option_offset = 0;
                         
@@ -931,7 +938,7 @@ class aupost extends base
                         $optioncode = 'AUS_SERVICE_OPTION_SIGNATURE_ON_DELIVERY';
                         $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                         $suboptioncode = '';
-                        $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONSIGNATUREONDELIVERY";
+                        $id_option = $id . $optioncode . $suboptioncode;
                         $allowed_option = "Regular Parcel +sig";
 
                         $option_offset = 0;
@@ -948,7 +955,7 @@ class aupost extends base
                             $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
                             $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
-                            $id_option = "AUSPARCELREGULAR" . "AUSSERVICEOPTIONEXTRACOVER";
+                            $id_option = $id . $optioncode . $suboptioncode;
                             $allowed_option = "Regular Parcel Insured (no sig)";
                             $option_offset1 = 0;
                        
@@ -1276,7 +1283,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
 
         $db->Execute(
             "insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function,  date_added)
-                VALUES ('</div><hr> <div>AustPost Letters (and small parcels@letter rates)', 'MODULE_SHIPPING_AUPOST_TYPE_LETTERS',
+                VALUES ('<hr>AustPost Letters (and small parcels@letter rates)', 'MODULE_SHIPPING_AUPOST_TYPE_LETTERS',
                     'Aust Standard, Aust Priority, Aust Express',
                     'Select the methods you wish to allow',
                     '6','3',
