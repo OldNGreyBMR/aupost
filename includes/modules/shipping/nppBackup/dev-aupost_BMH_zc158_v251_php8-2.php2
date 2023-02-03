@@ -1,7 +1,7 @@
 <?php
 /*
- $Id:   aupost.php,v2.5.2 Feb 2023
-        V2.5.2 zc158 PHP8.2
+ $Id:   aupost.php,v2.5.1 Jan 2023
+        V2.5.1
 
   BMH 2022-02-13    line 23 declare constants
                     line 154 abort if NOT AU address
@@ -1255,7 +1255,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         
     return $result_secondary_options;
     } // eof function _get_secondary_options //
-//// // BMH _get_secondary_options
+// // // BMH _get_secondary_options
     
     // // // 
     function _get_error_cost($dest_country) 
@@ -1274,73 +1274,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         return $cost;
     }
     
-
-    
-// // // extra functions
-    //// auspost API
-    function get_auspost_api($url)
-    {
-        If (AUPOST_MODE == 'Test') {
-            $aupost_url_apiKey = AUPOST_TESTMODE_AUTHKEY;
-            }
-            else {
-            $aupost_url_apiKey = MODULE_SHIPPING_AUPOST_AUTHKEY;
-            }
-        if (BMHDEBUG2 == "Yes") {
-            // echo '<br> ln1129 get_auspost_api $url= ' . $url;
-            // echo '<br> ln1130 $aupost_url_apiKey= ' . $aupost_url_apiKey;
-        }
-    $crl = curl_init();
-    $timeout = 5;
-    // BMH changed to allow test key
-    curl_setopt ($crl, CURLOPT_HTTPHEADER, array('AUTH-KEY:' . $aupost_url_apiKey)); // BMH new
-    curl_setopt ($crl, CURLOPT_URL, $url);
-    curl_setopt ($crl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt ($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
-    $ret = curl_exec($crl);
-    // Check the response: if the body is empty then an error occurred
-    if (BMHDEBUG2 == "Yes") {
-        echo '<br> ln1437 $ret= ' . $ret . '<br>'; var_dump($ret);
-        $myarray=json_decode($ret); 
-        echo '<br> ln1439 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
-    }
-    //BMH 2023-01-23 added code for when Australia Post is down //BMH bof
-    $edata = curl_exec($crl);   //  echo '<br> ln1442 $edata= ' . $edata; //BMH DEBUG
-    $errtext = curl_error($crl);  //echo '<br> ln1443 $errtext= ' . $errtext; //BMH DEBUG
-    $errnum = curl_errno($crl);   //echo '<br> ln1444 $errnum= ' . $errnum; //BMH DEBUG
-    $commInfo = curl_getinfo($crl);   //echo '<br> ln1445 $commInfo= ' . $commInfo; //BMH DEBUG
-    if ($edata === "Access denied") {
-        $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>support@bmh.com.au  ";
-    }
-    //BMH eof 
-    if(!$ret){
-        die('<br>Error: "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) . 
-            ' <br>Major Fault - Cannot contact Australia Post . 
-                Please report this error to System Owner. Then try the back button on you browser.');
-    }
-    
-    curl_close($crl);
-    return $ret;
-    }
-    // end auspost API
-
-    
-    function _handling($details,$currencies,$add,$aus_rate,$info)
-    {
-        if  (MODULE_SHIPPING_AUPOST_HIDE_HANDLING !='Yes') {
-            $details = ' (Inc ' . $currencies->format($add / $aus_rate ). ' P &amp; H';  // Abbreviated Includes to Inc for space saving in final quote format
-            
-            if ($info > 0)  {
-            $details = $details." +$".$info." fee)." ;
-            }
-            else {
-                $details = $details.")" ;
-            }
-        }
-        return $details;
-    }
-    
-    ////  ////
+    //  //  ////////////////////////////////////////////////////////////
     // BMH - parts for admin module 
     function check()
     {
@@ -1352,7 +1286,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         return $this->_check;
     }
     
-    ////  bof install and setup      /////
+    //  //  ////////////////////////////////////////////////////////////////////////
     function install()
     {
         global $db;
@@ -1490,6 +1424,71 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         );
     }
     
-    //// eof install and setup
+    
+// // // extra functions
+    //// auspost API
+    function get_auspost_api($url)
+    {
+        If (AUPOST_MODE == 'Test') {
+            $aupost_url_apiKey = AUPOST_TESTMODE_AUTHKEY;
+            }
+            else {
+            $aupost_url_apiKey = MODULE_SHIPPING_AUPOST_AUTHKEY;
+            }
+        if (BMHDEBUG2 == "Yes") {
+            // echo '<br> ln1129 get_auspost_api $url= ' . $url;
+            // echo '<br> ln1130 $aupost_url_apiKey= ' . $aupost_url_apiKey;
+        }
+    $crl = curl_init();
+    $timeout = 5;
+    // BMH changed to allow test key
+    curl_setopt ($crl, CURLOPT_HTTPHEADER, array('AUTH-KEY:' . $aupost_url_apiKey)); // BMH new
+    curl_setopt ($crl, CURLOPT_URL, $url);
+    curl_setopt ($crl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt ($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
+    $ret = curl_exec($crl);
+    // Check the response: if the body is empty then an error occurred
+    if (BMHDEBUG2 == "Yes") {
+        echo '<br> ln1437 $ret= ' . $ret . '<br>'; var_dump($ret);
+        $myarray=json_decode($ret); 
+        echo '<br> ln1439 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
+    }
+    //BMH 2023-01-23 added code for when Australia Post is down //BMH bof
+    $edata = curl_exec($crl);   //  echo '<br> ln1442 $edata= ' . $edata; //BMH DEBUG
+    $errtext = curl_error($crl);  //echo '<br> ln1443 $errtext= ' . $errtext; //BMH DEBUG
+    $errnum = curl_errno($crl);   //echo '<br> ln1444 $errnum= ' . $errnum; //BMH DEBUG
+    $commInfo = curl_getinfo($crl);   //echo '<br> ln1445 $commInfo= ' . $commInfo; //BMH DEBUG
+    if ($edata === "Access denied") {
+        $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>support@bmh.com.au  ";
+    }
+    //BMH eof 
+    if(!$ret){
+        die('<br>Error: "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) . 
+            ' <br>Major Fault - Cannot contact Australia Post . 
+                Please report this error to System Owner. Then try the back button on you browser.');
+    }
+    
+    curl_close($crl);
+    return $ret;
+    }
+    // end auspost API
+
+    
+    function _handling($details,$currencies,$add,$aus_rate,$info)
+    {
+        if  (MODULE_SHIPPING_AUPOST_HIDE_HANDLING !='Yes') {
+            $details = ' (Inc ' . $currencies->format($add / $aus_rate ). ' Packaging &amp; Handling';  // Abbreviated Includes to Inc for space saving in final quote format
+            
+            if ($info > 0)  {
+            $details = $details." +$".$info." fee)." ;
+            }
+            else {
+                $details = $details.")" ;
+            }
+        }
+        return $details;
+    }
+    
+
 }  // end class
 

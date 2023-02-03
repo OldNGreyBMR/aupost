@@ -1,7 +1,7 @@
 <?php
 /*
- $Id:   aupost.php,v2.5.2 Feb 2023
-        V2.5.2 zc158 PHP8.2
+ $Id:   aupost.php,v2.5.1 Jan 2023
+        V2.5.1
 
   BMH 2022-02-13    line 23 declare constants
                     line 154 abort if NOT AU address
@@ -38,7 +38,6 @@
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post 
 define('BMHDEBUG2','No'); // No or Yes // BMH 3nd level debug to display all returned XML data from Aus Post 
-define('USE_CACHE','No');     // BMH disable cache // set to 'No' for testing; 
 // **********************
 
 //BMH declare constants
@@ -79,33 +78,32 @@ $lettersize = 0; //set flag for letters
 class aupost extends base
 {
 
-    public $allowed_methods;    //
-    public $allowed_methods_l;  //
-    public $FlatText;           //
-    public $aus_rate;           //
-    public $_check;              //
-    public $code;               // Declare shipping module alias code
-    public $description;        // Shipping module display description
-    public $dest_country;       // destination country
-    public $dim_query;          //
-    public $dims;               //
-    public $enabled;            // Shipping module status
-    public $frompcode;          // source post code
-    public $icon;               // Shipping module icon filename/path
-    public $logo;               // au post logo
-    public $myarray = [];       //
-    public $myorder;            // 
-    public $ordervalue;         // value of order
-    public $producttitle;       //
-    public $quotes =[];         //
-    public $sort_order;         // sort order for quotes options
-    public $tax_basis;          //
-    public $tax_class;          //
-    public $testmethod;         //
-    public $title;              //
-    public $topcode;            //
-    public $usemod;             //
-    public $usetitle;           //
+    public $aus_rate;
+    public $code;
+    public $description;
+    public $dest_country;
+    public $dim_query;
+    public $dims;
+    public $enabled;
+    public $frompcode;
+    public $FlatText;
+    public $icon; 
+    public $logo;
+    public $myorder;
+    public $ordervalue;
+    public $producttitle;
+    public $quotes =[];
+    public $tax_class;
+    public $testmethod;
+    public $title;
+    public $usemod;
+    public $usetitle;
+    public $topcode;
+    
+    
+    
+    
+    
 
     public function __construct()
     {
@@ -144,6 +142,7 @@ class aupost extends base
     // class methods
     //////////////////////////////////////////////////////////////
 // // functions
+
 
     public function quote($method = '')
     {
@@ -285,8 +284,9 @@ class aupost extends base
         
         // BMH Only proceed for AU addresses
         if ($dest_country != "AU") {  
-           //BMH There are no quotes 
-           return;  //BMH  exit as overseas post is a separate module
+            echo '<br> ln280 aupost.php dest country <> AU quotes= '; print_r($quotes); //BMH DEBUG 
+           // return $this->quotes ;     // BMH exit if NOT AU
+           return;  //BMH DEBUG // completely disable if overseas as that is a separate module
         } 
          
         $FlatText = " Using AusPost Flat Rate." ;
@@ -697,31 +697,29 @@ class aupost extends base
         }  // exceeds AustPost maximum weight. No point in continuing.
 
         // Check to see if cache is useful
-         if (USE_CACHE == "Yes") {   //BMH DEBUG disable cache for testing
-            if(isset($_SESSION['aupostParcel']))
+        if(isset($_SESSION['aupostParcel']))
+        {
+            $test = explode(",", $_SESSION['aupostParcel']) ;
+
+            if (
+                ($test[0] == $dest_country) &&
+                ($test[1] == $topcode) &&
+                ($test[2] == $parcelwidth) &&
+                ($test[3] == $parcelheight) &&
+                ($test[4] == $parcellength) &&
+                ($test[5] == $parcelweight) &&
+                ($test[6] == $ordervalue)
+               )
             {
-                $test = explode(",", $_SESSION['aupostParcel']) ;
+                if (MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) {
+                    echo "<center><table border=1 width=95% ><td align=center><font color=\"#FF0000\">Using Cached quotes </font></td></table></center>" ;
+                }
 
-                if (
-                    ($test[0] == $dest_country) &&
-                    ($test[1] == $topcode) &&
-                    ($test[2] == $parcelwidth) &&
-                    ($test[3] == $parcelheight) &&
-                    ($test[4] == $parcellength) &&
-                    ($test[5] == $parcelweight) &&
-                    ($test[6] == $ordervalue)
-                   )
-                {
-                    if (MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) {
-                        echo "<center><table border=1 width=95% ><td align=center><font color=\"#FF0000\">Using Cached quotes </font></td></table></center>" ;
-                    }
-
-                    $this->quotes =  isset($_SESSION['aupostQuotes']) ;  //BMH
-                    return $this->quotes ;
-                    ///////////////////////////////////  Cache Exit Point //////////////////////////////////
-                } // No cache match -  get new quote from server //
-            }  // No cache session -  get new quote from server //
-        } // end cacheh option //BMH DEBUG 
+                $this->quotes =  isset($_SESSION['aupostQuotes']) ;  //BMH
+                return $this->quotes ;
+                ///////////////////////////////////  Cache Exit Point //////////////////////////////////
+            } // No cache match -  get new quote from server //
+        }  // No cache session -  get new quote from server //
         ///////////////////////////////////////////////////////////////////////////////////////////////
 
         // always save new session  CSV //
@@ -1255,7 +1253,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         
     return $result_secondary_options;
     } // eof function _get_secondary_options //
-//// // BMH _get_secondary_options
+// // // BMH _get_secondary_options
     
     // // // 
     function _get_error_cost($dest_country) 
@@ -1274,73 +1272,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         return $cost;
     }
     
-
-    
-// // // extra functions
-    //// auspost API
-    function get_auspost_api($url)
-    {
-        If (AUPOST_MODE == 'Test') {
-            $aupost_url_apiKey = AUPOST_TESTMODE_AUTHKEY;
-            }
-            else {
-            $aupost_url_apiKey = MODULE_SHIPPING_AUPOST_AUTHKEY;
-            }
-        if (BMHDEBUG2 == "Yes") {
-            // echo '<br> ln1129 get_auspost_api $url= ' . $url;
-            // echo '<br> ln1130 $aupost_url_apiKey= ' . $aupost_url_apiKey;
-        }
-    $crl = curl_init();
-    $timeout = 5;
-    // BMH changed to allow test key
-    curl_setopt ($crl, CURLOPT_HTTPHEADER, array('AUTH-KEY:' . $aupost_url_apiKey)); // BMH new
-    curl_setopt ($crl, CURLOPT_URL, $url);
-    curl_setopt ($crl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt ($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
-    $ret = curl_exec($crl);
-    // Check the response: if the body is empty then an error occurred
-    if (BMHDEBUG2 == "Yes") {
-        echo '<br> ln1437 $ret= ' . $ret . '<br>'; var_dump($ret);
-        $myarray=json_decode($ret); 
-        echo '<br> ln1439 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
-    }
-    //BMH 2023-01-23 added code for when Australia Post is down //BMH bof
-    $edata = curl_exec($crl);   //  echo '<br> ln1442 $edata= ' . $edata; //BMH DEBUG
-    $errtext = curl_error($crl);  //echo '<br> ln1443 $errtext= ' . $errtext; //BMH DEBUG
-    $errnum = curl_errno($crl);   //echo '<br> ln1444 $errnum= ' . $errnum; //BMH DEBUG
-    $commInfo = curl_getinfo($crl);   //echo '<br> ln1445 $commInfo= ' . $commInfo; //BMH DEBUG
-    if ($edata === "Access denied") {
-        $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>support@bmh.com.au  ";
-    }
-    //BMH eof 
-    if(!$ret){
-        die('<br>Error: "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) . 
-            ' <br>Major Fault - Cannot contact Australia Post . 
-                Please report this error to System Owner. Then try the back button on you browser.');
-    }
-    
-    curl_close($crl);
-    return $ret;
-    }
-    // end auspost API
-
-    
-    function _handling($details,$currencies,$add,$aus_rate,$info)
-    {
-        if  (MODULE_SHIPPING_AUPOST_HIDE_HANDLING !='Yes') {
-            $details = ' (Inc ' . $currencies->format($add / $aus_rate ). ' P &amp; H';  // Abbreviated Includes to Inc for space saving in final quote format
-            
-            if ($info > 0)  {
-            $details = $details." +$".$info." fee)." ;
-            }
-            else {
-                $details = $details.")" ;
-            }
-        }
-        return $details;
-    }
-    
-    ////  ////
+    //  //  ////////////////////////////////////////////////////////////
     // BMH - parts for admin module 
     function check()
     {
@@ -1352,7 +1284,7 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         return $this->_check;
     }
     
-    ////  bof install and setup      /////
+    //  //  ////////////////////////////////////////////////////////////////////////
     function install()
     {
         global $db;
@@ -1490,6 +1422,71 @@ function _get_secondary_options( $allowed_option, $ordervalue, $MINVALUEEXTRACOV
         );
     }
     
-    //// eof install and setup
+    
+// // // extra functions
+    //// auspost API
+    function get_auspost_api($url)
+    {
+        If (AUPOST_MODE == 'Test') {
+            $aupost_url_apiKey = AUPOST_TESTMODE_AUTHKEY;
+            }
+            else {
+            $aupost_url_apiKey = MODULE_SHIPPING_AUPOST_AUTHKEY;
+            }
+        if (BMHDEBUG2 == "Yes") {
+            // echo '<br> ln1129 get_auspost_api $url= ' . $url;
+            // echo '<br> ln1130 $aupost_url_apiKey= ' . $aupost_url_apiKey;
+        }
+    $crl = curl_init();
+    $timeout = 5;
+    // BMH changed to allow test key
+    curl_setopt ($crl, CURLOPT_HTTPHEADER, array('AUTH-KEY:' . $aupost_url_apiKey)); // BMH new
+    curl_setopt ($crl, CURLOPT_URL, $url);
+    curl_setopt ($crl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt ($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
+    $ret = curl_exec($crl);
+    // Check the response: if the body is empty then an error occurred
+    if (BMHDEBUG2 == "Yes") {
+        echo '<br> ln1437 $ret= ' . $ret . '<br>'; var_dump($ret);
+        $myarray=json_decode($ret); 
+        echo '<br> ln1439 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
+    }
+    //BMH 2023-01-23 added code for when Australia Post is down //BMH bof
+    $edata = curl_exec($crl);   //  echo '<br> ln1442 $edata= ' . $edata; //BMH DEBUG
+    $errtext = curl_error($crl);  //echo '<br> ln1443 $errtext= ' . $errtext; //BMH DEBUG
+    $errnum = curl_errno($crl);   //echo '<br> ln1444 $errnum= ' . $errnum; //BMH DEBUG
+    $commInfo = curl_getinfo($crl);   //echo '<br> ln1445 $commInfo= ' . $commInfo; //BMH DEBUG
+    if ($edata === "Access denied") {
+        $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>support@bmh.com.au  ";
+    }
+    //BMH eof 
+    if(!$ret){
+        die('<br>Error: "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) . 
+            ' <br>Major Fault - Cannot contact Australia Post . 
+                Please report this error to System Owner. Then try the back button on you browser.');
+    }
+    
+    curl_close($crl);
+    return $ret;
+    }
+    // end auspost API
+
+    
+    function _handling($details,$currencies,$add,$aus_rate,$info)
+    {
+        if  (MODULE_SHIPPING_AUPOST_HIDE_HANDLING !='Yes') {
+            $details = ' (Inc ' . $currencies->format($add / $aus_rate ). ' Packaging &amp; Handling';  // Abbreviated Includes to Inc for space saving in final quote format
+            
+            if ($info > 0)  {
+            $details = $details." +$".$info." fee)." ;
+            }
+            else {
+                $details = $details.")" ;
+            }
+        }
+        return $details;
+    }
+    
+
 }  // end class
 
