@@ -1,5 +1,21 @@
 CHANGELOG
-Australia Post Shipping Module 2.5.3
+=========
+Australia Post Shipping Module 2.5.5
+
+Version 2.5.5 22 Mar 2023:
+---------------------------
+- removed hard coded values for returned methods
+- better allows for potential malformed entries when postage options changed multiple times. This is inherent intermittent Zen Cart issue.
+- icons to be in template folder. Corrected format in retrurned array.
+____________________________________
+
+Australia Post Shipping Module 2.5.4
+Version 2.5.4 21 Feb 2023:
+___________________________________
+Files changed in 2.5.4
+- included version number
+- handling fee not included on all base options for overseas
+
 ------------------------------------
 Version 2.5.3 14 Feb 2023:
 ___________________________________

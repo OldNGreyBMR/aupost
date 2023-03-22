@@ -8,6 +8,7 @@ $define = [
     'MODULE_SHIPPING_OVERSEASAUPOST_ICONS' => '',
     'MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL' => '',
     'MODULE_SHIPPING_OVERSEASAUPOST_TEXT_INVALID_COUNTRY' => 'Invalid destination Country - Not allowed to send parcel here.',
+    'MSGNOTRACKING' =>  '<b> (No tracking) </b>',         // label append // emphasis to minimise complaints
 ];
 
 return $define;
