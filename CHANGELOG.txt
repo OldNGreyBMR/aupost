@@ -1,12 +1,18 @@
 CHANGELOG
 =========
-Australia Post Shipping Module 2.5.5
+Australia Post Shipping Module 2.5.5-03
+
+Version 2.5.5-03 11 Apr 2023:
+---------------------------
+- Local postage girth not used anymore - Aus Post based on max vol 0.25 cubic meters
+- define MODULE_SHIPPING_AUPOST_TAX_BASIS
+- improved output formatting in debug lines
 
 Version 2.5.5 22 Mar 2023:
 ---------------------------
 - removed hard coded values for returned methods
 - better allows for potential malformed entries when postage options changed multiple times. This is inherent intermittent Zen Cart issue.
-- icons to be in template folder. Corrected format in retrurned array.
+- icons to be in template folder. Corrected format in returned array.
 ____________________________________
 
 Australia Post Shipping Module 2.5.4

@@ -40,5 +40,6 @@ A word about cubing:
 RodG OzPost author
 
 I have not been able to improve on this approach. 
-The downside is where multiple small items less than 1cm high can fit side by side and be sent via letter rate whereas when stacked they exceed the 2cm max letter size so have to be sent as a parcel. In Australia letters are not tracked while parcels are.
+The downside is where multiple small items less than 1cm high can fit side by side and be sent via letter rate whereas when stacked 
+they exceed the 2cm max letter size so have to be sent as a parcel. In Australia letters are not tracked while parcels are.
 OldNGrey 2023

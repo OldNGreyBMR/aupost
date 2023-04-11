@@ -3,12 +3,13 @@
 ----------------------------------
 Australia Post Shipping Module 2.5.5
 ----------------------------------
-Updated: 2 Mar 2023 by browe BMH
-Updated: 21 Feb 2023 by browe BMH
-Updated: 14 Feb 2023 by browe BMH
-Updated: 22 October 2022 by browe BMH
-Updated: 09 August 2022 by browe BMH
-Updated: 31 July 2022 by browe BMH
+Updated: 11 Apr 2023 by OldNGrey BMH
+Updated: 2 Mar 2023 by OldNGrey BMH
+Updated: 21 Feb 2023 by OldNGrey BMH
+Updated: 14 Feb 2023 by OldNGrey BMH
+Updated: 22 October 2022 by OldNGrey BMH
+Updated: 09 August 2022 by OldNGrey BMH
+Updated: 31 July 2022 by OldNGrey BMH
 Updated: 08 June 2018 by millsii
 Updated: 19 April 2018 by http://www.avantmarketing.com.au
 Updated: 02 November 2016 by foobic
@@ -85,7 +86,7 @@ Installation:
 ======
 To use this Zen Cart plugin for calculating postage with Australia Post you 
 need to have made the following customisation to Zen Cart.
-The products table must include the following fields:
+The products table SHOULD include the following fields:
  products_width (included by default in Zen Cart)
  products_length
  products_height
@@ -96,7 +97,8 @@ The products table must include the following fields:
  These fields must have valid values to calculate the postage charges correctly. 
  Dimensions should be in cm, weight should be in grams (gms).
  If you have used the OzPpost postage calculator previously you will have these 
- fields. The default values are 10cm x 10cm x 2cm which will be a small parcel.
+ fields. If you do not add the extra fields and populate their values the module will use default values.
+ The default values are 10cm x 10cm x 2cm which will be a small parcel.
  
 2 Australia Post Account
 =======================
