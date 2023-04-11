@@ -1,7 +1,7 @@
 <?php
 /*
- $Id:   overseasaupost.php,v2.5.5.01 Mar 2023
-        V2.5.5.01 zen cart 158 php8.2
+ $Id:   overseasaupost.php,v2.5.5.02 Apr 2023
+        V2.5.5.02 zen cart 158 php8.2
   BMH 2022-01-30   Line 26    define  MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL
                     line 144   process only international destinations
                     line 488   correct URL for AusPost API
@@ -32,6 +32,7 @@
         2023-02-22  php8.2 strict types string() on objects
         2023-03-12  moved MSGNOTRACKING to lang file
         2023-03-22  replace all hard coded options with str_replace("_", "", and vars to ensure all undescores are removed
+        2023-04-11  define MODULE_SHIPPING_AUPOST_TAX_BASIS
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');          // BMH 2nd level debug to display all returned data from Aus Post
@@ -49,7 +50,9 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_SORT_ORDER')) { define('MODULE_SHIP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_ICONS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_ICONS',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.01'); }
+if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
+
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.02'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
