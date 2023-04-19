@@ -11,9 +11,9 @@ Updated: 22 October 2022 by OldNGrey BMH
 Updated: 09 August 2022 by OldNGrey BMH
 Updated: 31 July 2022 by OldNGrey BMH
 Updated: 08 June 2018 by millsii
-Updated: 19 April 2018 by http://www.avantmarketing.com.au
+Updated: 19 April 2018 by avantmarketing.com.au
 Updated: 02 November 2016 by foobic
-Updated: 14 March 2013 by http://www.avantmarketing.com.au
+Updated: 14 March 2013 by avantmarketing.com.au
 Original Copyright (c) 2007-2009 Rod Gasson / VCSWEB
 
 This version tested on Zen Cart version 1.5.8, 1.5.8a and PHP 7.4, 8.0, 8.1, 8.2; 
