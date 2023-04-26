@@ -1,12 +1,13 @@
 <?php
 /*
- $Id:   aupost.php,v2.5.5.03 Apr 2023
-        V2.5.5.03
+ $Id:   aupost.php,v2.5.5.04 Apr 2023
+        V2.5.5.04
 $edited by OldNGrey BMH
 
     2023-04-11  Local postage girth not used anymore - Aus Post based on max vol 0.25 cubic meters
                 improved output formatting in debug lines
                 define MODULE_SHIPPING_AUPOST_TAX_BASIS
+    2023-04-26  ln606 masked off extra debug lines
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug to display all returned data from Aus Post
@@ -26,7 +27,7 @@ if (!defined('MODULE_SHIPPING_AUPOST_STATUS')) { define('MODULE_SHIPPING_AUPOST_
 if (!defined('MODULE_SHIPPING_AUPOST_SORT_ORDER')) { define('MODULE_SHIPPING_AUPOST_SORT_ORDER',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_ICONS')) { define('MODULE_SHIPPING_AUPOST_ICONS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_AUPOST_TAX_BASIS', 'Shipping');}
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.5.03');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.5.04');}
 
 // +++++++++++++++++++++++++++++
 define('AUPOST_MODE','Test'); //Test OR PROD // Test uses test URL and Test Authkey; PROD uses the key input via the admin shipping modules panel for "Australia Post"
@@ -603,8 +604,8 @@ class aupost extends base
                     // GST (tax) included in all prices in Aust
                     if (($dest_country == "AU") && (($this->tax_class) > 0)) {
                         // BMH $t = $cost - ($cost / (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id'])+1)) ; // BMHDEBUG
-                        echo '<br> ln635 $cost = ' . $cost; //BMH DEBUG
-                        echo '<br> ln635 (zen_get_tax_rate($this->tax_class, $order->delivery[\'country\'][\'id\'], $order->delivery[\'zone_id\'])+1 = ' .
+                        //echo '<br> ln635 $cost = ' . $cost; //BMH DEBUG
+                       // echo '<br> ln635 (zen_get_tax_rate($this->tax_class, $order->delivery[\'country\'][\'id\'], $order->delivery[\'zone_id\'])+1 = ' .
                         (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id'])+1); //BMH DEBUG
                         $t = $cost - ($cost / (zen_get_tax_rate($this->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']))) ;
                         if ($t > 0) $cost = $t ;
