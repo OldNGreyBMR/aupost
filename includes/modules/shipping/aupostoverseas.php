@@ -1,23 +1,8 @@
 <?php
 /*
- $Id:   overseasaupost.php,v2.5.5.02 Apr 2023
-        V2.5.5.02 zen cart 158 php8.2
-  BMH 2022-01-30   Line 26    define  MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL
-                    line 144   process only international destinations
-                    line 488   correct URL for AusPost API
-  BMH 2022-04-01  line 196    Undefined array key "products_weight"
-                    line 405    changed logic for debug so invalid options are not included in final list
-                    separated out 2nd level debug WITH Constant BMHDEBUG_INT1
-        2022-07-22  BMHDEBUG_INT1 and BMHDEBUG_INT2
-        2022-07-30  formatting
-                    reset quotes['id'] as it is required by shipping.php but not used anywhere else
-                    Economy Air quoted fro AP has a bug that does not allow extra cover
-                    Added check for min insurance cover
-                    Included Courier ins
-        2022-08-16  Version 2.5 runs on Zen Cart 158
-                    rearrange logic for PHP8.1
-                    allowed for invalid country destination
-        2022-09-05  check for missing authkey
+ $Id:   overseasaupost.php,v2.5.5.03 Apr 2023
+        V2.5.5.03 zen cart 158 php8.2       // update ln40 as well
+
         2023-02-01  define all class variables
                     data load select all options and make handling fee 2.00 on all, show handling fees
                     Error msg and error handling when Australia Post servers are down
@@ -33,13 +18,13 @@
         2023-03-12  moved MSGNOTRACKING to lang file
         2023-03-22  replace all hard coded options with str_replace("_", "", and vars to ensure all undescores are removed
         2023-04-11  define MODULE_SHIPPING_AUPOST_TAX_BASIS
+        2023-09-17  ln162 quotes 'id'
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');          // BMH 2nd level debug to display all returned data from Aus Post
 define('BMHDEBUG_INT2','No');          // BMH 3rd level debug to display all returned data from Aus Post
 define('USE_CACHE_INT','No');           // BMH disable cache // set to 'No' for testing;
 define('MINEXTRACOVER_OVERIDE','Yes');  // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER // Used for testing.
-////
 
 //BMH declare constants
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } //
@@ -52,14 +37,14 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.02'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.03'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
-if (!defined('AUPOST_TESTMODE_AUTHKEY')) { define('AUPOST_TESTMODE_AUTHKEY','28744ed5982391881611cca6cf5c240') ;} // DO NOT CHANGE
-if (!defined('AUPOST_URL_TEST')) {define('AUPOST_URL_TEST','test.npe.auspost.com.au'); }                                               // No longer used - leave as prod url
-if (!defined('AUPOST_URL_PROD')) { define('AUPOST_URL_PROD','digitalapi.auspost.com.au'); }                                            // Aus Post URL
-if (!defined('PARCEL_INT_URL_STRING')) { define('PARCEL_INT_URL_STRING','/postage/parcel/international/service.xml?');}                // Aust Post URI api what services are avail for destination
+if (!defined('AUPOST_TESTMODE_AUTHKEY')) { define('AUPOST_TESTMODE_AUTHKEY','28744ed5982391881611cca6cf5c240') ;}   // DO NOT CHANGE
+if (!defined('AUPOST_URL_TEST')) {define('AUPOST_URL_TEST','test.npe.auspost.com.au'); }                                  // No longer used - leave as prod url
+if (!defined('AUPOST_URL_PROD')) { define('AUPOST_URL_PROD','digitalapi.auspost.com.au'); }                                // Aus Post URL
+if (!defined('PARCEL_INT_URL_STRING')) { define('PARCEL_INT_URL_STRING','/postage/parcel/international/service.xml?');}    // Aust Post URI api what services are avail for destination
 if (!defined('PARCEL_INT_URL_STRING_CALC')) { define('PARCEL_INT_URL_STRING_CALC','/postage/parcel/international/calculate.xml?'); }   // Aust Post URI api calc charges for each type
 
 
@@ -69,11 +54,11 @@ $aupost_url_string = AUPOST_URL_PROD ;
 
 $lettersize = 0; //set flag for letters
 
-  if (BMHDEBUG_INT2 == "Yes") {  // outputs on admin | modules | shipping page
+    if (BMHDEBUG_INT2 == "Yes") {  // outputs on admin | modules | shipping page
     // echo ' <br>ln63 MODE= ' . AUPOST_MODE . ' //$aupost_url_string = ' .$aupost_url_string . ' aupost_url_apiKey= ' . $aupost_url_apiKey ;
     }
 
-  if (BMHDEBUG_INT2 == "Yes") { // outputs on admin | modules | shipping page
+    if (BMHDEBUG_INT2 == "Yes") { // outputs on admin | modules | shipping page
        //  echo '<br>line67 MODE= ' . AUPOST_MODE . ' aupost_url_apiKey= ' . $aupost_url_apiKey ;
     }
 
@@ -106,7 +91,6 @@ class aupostoverseas extends base
     public $usemod;             //
     public $usetitle;           //
     public $_check;             //
-
 
     function __construct()
     {
@@ -159,20 +143,20 @@ class aupostoverseas extends base
         }
 
         //  Initialise our quote array(s)  // quotes['id'] required in includes/classes/shipping.php
-
-        $this->quotes = ['id' => $this->code, 'module' => $this->title];
-            $methods = [] ;
-            $this->quotes = [
-                'id' => $this->code,
-                'module' => $usemod,
-                'methods' => [
-                    [
-                    'id' => $method,
-                    'title' => $usetitle,
-                    'cost' =>  $temp['cost']
-                    ]
-                ]
-            ];
+        // reset quotes['id'] as it is mandatory for shipping.php but not used anywhere else
+        // $this->quotes = ['id' => $this->code, 'module' => $this->title];
+        $methods = [] ;
+        $this->quotes = [
+            'id' => $this->code,
+            'module' => $usemod,
+            'methods' => [
+             [
+             'id' => $method,
+             'title' => $usetitle,
+             'cost' =>  $temp['cost']
+             ]
+            ]
+        ];
 
 
             if ($this->tax_class_int >  0) {
