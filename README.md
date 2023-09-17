@@ -3,6 +3,7 @@
 ----------------------------------
 Australia Post Shipping Module 2.5.5
 ----------------------------------
+Updated: 17 Sep 2023 by OldNGrey BMH
 Updated: 11 Apr 2023 by OldNGrey BMH
 Updated: 2 Mar 2023 by OldNGrey BMH
 Updated: 21 Feb 2023 by OldNGrey BMH
@@ -11,9 +12,9 @@ Updated: 22 October 2022 by OldNGrey BMH
 Updated: 09 August 2022 by OldNGrey BMH
 Updated: 31 July 2022 by OldNGrey BMH
 Updated: 08 June 2018 by millsii
-Updated: 19 April 2018 by avantmarketing.com.au
+Updated: 19 April 2018 by http://www.avantmarketing.com.au
 Updated: 02 November 2016 by foobic
-Updated: 14 March 2013 by avantmarketing.com.au
+Updated: 14 March 2013 by http://www.avantmarketing.com.au
 Original Copyright (c) 2007-2009 Rod Gasson / VCSWEB
 
 This version tested on Zen Cart version 1.5.8, 1.5.8a and PHP 7.4, 8.0, 8.1, 8.2; 
@@ -84,21 +85,20 @@ Installation:
 -------------
 1 Data
 ======
-To use this Zen Cart plugin for calculating postage with Australia Post you 
-need to have made the following customisation to Zen Cart.
-The products table SHOULD include the following fields:
- products_width (included by default in Zen Cart)
- products_length
- products_height
- products_width.
- 
- The latter three fields can be added by installing the "Numinix Product Fields" 
- add on and adding the predefined custom group "products_dimensions".
- These fields must have valid values to calculate the postage charges correctly. 
- Dimensions should be in cm, weight should be in grams (gms).
- If you have used the OzPpost postage calculator previously you will have these 
- fields. If you do not add the extra fields and populate their values the module will use default values.
- The default values are 10cm x 10cm x 2cm which will be a small parcel.
+To obtain really accurate postage quotes directly from Australia Post the following fields are preferred. The module will still return quotations if dimensions are not provided.
+
+To use this Zen Cart plugin for calculating postage with Australia Post IT IS PREFERRED that you 
+have made the following customisation to Zen Cart.
+	The products table SHOULD include the following fields:
+		products_width (included by default in Zen Cart)
+		products_length
+		products_height.
+	
+	The latter three fields can be added by installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
+	Dimensions should be in cm, weight should be in grams (gms).
+	If you have used the OzPpost postage calculator previously you will have these 
+	fields. If you do not add the extra fields and populate their values the module will use default values.
+	The default values are 10cm x 10cm x 2cm which will be a small parcel.
  
 2 Australia Post Account
 =======================
@@ -110,11 +110,13 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
 3.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
 3.2 Upload the 'includes' folder to the root folder of your Zen Cart store.
 3.3 A CSS file is uploaded to \includes\templates\template_default\css\. A new icon file is uploaded \includes\templates\template_default\images\icons. 
-        Upload the icons folder and the css folder to the template use don you site.
+        Upload the icons folder and the css folder to the template used on your site.
 3.4 In Admin go to: modules > shipping > Australia Post > click install
 3.5 Under 'Auspost API Key', enter your 36 digit API key.
 3.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
 3.7 Scroll down and click 'update'.
+
+If you have a previous version of the module installed, uninstall the existing version then reinstall.
 
 Congratulations! You have now successfully installed the Australia Post Shipping Module.
 
@@ -122,8 +124,7 @@ Congratulations! You have now successfully installed the Australia Post Shipping
 =========================
 4.1 Select the postage options you wish to offer to cuctomers.
 4.2 Add handling fees if you factor in costs for material and packaging.
-4.3 Cost on error is the default if a valid postage rate is not returned or the Australia Post servers cannot be reached. I recommend an amount 
-        large enough to cover most postage and that will be obvious eg 99.99.
+4.3 Cost on error is the default if a valid postage rate is not returned or the Australia Post servers cannot be reached. I recommend an amount large enough to cover most postage and that will be obvious eg 99.99.
 4.4 The Tare percent allows for weight of packaging etc when requesting postage rates. The default is 10.
 
 5   Configuration - Australia Post International

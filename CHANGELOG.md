@@ -1,6 +1,13 @@
 CHANGELOG
 =========
-Australia Post Shipping Module 2.5.5-03
+Australia Post Shipping Module 2.5.5-05 + AusPost Overseas Shipping Module 2.5.5-03
+
+Version 2.5.5-05 17 Sep 2023:
+---------------------------
+- Corrected error that let smallest satchel through when satchels are not included in Admin config settings
+- double checked tax inclusions
+- checked for and excluded some redundant returned codes returned by AustPost
+
 
 Version 2.5.5-03 11 Apr 2023:
 ---------------------------
