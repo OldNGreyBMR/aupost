@@ -1,7 +1,7 @@
 <?php
 /*
- $Id:   aupost.php,v2.5.5.05 Sep 2023
-        V2.5.5.05  // update ln40 as well
+ $Id:   aupost.php,v2.5.5.07 Sep 2023
+        V2.5.5.07  // update ln43 as well
 
     2023-01-23  ln708 1444 Error msg and error handling when Australia Post servers are down
     2023-01-25  ln109-115 define more public vars
@@ -19,6 +19,8 @@
     2023-09-12  v-.05; consolidated handling fees to submodule; all registered post references removes as this option is only available over the counter
     2023-09-17  if no dimensions for an item are provided, letters are not returned as an option. Too difficult to calulate.
                 rechecked redundant codes eg 500g satchels are not evaulated. Austpost is again returning redundant codes.
+    2023-09-29  ln743 added dims sent to debug table display
+    2023-10-16  ln919 added AUSPARCELREGULAR
 
 */
 // BMHDEBUG switches
@@ -39,7 +41,7 @@ if (!defined('MODULE_SHIPPING_AUPOST_STATUS')) { define('MODULE_SHIPPING_AUPOST_
 if (!defined('MODULE_SHIPPING_AUPOST_SORT_ORDER')) { define('MODULE_SHIPPING_AUPOST_SORT_ORDER',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_ICONS')) { define('MODULE_SHIPPING_AUPOST_ICONS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_AUPOST_TAX_BASIS', 'Shipping');}
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.5.05');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.5.07');}
 
 // +++++++++++++++++++++++++++++
 define('AUPOST_MODE','Test'); //Test OR PROD    // Test uses test URL and Test Authkey;
@@ -739,8 +741,12 @@ class aupost extends base
             //$aupost_url_string = AUPOST_URL_TEST ; Aus Post say to use production servers (2022)
             $aupost_url_apiKey = AUPOST_TESTMODE_AUTHKEY;
         }
+        if (MODULE_SHIPPING_AUPOST_DEBUG == "Yes") {
+            echo "<center> <table class=\"aupost-debug-table\" border=1>
+            <tr> <th colspan=2> Pasrcel dims sent </th> <td colspan=6> Length sent=$parcellength; Width sent=$parcelwidth; Height sent=$parcelheight; </td> </tr>  </table></center> ";
+        }
         if (MODULE_SHIPPING_AUPOST_DEBUG == "Yes" && BMHDEBUG1 == "Yes") {
-            echo '<p class="aupost-debug"> <br>parcels ***<br>aupost ln775 ' .'https://' . $aupost_url_string . PARCEL_URL_STRING . MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight" . '</p>';
+            echo '<p class="aupost-debug"> <br>parcels ***<br>aupost ln743 ' .'https://' . $aupost_url_string . PARCEL_URL_STRING . MODULE_SHIPPING_AUPOST_SPCODE . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight" . '</p>';
         }
         //// ++++++++++++++++++++++++++++++
         // get parcel api';
@@ -749,17 +755,17 @@ class aupost extends base
         // // +++++++++++++++++++++++++++++
 
         if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG2 == "Yes")) {
-            echo "<table class='aupost-debug'><tr><td><b>auPost - Server Returned BMHDEBUG2 ln784:</b><br>" . $qu . "</td></tr></table> " ;
+            echo "<table class='aupost-debug'><tr><td><b>auPost - Server Returned BMHDEBUG2 ln757:</b><br>" . $qu . "</td></tr></table> " ;
         }  //eof debug
 
         // Check for returned quote is really an error message
         //
             if(str_starts_with($qu, "{" )) {
-            $myerrorarray=json_decode($qu); echo '<br> ln792 ';  //BMH
+            $myerrorarray=json_decode($qu); echo '<br> ln758 ';  //BMH
             print_r($myerrorarray);
-            echo '<br> ln794 myerrorarray[status] = ' . $myerrorarray[status];
+            echo '<br> ln760 myerrorarray[status] = ' . $myerrorarray[status];
             $myerrorarray=json_decode($qu);
-            echo '<br> ln796 $myerrorarray ='; print_r($myerrorarray);
+            echo '<br> ln762 $myerrorarray ='; print_r($myerrorarray);
                 if ($myerrorarray[status] = "Failed") {
                 //echo '<br> ln798 $myerrorarray[status] ' . $myerrorarray['status'] . ' ';
                 // echo '<br> Australia Post connection FAILED. Please report error ' .
@@ -772,7 +778,7 @@ class aupost extends base
         $xml = ($qu == '') ? array() : new SimpleXMLElement($qu) ; // If we have any results, parse them into an array
 
         if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
-            echo "<p class='aupost-debug1' ><strong> >> Server Returned BMHDEBUG1+2 line 809 << <br> </strong> <textarea  > ";
+            echo "<p class='aupost-debug1' ><strong> >> Server Returned BMHDEBUG1+2 line 780 << <br> </strong> <textarea  > ";
             print_r($xml) ; // output api xml // BMH DEBUG
             echo "</textarea> </p>";
         }
@@ -783,7 +789,7 @@ class aupost extends base
         //  loop through the Parcel quotes retrieved //
         $i = 0 ;  // counter
         if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes"))  {
-            echo '<br> ln 819 $this->allowed_methods = '; var_dump($this->allowed_methods); // BMH ** DEBUG
+            echo '<br> ln 791 $this->allowed_methods = '; var_dump($this->allowed_methods); // BMH ** DEBUG
         }
 
         foreach($xml as $foo => $bar) {
@@ -797,7 +803,7 @@ class aupost extends base
 
             if (( MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes"))  {
                 echo "<table class='aupost-debug'><tr><td>" ;
-                echo "ln 834 ID= $id  DESC= $description COST= $cost inc" ;
+                echo "ln 805 ID= $id  DESC= $description COST= $cost inc" ;
                 echo "</td></tr></table>" ;
               } // BMH 2nd level debug each line of quote parsed
 
@@ -813,7 +819,7 @@ class aupost extends base
 
                     if (in_array("Prepaid Satchel", $this->allowed_methods,$strict = true)) {
                         if ((BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
-                            echo '<br> ln849 allowed option = prepaid satchel';
+                            echo '<br> ln821 allowed option = prepaid satchel';
                         }
                         $optioncode =""; $optionservicecode = ""; $suboptioncode = ""; $allowed_option ="";
                         $add = MODULE_SHIPPING_AUPOST_PPS_HANDLING ;
@@ -986,6 +992,7 @@ class aupost extends base
 
                 case  "AUSPARCELREGULARPACKAGESMALL";       // fall through and treat as one block
                 case  "AUSPARCELREGULARPACKAGE";            // normal mail - own packaging
+                case  "AUSPARCELREGULAR";                   // normal mail - own packaging
                     if (in_array("Regular Parcel", $this->allowed_methods,$strict = true)) {
                         if ((BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
                             echo '<br> ln995 allowed option = parcel regular';
@@ -1536,9 +1543,9 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
     $ret = curl_exec($crl);
     // Check the response: if the body is empty then an error occurred
     if (BMHDEBUG2 == "Yes") {
-        echo '<p class="aupost-debug"> <br> ln1484 $ret= ' . $ret .  '</p> ' ;// . '<br> var_dump = '; var_dump($ret);
+        echo '<p class="aupost-debug"> <br> ln1544 $ret= ' . $ret .  '</p> ' ;// . '<br> var_dump = '; var_dump($ret);
         //$myarray=json_decode($ret);
-       // echo '<br> ln1484 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
+       // echo '<br> ln1546 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
        // echo ' /p>';
 
     }
