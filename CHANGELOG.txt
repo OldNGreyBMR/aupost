@@ -1,6 +1,10 @@
 CHANGELOG
 =========
-Australia Post Shipping Module 2.5.5-05 + AusPost Overseas Shipping Module 2.5.5-03
+Australia Post Shipping Module 2.5.5-07 + AusPost Overseas Shipping Module 2.5.5-03
+
+Version 2.5.5-07 16 Oct 2023:
+---------------------------
+- Added AUSPARCELREGULAR - Aust Post have reverted to default code for large parcels
 
 Version 2.5.5-05 17 Sep 2023:
 ---------------------------
