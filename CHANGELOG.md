@@ -1,12 +1,16 @@
 CHANGELOG
 =========
 Australia Post Shipping Module 2.5.5
+Version 2.5.5.j 18 Dec 2023:
+---------------------------
+declare(strict_types=1); and correct variable types
+
 
 Version 2.5.5 22 Mar 2023:
 ---------------------------
 - removed hard coded values for returned methods
 - better allows for potential malformed entries when postage options changed multiple times. This is inherent intermittent Zen Cart issue.
-- icons to be in template folder. Corrected format in retrurned array.
+- icons to be in template folder. Corrected format in returned array.
 ____________________________________
 
 Australia Post Shipping Module 2.5.4
