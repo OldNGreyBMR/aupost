@@ -1,6 +1,12 @@
 CHANGELOG
 =========
-Australia Post Shipping Module 2.5.5-07 + AusPost Overseas Shipping Module 2.5.5-03
+Shipping Module 2.5.5j + AusPost Overseas Shipping Module 2.5.5j 20 Jan 2024
+----------------------------------------------------------------------------
+- use strict_types=1; 
+- add declared vars identified; 
+- strval used for str_replace
+- version numbering v n.n.na
+
 
 Version 2.5.5-07 16 Oct 2023:
 ---------------------------
