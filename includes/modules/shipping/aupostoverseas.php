@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
+// BMH TESTING
+//
 /*
- $Id:   overseasaupost.php,v2.5.5.03 Apr 2023
+ $Id:   overseasaupost.php,v2.5.5.j Jan 2024
         V2.5.5.03 zen cart 158 php8.2       // update ln40 as well
 
         2023-02-01  define all class variables
@@ -19,6 +22,8 @@
         2023-03-22  replace all hard coded options with str_replace("_", "", and vars to ensure all undescores are removed
         2023-04-11  define MODULE_SHIPPING_AUPOST_TAX_BASIS
         2023-09-17  ln162 quotes 'id'
+        2023-12-18 ln 2 strict_types=1; add declared vars identified
+        2024-01-18  v2.5.5.j ln430 str_replace arg 3 must be type array
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');          // BMH 2nd level debug to display all returned data from Aus Post
@@ -37,7 +42,7 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.03'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.04'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
@@ -422,11 +427,11 @@ class aupostoverseas extends base
         foreach($xml as $foo => $bar)
         {
             //BMH keep API code for label
-            $code = (string)($xml->service[$i]->code);      //BMH string
-            $code = str_replace("_", " ", (string)$code);   //
+            $code = strval(($xml->service[$i]->code));      //BMH string // BMH 2024-01-18 strval
+            $code = str_replace("_", " ", $code);   //
             $code = substr($code,11);                       //strip first 11 chars;     //BMH keep API code for label
 
-            $id = str_replace("_", "", $xml->service[$i]->code); // remove underscores from AusPost methods.
+            $id = str_replace("_", "", strval($xml->service[$i]->code)); //  BMH strval remove underscores from AusPost methods.
                                                                  // Zen Cart uses underscore as delimiter between module and method.
                                                                  // underscores must also be removed from case statements below.
             $cost = (float)($xml->service[$i]->price);
