@@ -1,5 +1,8 @@
 CHANGELOG
 =========
+Shipping Module 2.5.6 + AusPost Overseas Shipping Module 2.5.6 13 Feb 2024
+- update CODES to Exclude AP options that require purchasing additional AP packaging
+
 Shipping Module 2.5.5j + AusPost Overseas Shipping Module 2.5.5j 20 Jan 2024
 ----------------------------------------------------------------------------
 - use strict_types=1; 
