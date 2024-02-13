@@ -1,29 +1,11 @@
 <?php
-// declare(strict_types=1);
+declare(strict_types=1);
 // BMH TESTING
 //
 /*
- $Id:   overseasaupost.php,v2.5.5.j Jan 2024
-        V2.5.5.03 zen cart 158 php8.2       // update ln40 as well
+ $Id:   overseasaupost.php,v2.5.6 Feb 2024
+        V2.5.6 zen cart 158 158a  php8.2 8.3       // update ln40 as well
 
-        2023-02-01  define all class variables
-                    data load select all options and make handling fee 2.00 on all, show handling fees
-                    Error msg and error handling when Australia Post servers are down
-                    change var names to avoid clash with Aupost (local post plugin)
-                    recoding to bypass error from AustPost API where returned options for INT_PARCEL_AIR_OWN_PACKAGING do not match documentation
-                    removed $info - was support for now redundant registered post
-        2023-02-07  tax_basis //removed
-                    tax_class change to tax_class_int
-        2023-02-08  ln114 tax_basis //reinstated
-        2023-02-21  correct handling fee not included in base options
-                    include version number
-        2023-02-22  php8.2 strict types string() on objects
-        2023-03-12  moved MSGNOTRACKING to lang file
-        2023-03-22  replace all hard coded options with str_replace("_", "", and vars to ensure all undescores are removed
-        2023-04-11  define MODULE_SHIPPING_AUPOST_TAX_BASIS
-        2023-09-17  ln162 quotes 'id'
-        2023-12-18 ln 2 strict_types=1; add declared vars identified
-        2024-01-18  v2.5.5.j ln430 str_replace arg 3 must be type array
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');          // BMH 2nd level debug to display all returned data from Aus Post
@@ -42,7 +24,7 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.5.04'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.6'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
