@@ -1,6 +1,10 @@
 # aupost
  aupost zen cart Australia postage plug in
 ----------------------------------
+Australia Post Shipping Module 2.5.6
+------------------------------------
+Updated 13 Feb 2024 by OldNGrey BMH
+
 Australia Post Shipping Module 2.5.5j
 ----------------------------------
 Updated: 20 Jan 2024 by OldNGrey BMH
@@ -59,6 +63,7 @@ Prepaid Express Satchel
 Prepaid Express Satchel +sig
 Prepaid Express Satchel Insured +sig
 Prepaid Express Satchel Insured (no sig)
+It does not include AP prices that require additional AP packaging.
 
 International Delivery Options:
 ===============================
