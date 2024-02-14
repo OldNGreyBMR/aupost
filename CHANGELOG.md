@@ -1,6 +1,7 @@
 CHANGELOG
 =========
 AusPost Shipping Module 2.5.6 + AusPost Overseas Shipping Module 2.5.6 13 Feb 2024
+----------------------------------------------------------------------------------
 - update CODES to Exclude AP options that require purchasing additional AP packaging
 - correct issue #10 related to incorrect price for some parcels >500 and <1000g
 
