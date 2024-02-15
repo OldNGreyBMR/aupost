@@ -3,8 +3,9 @@ declare(strict_types=1);
 // BMH TESTING
 //
 /*
- $Id:   overseasaupost.php,v2.5.6 Feb 2024
+ $Id:   overseasaupost.php,v2.5.6.a Feb 2024
         V2.5.6 zen cart 158 158a  php8.2 8.3       // update ln40 as well
+        v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank cast $add_int to float when any operation performed
 
 */
 // BMHDEBUG switches
@@ -24,7 +25,7 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.6'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.6.a'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
@@ -443,7 +444,7 @@ class aupostoverseas extends base
                         $code_cover = 0;
 
                         if ((($cost > 0) && ($f == 1))) { //
-                            $cost = $cost + $add_int ;
+                            $cost = $cost + (float)$add_int ;
                             if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ;
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
@@ -545,7 +546,7 @@ class aupostoverseas extends base
                         $id_option = $id ;
 
                         if ((($cost > 0) && ($f == 1))) { //
-                            $cost = $cost + $add_int ;
+                            $cost = $cost + (float)$add_int ;
                             if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ;
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
@@ -632,7 +633,7 @@ class aupostoverseas extends base
                         $id_option = $id;
 
                         if ((($cost > 0) && ($f == 1))) { //
-                            $cost = $cost + $add_int ;
+                            $cost = $cost + (float)$add_int ;
                             if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ;
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
@@ -726,7 +727,7 @@ class aupostoverseas extends base
                         $code_cover = 0;
 
                         if ((($cost > 0) && ($f == 1))) { //
-                            $cost = $cost + $add_int ;
+                            $cost = $cost + (float)$add_int ;
                             if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ;
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
@@ -766,7 +767,7 @@ class aupostoverseas extends base
 
 
                         if ((($cost > 0) && ($f == 1))) { //
-                            $cost = $cost + $add_int ;
+                            $cost = $cost + (float)$add_int ;
                             if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ;
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
@@ -806,7 +807,7 @@ class aupostoverseas extends base
 
             //// bof only list valid options  ////
             if ((($cost > 0) && ($f == 1)) ) {      //
-                $cost = $cost + $add_int ;          // add handling fee
+                $cost = $cost + (float)$add_int ;          // add handling fee
                 if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  {
                     $cost = ($cost * $shipping_num_boxes) ;
                 }
@@ -996,7 +997,7 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
             $cost = $cost_option;
 
             if ((($cost > 0) && ($f == 1))) { //
-                $cost = $cost + $add_int ;
+                $cost = $cost + (float)$add_int ;
                 if ( MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT == "Yes")  $cost = ($cost * $shipping_num_boxes) ;
                 ////  ++++
                 $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
@@ -1091,7 +1092,7 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
     function _handling($details,$currencies,$add_int,$aus_rate_int)
     {
         if  (MODULE_SHIPPING_OVERSEASAUPOST_HIDE_HANDLING !='Yes') {
-            $details = ' (Inc ' . $currencies->format($add_int / $aus_rate_int ). ' P &amp; H';  // Abbreviated for space saving in final quote format
+            $details = ' (Inc ' . $currencies->format((float)$add_int / $aus_rate_int ). ' P &amp; H';  // Abbreviated for space saving in final quote format
         }
         return $details;
     }
