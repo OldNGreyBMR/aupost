@@ -2,8 +2,11 @@
 declare(strict_types=1);
 
 /*
- $Id:   aupost.php,v2.5.6 Feb 2024
-        V2.5.6 // update ln43 as well
+ $Id:   aupost.php,v2.5.6.a Feb 2024
+        V2.5.6.a // update ln43 as well
+        v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank
+        v2.5.6.b 2024-02-18 added version number to top line of debug display
+        v2.5.6.c 2024-02-29 ln162 strlen(search) to search
 
 */
 // BMHDEBUG switches
@@ -26,7 +29,7 @@ if (!defined('MODULE_SHIPPING_AUPOST_STATUS')) { define('MODULE_SHIPPING_AUPOST_
 if (!defined('MODULE_SHIPPING_AUPOST_SORT_ORDER')) { define('MODULE_SHIPPING_AUPOST_SORT_ORDER',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_ICONS')) { define('MODULE_SHIPPING_AUPOST_ICONS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_AUPOST_TAX_BASIS', 'Shipping');}
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.6');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.6.c');}
 
 // +++++++++++++++++++++++++++++
 define('AUPOST_MODE','PROD'); //Test OR PROD    // Test uses test URL and Test Authkey;
@@ -55,12 +58,12 @@ $lettersize = 0;    //set flag for letters
 
 class aupost extends base
 {
-    public $add;                // add on charges
+    public $add;                // add on charges 
     public $allowed_methods;    //
     public $allowed_methods_l;  //
     public $FlatText;           //
     public $aus_rate;           //
-    public $_check;              //
+    public $_check;             //
     public $code;               // Declare shipping module alias code
     public $description;        // Shipping module display description
     public $dest_country;       // destination country
@@ -156,7 +159,7 @@ class aupost extends base
 
             foreach($testmethod as $temp) {
                 $search = array_search("$method", $temp) ;
-                if (strlen($search) > 0 && $search >= 0) break ;
+                if (($search) > 0 && $search >= 0) break ;
             }
 
             $usemod = $this->title ;
@@ -329,7 +332,7 @@ class aupost extends base
                 $dim_query = "select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id='$producttitle' limit 1 ";
                 $name = $db->Execute($dim_query);
 
-                echo "<center><table class=\"aupost-debug-table\" border=1><th colspan=8> Debugging information ln320[aupost Flag set in Admin console | shipping | aupost]</hr>
+                echo "<center><table class=\"aupost-debug-table\" border=1><th colspan=8> Debugging information ln333 [aupost Flag set in Admin console | shipping | aupost] version:" . VERSION_AU . " </hr>
                 <tr><th>Item " . ($x + 1) . "</th><td colspan=7>" . $name->fields['products_name'] . "</td>
                 <tr><th width=15%>Attribute</th><th colspan=3>Item</th><th colspan=4>Parcel</th></tr>
                 <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . $w . "</td>
@@ -1667,6 +1670,9 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
     function _handling($details,$currencies,$add,$aus_rate,$info)
     {
         if  (MODULE_SHIPPING_AUPOST_HIDE_HANDLING !='Yes') {
+            if ( is_string($add) ) {
+                $add = (float)$add;
+            }
             $details = ' (Inc ' . $currencies->format( $add / $aus_rate ). ' P &amp; H';  // Abbreviated for space saving in final quote format
 
             if ($info > 0)  {
