@@ -1,13 +1,8 @@
 CHANGELOG
 =========
-AusPost Shipping Module 2.5.6.c + AusPost Overseas Shipping Module 2.5.6.c 07 Apr 2024
+AusPost Shipping Module 2.5.6d 16 July 2024
 --------------------------------------------------------------------------
-- correct issue #12 country code invalid
-
-AusPost Shipping Module 2.5.6.c + AusPost Overseas Shipping Module 2.5.6.b 07 Apr 2024
---------------------------------------------------------------------------
-- correct issue #10 Sometimes a customer selects small parcel option eg <500g for a parcel that is >500g and<1000. This parcel falls into the second weight category and should not return or display the cheaper option.
-Excluded AP prices where additional AP packaging is required.
+- correct issue #12 valid Australian postcodes
 
 AusPost Shipping Module 2.5.6.a + AusPost Overseas Shipping Module 2.5.6.a 15 Feb 2024
 --------------------------------------------------------------------------
