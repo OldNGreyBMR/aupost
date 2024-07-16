@@ -7,6 +7,7 @@ declare(strict_types=1);
         v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank
         v2.5.6.b 2024-02-18 added version number to top line of debug display
         v2.5.6.c 2024-02-29 ln162 strlen(search) to search
+        v2.5.6.d 2024-07-16 ln275  issue #14 Attempt to read property "code" on null; checkpost length, format, range
 
 */
 // BMHDEBUG switches
@@ -29,7 +30,7 @@ if (!defined('MODULE_SHIPPING_AUPOST_STATUS')) { define('MODULE_SHIPPING_AUPOST_
 if (!defined('MODULE_SHIPPING_AUPOST_SORT_ORDER')) { define('MODULE_SHIPPING_AUPOST_SORT_ORDER',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_ICONS')) { define('MODULE_SHIPPING_AUPOST_ICONS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_AUPOST_TAX_BASIS', 'Shipping');}
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.6.c');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.6.d');}
 
 // +++++++++++++++++++++++++++++
 define('AUPOST_MODE','PROD'); //Test OR PROD    // Test uses test URL and Test Authkey;
@@ -58,7 +59,8 @@ $lettersize = 0;    //set flag for letters
 
 class aupost extends base
 {
-    public $add;                // add on charges 
+    private $errorString;       //
+    public $add;                // add on charges
     public $allowed_methods;    //
     public $allowed_methods_l;  //
     public $FlatText;           //
@@ -266,11 +268,26 @@ class aupost extends base
         $parcel_cube = 0;  // NOT USED YET
         $shipping_num_boxes = 1; // 2023-11-18
 
-
-
         $frompcode = defined(MODULE_SHIPPING_AUPOST_SPCODE);
         $dest_country=($order->delivery['country']['iso_code_2'] ?? '');    //
         $topcode = str_replace(" ","",($order->delivery['postcode'] ?? ''));
+
+        if (preg_match("/\D/", $topcode) || //REGEXP: true if "any match for non-numeral"
+            strlen($topcode) < 4 ||         //check length is 4 chars
+            strlen($topcode) > 4
+            )
+            {
+                echo 'ERROR: incorrect postcode format = ' . $topcode;
+                return false;
+            }
+        $topcode_pattern1 ="/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/"; //REGEXP: Match Australian Post Code validation Source: https://www.etl-tools.com/regular-expressions/is-australian-post-code.html
+
+        if (!preg_match($topcode_pattern1, $topcode) ) //REGEXP: Match Australian Post Code validation Source: https://www.etl-tools.com/regular-expressions/is-australian-post-code.html
+        {
+            echo ' ERROR: incorrect postcode = ' . $topcode;
+            return false;
+        }
+
         $aus_rate = (float)$currencies->get_value('AUD') ;                  // get $AU exchange rate
         // EOF PARCELS - values
 
@@ -1636,7 +1653,7 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
     curl_setopt ($crl, CURLOPT_URL, $url);
     curl_setopt ($crl, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt ($crl, CURLOPT_CONNECTTIMEOUT, $timeout);
-    //echo '<br/> ln1647 var_dump(curl_setopt)= ';   var_dump($dump_curl); // BMH EBUG
+
     $ret = curl_exec($crl);
     // Check the response: if the body is empty then an error occurred
     if (( BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
@@ -1644,13 +1661,13 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
         //$myarray=json_decode($ret);
         //echo '<br> ln1546 $myarray= '; print_r($myarray); echo '<br> '; var_dump($ret);
         //echo ' /p>';
-
     }
+
     //BMH 2023-01-23 added code for when Australia Post is down //BMH bof
-    $edata = curl_exec($crl);     //echo '<br> ln1624 $edata= ' . $edata; //BMH DEBUG
-    $errtext = curl_error($crl);  //echo '<br> ln1488 $errtext= ' . $errtext; //BMH DEBUG
-    $errnum = curl_errno($crl);   //echo '<br> ln1489 $errnum= ' . $errnum; //BMH DEBUG
-    $commInfo = curl_getinfo($crl);   //echo '<br> ln1490 $commInfo= ' . $commInfo; //BMH DEBUG
+    $edata = curl_exec($crl);
+    $errtext = curl_error($crl);
+    $errnum = curl_errno($crl);
+    $commInfo = curl_getinfo($crl);
     if ($edata === "Access denied") {
         $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>System Owner ";
     }
@@ -1684,7 +1701,6 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
         }
         return $details;
     }
-
 
 }  // end class
 
