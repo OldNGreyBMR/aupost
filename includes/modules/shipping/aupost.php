@@ -288,6 +288,7 @@ class aupost extends base
             strlen($topcode) <> 4    )          //check length is 4 char
             {
                 //echo 'ERROR: incorrect postcode format = ' . $topcode;
+                $order->delivery['postcode'] = "";          // reset postcode
                 return false;
             }
             $topcode_pattern1 ="/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/"; //REGEXP: Match Australian Post Code validation Source: https://www.etl-tools.com/regular-expressions/is-australian-post-code.html
@@ -295,7 +296,8 @@ class aupost extends base
             if (!preg_match($topcode_pattern1, $topcode) ) //REGEXP: Match Australian Post Code validation Source: https://www.etl-tools.com/regular-expressions/is-australian-post-code.html
             {
                 // echo ' ERROR: incorrect postcode = ' . $topcode;
-                 return false;
+                $order->delivery['postcode'] = "";          // reset postcode
+                return false;
             }
         }
 
