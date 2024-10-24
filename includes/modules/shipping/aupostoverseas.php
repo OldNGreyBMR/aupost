@@ -3,11 +3,12 @@ declare(strict_types=1);
 // BMH TESTING
 //
 /*
- $Id:   overseasaupost.php,v2.5.6.a Feb 2024
+ $Id:   overseasaupost.php, v2.5.6.d Jul 2024
         V2.5.6 zen cart 158 158a  php8.2 8.3       // update ln40 as well
         v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank cast $add_int to float when any operation performed
         v2.5.6.b 2024-02-29 ln122 strlen(search) to search
         v2.5.6.c 2024-04-07 if country code selected in zc is unsupported by Aust Post - hangs with error Issue #12 https://github.com/OldNGreyBMR/aupost/issues/12
+        2.5.6.d 2024-07-18 ln111  make function quote($method = '') public
 
 */
 // BMHDEBUG switches
@@ -27,7 +28,7 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.6.c'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.6.d'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
@@ -98,9 +99,8 @@ class aupostoverseas extends base
 
         if (MODULE_SHIPPING_OVERSEASAUPOST_ICONS != "No" ) {
             $this->logo = $template->get_template_dir('aupost_logo.jpg', '','' , DIR_WS_TEMPLATE . 'images/icons'). '/aupost_logo.jpg'; //BMH
-            $this->icon = $this->logo; // set the quote icon to the logo
-
-           if (zen_not_null($this->icon)) $this->quotes['icon'] = zen_image($this->icon, $this->title); // set icon for  quotes array
+            $this->icon = $this->logo;                  // set the quote icon to the logo
+            if (zen_not_null($this->icon)) $this->quotes['icon'] = zen_image($this->icon, $this->title); //BMH
         }
       // get letter and parcel methods defined
         $this->allowed_methods = explode(", ", MODULE_SHIPPING_OVERSEASAUPOST_TYPES1) ;
@@ -108,7 +108,7 @@ class aupostoverseas extends base
 
     // class methods
     // // functions
-    function quote($method = '')
+    public function quote($method = '')
     {
         global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems;
 
@@ -1162,8 +1162,8 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
     }
 
     ////////////////////////////////////////////////////////////////////////////
-/// bof install and setup section
-function install()
+/// bof install and setup sectionpublic 
+public function install()
 {
     global $db;
 
@@ -1217,14 +1217,14 @@ function install()
     }
 }
     // // BMH removal of module in admin
-    function remove()
+    public function remove()
     {
         global $db;
         $db->Execute("delete from " . TABLE_CONFIGURATION . " where configuration_key like 'MODULE_SHIPPING_OVERSEASAUPOST_%' ");
     }
 
     //  //  // BMH order of options loaded into admin-shipping
-    function keys()
+    public function keys()
     {
         return array
         (

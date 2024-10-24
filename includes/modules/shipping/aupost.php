@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /*
- $Id:   aupost.php,v2.5.6.a Feb 2024
+ $Id:   aupost.php, v2.5.6.d Jul 2024
         V2.5.6.a // update ln43 as well
         v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank
         v2.5.6.b 2024-02-18 added version number to top line of debug display
@@ -1461,7 +1461,7 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
     //  //  ////////////////////////////////////////////////////////////
     // BMH - parts for admin module
     // Check to see if module is installed
-    function check()
+    public function check()
     {
         global $db;
         if (!isset($this->_check)) {
@@ -1472,7 +1472,7 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
     }
 
     //  //  ////////////////////////////////////////////////////////////////////////
-    function install()
+    public function install()
     {
         global $db;
         global $messageStack;
@@ -1582,13 +1582,13 @@ function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEX
     }
 
     // // BMH removal of module in admin
-    function remove()
+    public function remove()
     {
         global $db;
         $db->Execute("delete from " . TABLE_CONFIGURATION . " where configuration_key like 'MODULE_SHIPPING_AUPOST_%' ");
     }
     //  //  // BMH order of options loaded into admin-shipping
-    function keys()
+    public function keys()
     {
         return array
         (
