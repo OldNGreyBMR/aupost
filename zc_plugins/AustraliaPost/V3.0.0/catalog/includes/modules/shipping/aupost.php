@@ -4,12 +4,13 @@ declare(strict_types=1);
 /*
  $Id:   aupost.php, v2.5.6.d Jul 2024
         V2.5.6.a // update ln43 as well
-        v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank
+        v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error if handling fee is blank
         v2.5.6.b 2024-02-18 added version number to top line of debug display
         v2.5.6.c 2024-02-29 ln162 strlen(search) to search
         v2.5.6.d 2024-07-18 ln282  issue #14 Attempt to read property "code" on null; checkpost length, format, range
                             ln275 ln check destination is AU or exit earlier
                             cleaned up old debug comments
+        v2.5.6.e 2024-11-09 ln495 initialise $methods = []; ln694 ln1323 use count($methods)
 
 */
 // BMHDEBUG switches
@@ -149,7 +150,7 @@ class aupost extends base
 
     public function quote($method = '')
     {
-        global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems;
+        global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems, $shipping_num_boxes;
         //    $module = substr($_SESSION['shipping'], 0,6);
         //    $method = substr($_SESSION['shipping'],7);
         // removed misguided attempt to retrieve user selection from session.
@@ -270,7 +271,7 @@ class aupost extends base
 
         $frompcode = defined(MODULE_SHIPPING_AUPOST_SPCODE);
         $dest_country=($order->delivery['country']['iso_code_2'] ?? '');    //
-        
+
         // BMH Only proceed for AU addresses
         if ($dest_country != "AU") {            //BMH There are no quotes
             return;                             //BMH  exit as overseas post is a separate module
@@ -280,7 +281,7 @@ class aupost extends base
         if (($topcode == "") && ($dest_country == "AU")) {
             return;
         }                                       //  This will occur with guest user first quote where no postcode is available
-        
+
         // validate postcode format
         if (strlen($topcode) <> 0)              // must have a value to validate
         {
@@ -492,6 +493,7 @@ class aupost extends base
             }   // BMH debug eof array quotes
 
             $i = 0 ;  // counter
+            $methods = [];                                              //
             foreach($xmlquote_letter as $foo => $bar) {
                 $code = ($xmlquote_letter->service[$i]->code);          //BMH keep API code for label
                 $servicecode = $code;                                   // fully formatted API $code required for later sub quote
@@ -690,7 +692,8 @@ class aupost extends base
 
             //  check to ensure we have at least one valid LETTER quote - produce error message if not.
            // if  (sizeof($methods) == 0) { BMH DEBUG
-           if  ((is_array($methods)) && (sizeof($methods) == 0)) {
+           if  ( (is_array($methods)) && (count($methods) == 0) ) //
+           //if  ((is_array($methods)) && (sizeof($methods) == 0)) {
 
                 $cost = $this->_get_error_cost($dest_country) ; // retrieve default rate
 
@@ -1318,7 +1321,9 @@ class aupost extends base
         //
         //  check to ensure we have at least one valid quote - produce error message if not.
         //if  (sizeof($methods) == 0) {                       // no valid methods
-        if  ( (is_array($methods)) && (sizeof($methods) == 0) ) {
+        if  ( (is_array($methods)) && (count($methods) == 0) )
+            //if  ( (is_array($methods)) && (sizeof($methods) == 0) ) //
+        {
             $cost = $this->_get_error_cost($dest_country) ; // give default cost
             if ($cost == 0)  return  ;                      //
 

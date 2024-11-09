@@ -9,6 +9,7 @@ declare(strict_types=1);
         v2.5.6.b 2024-02-29 ln122 strlen(search) to search
         v2.5.6.c 2024-04-07 if country code selected in zc is unsupported by Aust Post - hangs with error Issue #12 https://github.com/OldNGreyBMR/aupost/issues/12
         2.5.6.d 2024-07-18 ln111  make function quote($method = '') public
+        2.5.6.e 2024-11-09 ln417 initialise $methods = [];
 
 */
 // BMHDEBUG switches
@@ -110,11 +111,11 @@ class aupostoverseas extends base
     // // functions
     public function quote($method = '')
     {
-        global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems;
+        global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems, $shipping_num_boxes;
 
         if (zen_not_null($method) && (isset($_SESSION['overseasaupostQuotes']))) {
             $testmethod = $_SESSION['overseasaupostQuotes']['methods'] ;
-//echo '<br>ln119 var_dump $testmethod = '; var_dump($testmethod); // BMH DEBUG
+            //echo '<br>ln119 var_dump $testmethod = '; var_dump($testmethod); // BMH DEBUG
             foreach($testmethod as $temp) {
                 //echo '<br> ln121 $temp= ' . $temp ; //BMH DEBUG
                 //echo '<br> ln122 $method = ' . $method; // BMH DEBUG
@@ -413,7 +414,7 @@ class aupostoverseas extends base
         //  loop through the quotes retrieved //
 
         $i = 0 ;  // counter
-
+        $methods = [];                                              // initialise array
         if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
             echo "<p class=\"aupost-debug\" </p> ln403 dump allowed methods  <br>"; var_dump($this->allowed_methods); // BMH ** DEBUG
             echo '<br>';
