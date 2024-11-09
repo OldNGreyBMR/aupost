@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.6e 09 Nov 2024
+--------------------------------------------------------------------------
+- correct issue #16 initialised $methods
+
 AusPost Shipping Module 2.5.6d 16 July 2024
 --------------------------------------------------------------------------
 - correct issue #12 valid Australian postcodes
