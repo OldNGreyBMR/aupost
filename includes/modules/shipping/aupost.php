@@ -19,7 +19,7 @@ define('BMH_P_DEBUG2','No'); // No or Yes // BMH 3nd level debug to display all 
 define('BMH_L_DEBUG1', 'No'); // No or Yes // BMH 3nd level debug
 define('BMH_L_DEBUG2', 'No'); // No or Yes // BMH 3nd level debug to display all returned XML data from Aus Post
 define('USE_CACHE', 'No');     // BMH disable cache // set to 'No' for testing;
-define('BMH_MIN_ORDER_VALUE_DEBUG', 'Yes');  // BMH set to yes to force extra cover on orders less than MINVALUEEXTRACOVER for PRODUCTION SET TO "No' ln547
+define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cover on orders less than MINVALUEEXTRACOVER for PRODUCTION SET TO "No' ln547
 // **********************
 
 //BMH declare constants
