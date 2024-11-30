@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.7a 30 Nov 2024
+--------------------------------------------------------------------------
+- issue#19 Missing method 'id' for excess length, volume and weight quotes
+
 AusPost Shipping Module 2.5.7 17 Nov 2024
 --------------------------------------------------------------------------
 - correct pricing with sub options eg extracover + sig; 
