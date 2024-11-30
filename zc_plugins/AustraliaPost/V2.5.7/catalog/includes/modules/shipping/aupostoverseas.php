@@ -8,14 +8,16 @@ declare(strict_types=1);
         v2.5.6.a 2024-02-15 ln 1670 issue #2 string / float error is handling fee is blank cast $add_int to float when any operation performed
         v2.5.6.b 2024-02-29 ln122 strlen(search) to search
         v2.5.6.c 2024-04-07 if country code selected in zc is unsupported by Aust Post - hangs with error Issue #12 https://github.com/OldNGreyBMR/aupost/issues/12
-        2.5.6.d 2024-07-18 ln111  make function quote($method = '') public
+        v2.5.6.d 2024-07-18 ln111  make function quote($method = '') public
+        v2.5.6.e 2024-11-11 ln417 initialise $methods = []
+        v2.5.7   2024-11-17 _debug_output function
 
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');          // BMH 2nd level debug to display all returned data from Aus Post
 define('BMHDEBUG_INT2','No');          // BMH 3rd level debug to display all returned data from Aus Post
 define('USE_CACHE_INT','No');           // BMH disable cache // set to 'No' for testing;
-define('MINEXTRACOVER_OVERIDE','Yes');  // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER // Used for testing.
+define('MINEXTRACOVER_OVERIDE','No');  // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER // Used for testing.
 
 //BMH declare constants
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } //
@@ -28,7 +30,7 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.6.d'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.7'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
@@ -38,16 +40,11 @@ if (!defined('AUPOST_URL_PROD')) { define('AUPOST_URL_PROD','digitalapi.auspost.
 if (!defined('PARCEL_INT_URL_STRING')) { define('PARCEL_INT_URL_STRING','/postage/parcel/international/service.xml?');}    // Aust Post URI api what services are avail for destination
 if (!defined('PARCEL_INT_URL_STRING_CALC')) { define('PARCEL_INT_URL_STRING_CALC','/postage/parcel/international/calculate.xml?'); }   // Aust Post URI api calc charges for each type
 
-
 // set product variables
 
 $aupost_url_string = AUPOST_URL_PROD ;
 
 $lettersize = 0; //set flag for letters
-
-    if (BMHDEBUG_INT2 == "Yes") {  // outputs on admin | modules | shipping page
-    // echo ' <br>ln48 MODE= ' . AUPOST_MODE . ' //$aupost_url_string = ' .$aupost_url_string . ' aupost_url_apiKey= ' . $aupost_url_apiKey ;
-    }
 
 // class constructor
 
@@ -94,7 +91,7 @@ class aupostoverseas extends base
         $this->tax_basis = 'Shipping' ;    // It'll always work this way, regardless of any global settings // BMH REMOVED
 
         // disable only when entire cart is free shipping
-        // placed after variables declared ZC158 PHP8.1
+
         if (zen_get_shipping_enabled($this->code))  $this->enabled = ((MODULE_SHIPPING_OVERSEASAUPOST_STATUS == 'True') ? true : false);
 
         if (MODULE_SHIPPING_OVERSEASAUPOST_ICONS != "No" ) {
@@ -110,17 +107,12 @@ class aupostoverseas extends base
     // // functions
     public function quote($method = '')
     {
-        global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems;
+        global $db, $order, $cart, $currencies, $template, $parcelweight, $packageitems, $shipping_num_boxes;
 
         if (zen_not_null($method) && (isset($_SESSION['overseasaupostQuotes']))) {
             $testmethod = $_SESSION['overseasaupostQuotes']['methods'] ;
-//echo '<br>ln119 var_dump $testmethod = '; var_dump($testmethod); // BMH DEBUG
             foreach($testmethod as $temp) {
-                //echo '<br> ln121 $temp= ' . $temp ; //BMH DEBUG
-                //echo '<br> ln122 $method = ' . $method; // BMH DEBUG
                 $search = array_search("$method", $temp) ;
-                //echo '<br>ln122 $search = ' . $search; // BMH DEBUG
-                //if (strlen($search) > 0 && $search >= 0) break ;
                if (($search) > 0 && $search >= 0) break ;
             }
 
@@ -147,7 +139,6 @@ class aupostoverseas extends base
              ]
             ]
         ];
-
 
             if ($this->tax_class_int >  0) {
                 $this->quotes['tax'] = zen_get_tax_rate($this->tax_class_int, $order->delivery['country']['id'], $order->delivery['zone_id']);
@@ -181,27 +172,24 @@ class aupostoverseas extends base
         $frompcode = MODULE_SHIPPING_OVERSEASAUPOST_SPCODE;
         $dest_country=($order->delivery['country']['iso_code_2'] ?? '');  //BMH
          if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) {
-             echo 'ln187 $dest_country code = ' . $dest_country;
+             $this->_debug_output("n",'ln187 $dest_country code = ' . $dest_country,"");
          }
 
         // country check here
-        if (empty($dest_country)) {
-            // There are no quotes
-         return;} //  This will occur with guest user first quote where no postcode is available //
+        if (empty($dest_country)) {         // There are no quotes
+         return;}                           //  This will occur with guest user first quote where no postcode is available //
 
-        if ($dest_country == "AU") {
-            // There are no quotes
-         return;} // exit if AU as AU is a separate module
+        if ($dest_country == "AU") {        // There are no quotes
+         return;}                           // exit if AU as AU is a separate module
 
-        //$MSGNOTRACKING =  "<b> (No tracking) </b>";         // label append // emphasis to minimise complaints
-        $MSGNOTRACKING =  MSGNOTRACKING;         // formatting is now in the language file
-        $MSGSIGINC =  " (Sig inc)";             // label append
+        $MSGNOTRACKING =  MSGNOTRACKING;    // formatting is now in the language file
+        $MSGSIGINC =  " (Sig inc)";         // label append
 
         $topcode = str_replace(" ","",($order->delivery['postcode']));
         $aus_rate_int = (float)$currencies->get_value('AUD') ;
         $ordervalue=$order->info['total'] / $aus_rate_int ;
         $tare = MODULE_SHIPPING_OVERSEASAUPOST_TARE ;
-            // EOF PARCELS - values
+        // EOF PARCELS - values
 
         if ($aus_rate_int == 0) {                                   // included by BMH to avoid possible divide  by zero error
             $aus_rate_int = (float)$currencies->get_value(AUS);     // if AUD zero/undefined then try AUS
@@ -216,7 +204,7 @@ class aupostoverseas extends base
             return $this->quotes ;     //  exit if AU
         }
 
-        $FlatText = " Using AusPost Flat Rate." ;
+        $FlatText = " Using AusPost Flat Rate." ;  // not used 2024-11. Requires puchasing AP packaging
 
         // loop through cart extracting productIDs and qtys //
         $myorder = $_SESSION['cart']->get_products();
@@ -224,14 +212,14 @@ class aupostoverseas extends base
         for($x = 0 ; $x < count($myorder) ; $x++ )
         {
             //$producttitle = $myorder[$x]['id'] ;
-            $t = $myorder[$x]['id'] ;  // BMH better name
+            $t = $myorder[$x]['id'] ;               // BMH better name
             $q = $myorder[$x]['quantity'];
             $w = $myorder[$x]['weight'];
 
             $dim_query = "select products_length, products_height, products_width from " . TABLE_PRODUCTS . " where products_id='$t' limit 1 ";
             $dims = $db->Execute($dim_query);
 
-            // re-orientate //
+            // re-orientate //  longest becomes length
             $var = array($dims->fields['products_width'], $dims->fields['products_height'], $dims->fields['products_length']) ; sort($var) ;
             $dims->fields['products_length'] = $var[2] ; $dims->fields['products_width'] = $var[1] ;  $dims->fields['products_height'] = $var[0] ;
 
@@ -253,13 +241,12 @@ class aupostoverseas extends base
 
             $packageitems =  $packageitems + $q ;
 
-            // Useful debugging information //
-
+            // Useful debugging information //  Create table
             if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) {
                 $dim_query = "select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id='$t' limit 1 ";
                 $name = $db->Execute($dim_query); // BMH Undefined array key "products_weight"
 
-                echo "<center><table class=\"aupost-debug-table\" border=1 ><th colspan=8>Debugging information ln235 [aupost Flag set in Admin console | shipping | aupostoverseas]</hr>
+                echo "<center><table class=\"aupost-debug-table\" border=1 ><th colspan=8>Debugging information ln235 [aupost-oseas Flag set in Admin console | shipping | aupostoverseas]</hr>
                 <tr><th>Item " . ($x + 1) . "</th><td colspan=7>" . $name->fields['products_name'] . "</td>
                 <tr><th width=1%>Attribute</th><th colspan=3>Item</th><th colspan=4>Parcel</th></tr>
                 <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . ($dims->fields['products_weight'] ?? '') . "</td>
@@ -285,7 +272,7 @@ class aupostoverseas extends base
 
         //  save dimensions for display purposes on quote form
         $_SESSION['swidth'] = $parcelwidth ; $_SESSION['sheight'] = $parcelheight ;
-        $_SESSION['slength'] = $parcellength ;                                      // $_SESSION['boxes'] = $shipping_num_boxes ;
+        $_SESSION['slength'] = $parcellength ;                // $_SESSION['boxes'] = $shipping_num_boxes ;
 
         // Check for maximum length allowed
         if($parcellength > $MAXLENGTH_P) {
@@ -331,7 +318,7 @@ class aupostoverseas extends base
                     )
                 {
                 if ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) {
-                    echo "<center><table class=\"aupost-debug\"border=1 ><td align=center><font color=\"#FF0000\">Using Cached quotes </font></td></table></center>" ;
+                    $this->_debug_output("n","<center><table class=\"aupost-debug\"border=1 ><td align=center><font color=\"#FF0000\">Using Cached quotes </font></td></table></center>","");
                 }
 
                 $this->quotes =  $_SESSION['overseasaupostQuotes'] ;
@@ -346,9 +333,7 @@ class aupostoverseas extends base
         // always save new session  CSV //
         $_SESSION['overseasaupostParcel'] = implode(",", array($dest_country, $topcode, $parcelwidth, $parcelheight, $parcellength, $parcelweight, $ordervalue)) ;
         $shipping_weight = $parcelweight ;  // global value for zencart
-
-        // Set destination code ( postcode if AU, else 2 char iso country code )
-        $dcode = ($dest_country == "AU") ? $topcode:$dest_country ;
+        $dcode = ($dest_country == "AU") ? $topcode:$dest_country ;  // Set destination code ( postcode if AU, else 2 char iso country code )
 
         $flags = ((MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL == "No") || ( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" )) ? 0:1 ;
 
@@ -358,19 +343,19 @@ class aupostoverseas extends base
        $this->quotes = array('id' => $this->code, 'module' => $this->title); // BMH ** DEBUG
 
         if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-            echo '<p class="aupost-debug"> <br>parcels ***<br>aupost ln361 url called ' .
-                'https://' . $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight" . '</p>';
+            $this->_debug_output("n",'<br>parcels ** aupost-oseas ln356 url called <br>' .
+                'https://' . $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight" . '</p>',"");
         }
         //// ++++++++++++++++++++++++++++++
         // get parcel api';
         $qu = $this->get_auspost_api('https://' . $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight") ;
 
-        if (str_contains($qu,"Please enter a valid Country code")) {  // BMH 2024-04-07 example PS = Palestinian , State  not valid from Aust
-            echo("<p class=\"aupost-debug\" ><strong> An error occurred. " . $qu . ' ' .  
+        if (str_contains($qu,"Please enter a valid Country code")) {  // BMH 2024-04-07 example PS = Palestinian , State not valid from Aust
+            echo("<p class=\"aupost-debug\" ><strong> An error occurred. " . $qu . ' ' .
                 $dcode . ' is not a valid Aus Post destination code. ');
             $dcode= "";                 //reset the code
             $dest_country ="";          //reset the code
-            return;   // back out cleanly so the 
+            return;   // back out cleanly so the
             }
         if ((strpos($qu,"<") != 1) && (str_contains($qu,"error"))) {
             echo '<br> AUPOST - Overseas ERROR IN POSTAGE CONFIGURATION. PLEASE CONTACT THE STORE ADMINISTRATOR';
@@ -378,25 +363,23 @@ class aupostoverseas extends base
             } // BMH check for error msg eg Auth key is incorrect
 
         if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes")) {
-            echo "<table class=\"aupost-debug\"><tr><td>Server Returned: aupostint ln374 <br>" ; //BMH DEBUG . $qu . "</td></tr></table> <br>" ;
+            $this->_debug_output("n","Server Returned: aupostint ln370 <br>","");
         }
 
         $xml = ($qu == '') ? array() : new SimpleXMLElement($qu)  ; // If we have any results, parse them into an array
 
         if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-            echo "<p class=\"aupost-debug\" ><strong>>> Server Returned BMHDEBUG_INT1+2 line 380 XML output
-                << <br> </strong><textarea rows=50 cols=100 style=\"margin:0;\"> ";
-            print_r($xml) ; // exit ; // ORIG DEBUG to output api xml // BMH DEBUG
-            echo "</textarea></p>";
+            $this->_debug_output("x","<strong>>> Server Returned BMHDEBUG_INT1+2 line 376 XML output
+                << <br> </strong> <textarea rows=50>",$xml);
         }
 
         // Check for nil returm from Australia Post
         if (empty($xml->service)) {
             if (BMHDEBUG_INT2 == "Yes") {
-                echo '<p class="aupost-debug" ln389 quote returned is blank - Country not allowed </p>' ;
+                $this->_debug_output("n",'ln382 quote returned is blank - Country not allowed </p>',"");
             }
             $methods[] = array( 'id' => "Error",  'title' => "Invalid destination Country - Not allowed to send parcel here.", 'cost' => 9999.99 ) ; // display reason
-            // echo '<br> ln392 No Quote <br>';
+
             $this->quotes['methods'] = $methods;   // set it
             return $this->quotes;
         }
@@ -407,16 +390,13 @@ class aupostoverseas extends base
                     $ordervalue = $MINVALUEEXTRACOVER;
                 }
             }   //BMH DEBUG NOTE: mask for testing to force extra cover on amount below the min threshold// comment out for production
-            //// !!!!!!!!!!!! ////
 
-        ///////////////////////////////////////
         //  loop through the quotes retrieved //
 
         $i = 0 ;  // counter
-
+        $methods = [];                                              // initialise array
         if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-            echo "<p class=\"aupost-debug\" </p> ln403 dump allowed methods  <br>"; var_dump($this->allowed_methods); // BMH ** DEBUG
-            echo '<br>';
+            $this->_debug_output("d","ln405 dump allowed methods  <br>",$this->allowed_methods);
         }   // BMH ** DEBUG
 
         foreach($xml as $foo => $bar)
@@ -434,9 +414,7 @@ class aupostoverseas extends base
             $description =  "PARCEL " . (ucwords(strtolower($code))) ; // BMH prepend PARCEL to code in sentence case
 
             if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes")) {
-                echo "<table class=\"aupost-debug\"><tr><td>" ;
-                echo "ln426 ID= $id DESC= $description COST= $cost ex" ;
-                echo "</td></tr></table>" ;
+                $this->_debug_output("n","ln423 ID= $id DESC= $description COST= " . $cost . " ex","");
             } // BMH 2nd level debug each line of quote parsed
 
             $add_int = 0 ; $f = 0 ;
@@ -461,7 +439,7 @@ class aupostoverseas extends base
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
 
-                        $methods[] = array('id' => "$id",  'title' => $description . " [" . $allowed_option . "] " 
+                        $methods[] = array('id' => "$id",  'title' => $description . " [" . $allowed_option . "] "
                             . $details, 'cost' => $cost);   // update method //BMH ADDIN
                     }
                     if ( in_array("Economy Air Mail Insured +sig", $this->allowed_methods) ) {
@@ -480,9 +458,9 @@ class aupostoverseas extends base
                         $allowed_option = "Economy Air Mail Insured +sig";
                         $option_offset = 0;
 
-                       $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, $allowed_option, 
-                            $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, $optionservicecode, $OPTIONCODE_COVER, 
-                            $OPTIONCODE_SIG, $id_option, $description, $details, $dest_country, $order, $currencies, 
+                       $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, $allowed_option,
+                            $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, $optionservicecode, $OPTIONCODE_COVER,
+                            $OPTIONCODE_SIG, $id_option, $description, $details, $dest_country, $order, $currencies,
                             $aus_rate_int,$code_sig, $code_cover);
 
                         if ((strlen($id) >1) && ($included_option <> 0)) {
@@ -505,16 +483,15 @@ class aupostoverseas extends base
 
                             $option_offset = 0;
 
-                          $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                          $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                             if (strlen($id) >1){
                                 $methods[] = $result_int_secondary_options ;
                             }
                     }
-
 
                     if ( in_array("Economy Air Mail Insured (no sig)", $this->allowed_methods) ) {
 
@@ -527,16 +504,16 @@ class aupostoverseas extends base
 
                             $OPTIONCODE_SIG = ' ';
                             $optionservicecode = ($xml->service[$i]->code);  // get api code for this option
-                            $OPTIONCODE_COVER = 'INTAIR_EXTRA_COVER';
+                            $OPTIONCODE_COVER = 'INT_AIR_EXTRA_COVER';
 
                             //$id_option = "INTPARCELAIROWNPACKAGING" . "INTAIREXTRACOVER";
                             $id_option = $id . str_replace("_", "",$OPTIONCODE_COVER);
                             $allowed_option = "Economy Air Mail Insured (no sig)";
                             $option_offset1 = 0;
 
-                           $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                           $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
@@ -573,7 +550,7 @@ class aupostoverseas extends base
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
 
-                        $methods[] = array('id' => "$id",  'title' => $description . " [" . $allowed_option . 
+                        $methods[] = array('id' => "$id",  'title' => $description . " [" . $allowed_option .
                             "] " . $details, 'cost' => $cost); // update method
                     }
 
@@ -591,9 +568,9 @@ class aupostoverseas extends base
                         $allowed_option = "Sea Mail Insured +sig";
                         $option_offset = 0;
 
-                      $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                        $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, $optionservicecode, 
-                        $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, $details, $dest_country, $order, 
+                      $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                        $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, $optionservicecode,
+                        $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, $details, $dest_country, $order,
                         $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                         if (strlen($id) >1) {
@@ -613,16 +590,15 @@ class aupostoverseas extends base
                             $allowed_option = "Sea Mail +sig";
                             $option_offset = 0;
 
-                          $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                          $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                             if (strlen($id) >1){
                                 $methods[] = $result_int_secondary_options ;
                             }
                     }
-
 
                     if ( in_array("Sea Mail Insured (no sig)", $this->allowed_methods) ) {
                          $included_option =1;
@@ -635,9 +611,9 @@ class aupostoverseas extends base
                         $allowed_option = "Sea Mail Insured (no sig)";
                         $option_offset1 = 0;
 
-                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                         if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
@@ -670,7 +646,6 @@ class aupostoverseas extends base
                             $details= $this->_handling($details,$currencies,$add_int,$aus_rate_int);  // check if handling rates included
                         }   // eof list option for normal operation
 
-
                         $methods[] = array('id' => "$id",  'title' => $description . " [" . $allowed_option . "] " . //BMH ADDIN
                         $details, 'cost' => $cost);   // update method
                     }
@@ -690,9 +665,9 @@ class aupostoverseas extends base
                               $allowed_option = "Standard Post International Insured +sig";
                               $option_offset = 0;
 
-                              $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                                $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                                $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                              $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                                $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                                $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                                 $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                               if (strlen($id) >1) {
@@ -714,9 +689,9 @@ class aupostoverseas extends base
 
                           $option_offset = 0;
 
-                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                           if (strlen($id) >1){
@@ -740,10 +715,10 @@ class aupostoverseas extends base
                               $allowed_option = "Standard Post International Insured (no sig)";
                               $option_offset1 = 0;
 
-                              $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                                $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                                $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, 
-                                $description, $details, $dest_country, $order, $currencies, $aus_rate_int, 
+                              $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                                $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                                $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option,
+                                $description, $details, $dest_country, $order, $currencies, $aus_rate_int,
                                 $code_sig, $code_cover);
 
                               if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes" ) && (BMHDEBUG1 == "Yes") && (BMHDEBUG2 == "Yes")) {
@@ -792,9 +767,9 @@ class aupostoverseas extends base
                         $allowed_option = "Express Post International (sig inc) + Insured";
                         $option_offset = 0;
 
-                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
-                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight, 
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
+                            $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                         if (strlen($id) >1) {
@@ -834,9 +809,9 @@ class aupostoverseas extends base
                         $allowed_option = "Courier International Insured";
                         $option_offset = 0;
 
-                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int, 
+                        $result_int_secondary_options = $this-> _get_int_secondary_options( $add_int,
                             $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, $dcode, $parcelweight,
-                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description, 
+                            $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, $description,
                             $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover);
 
                         if (strlen($id) >1) {
@@ -852,7 +827,6 @@ class aupostoverseas extends base
 
             }   // eof switch
 
-
             //// bof only list valid options  ////
             if ((($cost > 0) && ($f == 1)) ) {      //
                 $cost = $cost + (float)$add_int ;          // add handling fee
@@ -865,8 +839,8 @@ class aupostoverseas extends base
             $cost = $cost / $aus_rate_int;      // cost includes postage
 
             if (( MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes"))  {
-                //   echo '<p class="aupost-debug"> ln826 $i=' .$i . "</p>";
-            } // BMH ** DEBUG
+                $this->_debug_output("n",'<br>ln852 $i=' .$i . "</p>","");
+               } // BMH ** DEBUG
 
             //// end parcel options that do not have sub options ////
 
@@ -908,8 +882,8 @@ class aupostoverseas extends base
             $this->quotes['tax'] = zen_get_tax_rate($this->tax_class_int, $order->delivery['country']['id'], $order->delivery['zone_id']);
         }
         if (BMHDEBUG_INT2 == "Yes") {
-            echo '<p class="aupost-debug"> <br>parcels ***<br>aupost ln872 ' .'https://' . 
-                $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight" . '</p>';
+            $this->_debug_output("n",'<br>parcels ***<br>aupost ln895 ' .'https://' .
+                $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight" . '</p>',"");
         } //BMH ** DEBUG
 
         if (zen_not_null($this->icon)) $this->quotes['icon'] = zen_image($this->icon, $this->title); // set icon for  quotes array
@@ -920,8 +894,8 @@ class aupostoverseas extends base
        ////  Final Exit Point ////
     }  //// eof function quote method
 
-function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MINVALUEEXTRACOVER, 
-    $dcode, $parcelweight, $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option, 
+function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MINVALUEEXTRACOVER,
+    $dcode, $parcelweight, $optionservicecode, $OPTIONCODE_COVER, $OPTIONCODE_SIG, $id_option,
     $description, $details, $dest_country, $order, $currencies, $aus_rate_int,$code_sig, $code_cover)
     {
         $aupost_url_string = AUPOST_URL_PROD ;  // Server query string //
@@ -939,12 +913,12 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
                 $optioncode = $OPTIONCODE_SIG ;
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                echo '<p class="aupost-debug"><br> ln877 sig only ' . PARCEL_INT_URL_STRING_CALC . 
+                    $this->_debug_output("n",'ln926 sig only ' . PARCEL_INT_URL_STRING_CALC .
                     "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode
-                    " . "</p>";
+                    " . "</p>","");
                 }  // BMH ** DEBUG
 
-                $qu2 = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC. 
+                $qu2 = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC.
                     "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue") ;
 
                 $xmlquote_2 = ($qu2 == '') ? array() : new SimpleXMLElement($qu2); // XML format
@@ -956,11 +930,11 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
                 $optioncode = $OPTIONCODE_COVER ;
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                echo '<p class="aupost-debug"><br> ln892 ins no sig before get_auspost_api' . PARCEL_INT_URL_STRING_CALC . 
-                    "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue" . "</p>";
+                    $this->_debug_output("n",'<br> ln943 ins no sig before get_auspost_api' . PARCEL_INT_URL_STRING_CALC .
+                    "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue" . "</p>","");
                 } // BMH ** DEBUG
 
-                $qu2 = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC. 
+                $qu2 = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC.
                     "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue") ;
 
                 $xmlquote_2 = ($qu2 == '') ? array() : new SimpleXMLElement($qu2); // XML format
@@ -981,11 +955,11 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
                 $optioncode = $OPTIONCODE_SIG ;
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                    echo '<p class="aupost-debug"><br> ln915 ins + sig get_auspost_api <br>' . 'https://' . 
-                        $aupost_url_string . PARCEL_INT_URL_STRING_CALC . "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue" . "</p>"; // BMH ** DEBUG
-                }
+                    $this->_debug_output("n",'<br> ln968 ins + sig get_auspost_api <br>' . 'https://' .
+                        $aupost_url_string . PARCEL_INT_URL_STRING_CALC . "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue" . "</p>","");
+                }       // BMH ** DEBUG
                 // get quote for sig + extra
-                $qu2_sig = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC . 
+                $qu2_sig = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC .
                     "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue") ;
 
                 $qu2 = $qu2_sig;
@@ -1006,16 +980,14 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
 
                 $optioncode = $OPTIONCODE_COVER ; // cover quote price varies with cover value
 
-                $qu2_cover = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC . 
+                $qu2_cover = $this->get_auspost_api( 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC .
                     "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue") ;
 
                 $xmlquote_2c = ($qu2_cover == '') ? array() : new SimpleXMLElement($qu2_cover); // XML format
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                    echo "<p class=\"aupost-debug\"><strong>>> Server Returned BMHDEBUG1+2 ln931 secondary options sig 
-                        + cover xmlquote_2c << </strong> <br> <textarea> ";
-                    print_r($xmlquote_2c) ; // exit ; // // BMH DEBUG
-                    echo "</textarea> </p>" ;
+                    $this->_debug_output("x","<strong>>> Server Returned BMHDEBUG1+2 ln999 secondary options sig
+                        + cover xmlquote_2c << </strong> <br> <textarea> ",$xmlquote_2c);
                 }
 
                 if ( isset($xmlquote_2c->errorMessage)) {  // BMH ** DEBUG
@@ -1031,10 +1003,8 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
                 $cost_option = $cost_option + $cost_cover;
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes" ) && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                    echo "<p class=\"aupost-debug\"><strong>>> Server Returned BMHDEBUG1+2 
-                        ln949 secondary options sig + cover xmlquote_2c << </strong> <br> <textarea> ";
-                    print_r($xmlquote_2c) ; // exit ; // // BMH DEBUG
-                    echo "</textarea> </p>" ;
+                    $this->_debug_output("x","<strong>>> Server Returned BMHDEBUG1+2
+                        ln1018 secondary options sig + cover xmlquote_2c << </strong> <br> <textarea> ",$xmlquote_2c);
                 }
 
                 // build the main quote
@@ -1066,7 +1036,7 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
 
             $cost = $cost / $aus_rate_int;
             $desc_option = "[" . $desc_option . "]";         // delimit option in square brackets
-            $result_int_secondary_options = array("id"=>$id_option,  "title"=>$description . ' ' . 
+            $result_int_secondary_options = array("id"=>$id_option,  "title"=>$description . ' ' .
                 $desc_option . ' ' .$details, "cost"=>$cost) ;
             // valid result
         }   // eof // options
@@ -1100,7 +1070,7 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
             global $db;
             if (!isset($this->_check))
             {
-                $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . 
+                $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION .
                     " where configuration_key = 'MODULE_SHIPPING_OVERSEASAUPOST_STATUS'");
                 $this->_check = $check_query->RecordCount();
             }
@@ -1112,7 +1082,7 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
     {
 
         if (BMHDEBUG_INT2 == "Yes") {
-             echo "<p class=\"aupost-debug\"> ln1111 function get_auspost_api \$url= <br>" . $url . ' </p> ';
+            $this->_debug_output("n","<br>ln1095 function get_auspost_api \$url= <br>" . $url . ' </p> ',"");
         }
         $crl = curl_init();
         $timeout = 5;
@@ -1124,10 +1094,10 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
 
         // Check the response: if the body is empty then an error occurred
         if (BMHDEBUG_INT2 == "Yes") {
-            echo '<p class="aupost-debug"> ln1128 exit function get_auspost_api $ret = ' . $ret . ' </p> '; // BMH var_dump($ret);
+            $this->_debug_output("n",'ln1107 exit function get_auspost_api $ret = ' . $ret . ' </p> ',""); // BMH var_dump($ret);
 
             if (str_contains($ret,"error")) {
-                echo '<p class="aupost-debug"> ln1131 Error Occurred $ret= ' . $ret . ' </p> ';
+                $this->_debug_output("n",'ln1110 Error Occurred $ret= ' . $ret . ' </p> ',"");
             }
         }
 
@@ -1155,14 +1125,14 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
     function _handling($details,$currencies,$add_int,$aus_rate_int)
     {
         if  (MODULE_SHIPPING_OVERSEASAUPOST_HIDE_HANDLING !='Yes') {
-            $details = ' (Inc ' . $currencies->format((float)$add_int / $aus_rate_int ) . 
+            $details = ' (Inc ' . $currencies->format((float)$add_int / $aus_rate_int ) .
                 ' P &amp; H';  // Abbreviated for space saving in final quote format
         }
         return $details;
     }
 
     ////////////////////////////////////////////////////////////////////////////
-/// bof install and setup sectionpublic 
+/// bof install and setup sectionpublic
 public function install()
 {
     global $db;
@@ -1249,5 +1219,33 @@ public function install()
         );
     }
 /// eof install and setup section
+public function _debug_output($x,$debug_message,$dump)
+    {
+        switch ($x) {
+        case "x":
+        echo '<p class="aupost-debug">';
+            echo $debug_message ;
+            print_r($dump);
+            //echo $dump;
+            echo "</textarea> </p>";
+            break;
 
+        case "d":
+            echo '<table class="aupost-debug"><tr><td>' ;
+            echo $debug_message;
+            //echo "<pre> ++";
+            var_dump ($dump);
+            //echo "</pre>";
+            echo "</td></tr></table>" ;
+            break;
+
+        case "n":
+            echo '<table class="aupost-debug"><tr><td>' ;
+            echo $debug_message;
+            //echo "<pre> +++";
+            echo "</td></tr></table>" ;
+            break;
+        }
+        return;
+    }
 }  // end class

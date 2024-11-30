@@ -1,8 +1,14 @@
 CHANGELOG
 =========
-AusPost Shipping Module 2.5.6e 09 Nov 2024
+AusPost Shipping Module 2.5.7 17 Nov 2024
+--------------------------------------------------------------------------
+- correct pricing with sub options eg extracover + sig; 
+- created _debug_output function
+
+AusPost Shipping Module 2.5.6e 11 Nov 2024
 --------------------------------------------------------------------------
 - correct issue #16 initialised $methods
+- use count($methods); 
 
 AusPost Shipping Module 2.5.6d 16 July 2024
 --------------------------------------------------------------------------
