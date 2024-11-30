@@ -12,6 +12,7 @@ declare(strict_types=1);
                             cleaned up old debug comments
         v2.5.6.e 2024-11-09 ln495 initialise $methods = []; ln694 ln1323 use count($methods);
         v2.5.7   2024-11-17 add debug switch to force extra cover; correct pricing with sub options eg extracover + sig; _debug_output function
+        v2.5.7a  2024-11-30 issue#19 Missing method 'id' for excess length, volume and weight quotes
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug
@@ -19,7 +20,7 @@ define('BMH_P_DEBUG2','No'); // No or Yes // BMH 3nd level debug to display all 
 define('BMH_L_DEBUG1', 'No'); // No or Yes // BMH 3nd level debug
 define('BMH_L_DEBUG2', 'No'); // No or Yes // BMH 3nd level debug to display all returned XML data from Aus Post
 define('USE_CACHE', 'No');     // BMH disable cache // set to 'No' for testing;
-define('BMH_MIN_ORDER_VALUE_DEBUG', 'Yes');  // BMH set to yes to force extra cover on orders less than MINVALUEEXTRACOVER for PRODUCTION SET TO "No' ln547
+define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cover on orders less than MINVALUEEXTRACOVER for PRODUCTION SET TO "No' ln547
 // **********************
 
 //BMH declare constants
@@ -34,7 +35,7 @@ if (!defined('MODULE_SHIPPING_AUPOST_STATUS')) { define('MODULE_SHIPPING_AUPOST_
 if (!defined('MODULE_SHIPPING_AUPOST_SORT_ORDER')) { define('MODULE_SHIPPING_AUPOST_SORT_ORDER',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_ICONS')) { define('MODULE_SHIPPING_AUPOST_ICONS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_AUPOST_TAX_BASIS', 'Shipping');}
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.7');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.7a');}
 
 // +++++++++++++++++++++++++++++
 define('AUPOST_MODE','PROD'); //Test OR PROD    // Test uses test URL and Test Authkey;
@@ -78,7 +79,7 @@ class aupost extends base
     public $enabled;            // Shipping module status
     public $frompcode;          // source post code
     public $icon;               // Shipping module icon filename/path
-    public $item_cube;          // cubic volume of item
+    public $itemcube;          // cubic volume of item
     public $logo;               // au post logo
     public $myarray = [];       //
     public $myorder;            //
@@ -267,7 +268,7 @@ class aupost extends base
         $parcelweight = 0 ;
         $cube = 0 ;
         $details = ' ';
-        $item_cube = 0;
+        $itemcube = 0;
         $parcel_cube = 0;  // NOT USED YET
         $shipping_num_boxes = 1; // 2023-11-18
 
@@ -716,28 +717,29 @@ class aupost extends base
         // Check for maximum length allowed
         if($parcellength > $MAXLENGTH_P) {
              $cost = $this->_get_error_cost($dest_country) ;
-
            if ($cost == 0) return  ;    // no quote
-            $methods[] = array('title' => ' (AusPost excess length)', 'cost' => $cost ) ; // update method
+            $methods[] = array('id' => $this->code,'title' => ' (AusPost excess length)', 'cost' => $cost ) ; // update method //BMH issue#19
             $this->quotes['methods'] = $methods;   // set it
+            $parcellength = 0;
             return $this->quotes;
         }  // exceeds AustPost maximum length. No point in continuing.
 
         // Check cubic volume
-        if($item_cube > $MAXCUBIC_P ) {
+        if($itemcube > $MAXCUBIC_P ) {
              $cost = $this->_get_error_cost($dest_country) ;
            if ($cost == 0)  return  ;   // no quote
-            $methods[] = array('title' => ' (AusPost excess cubic vol / girth)', 'cost' => $cost ) ;
+            $methods[] = array('id' => $this->code,'title' => ' (AusPost excess cubic vol / girth)', 'cost' => $cost ) ; //BMH issue#19
             $this->quotes['methods'] = $methods;   // set it
+            $itemcube=0;
             return $this->quotes;
         }  // exceeds AustPost maximum cubic volume. No point in continuing.
 
-        if ($parcelweight > $MAXWEIGHT_P) {
+        if($parcelweight > $MAXWEIGHT_P) {
             $cost = $this->_get_error_cost($dest_country) ;
             if ($cost == 0)  return ;   // no quote
-
-            $methods[] = array('title' => ' (AusPost excess weight)', 'cost' => $cost ) ;
+            $methods[] = array('id' => $this->code,'title' => ' (AusPost excess weight)', 'cost' => $cost ) ; //BMH issue#19
             $this->quotes['methods'] = $methods;   // set it
+            $parcelweight=0;
             return $this->quotes;
         }  // exceeds AustPost maximum weight. No point in continuing.
 

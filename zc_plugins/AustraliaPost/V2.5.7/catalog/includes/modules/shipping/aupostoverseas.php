@@ -11,6 +11,7 @@ declare(strict_types=1);
         v2.5.6.d 2024-07-18 ln111  make function quote($method = '') public
         v2.5.6.e 2024-11-11 ln417 initialise $methods = []
         v2.5.7   2024-11-17 _debug_output function
+        v2.5.7a  2024-11-30 issue#19 Missing method 'id' for excess length, volume and weight quotes
 
 */
 // BMHDEBUG switches
@@ -30,7 +31,7 @@ if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPP
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT')) { define('MODULE_SHIPPING_OVERSEASAUPOST_CORE_WEIGHT',''); }
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS')) {define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_BASIS', 'Shipping');}
 
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.7'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.7a'); }
 
 // ++++++++++++++++++++++++++
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY')) { define('MODULE_SHIPPING_OVERSEASAUPOST_AUTHKEY','') ;}
@@ -277,10 +278,8 @@ class aupostoverseas extends base
         // Check for maximum length allowed
         if($parcellength > $MAXLENGTH_P) {
             $cost = $this->_get_int_error_cost($dest_country) ;
-
            if ($cost == 0) return  ;    // no quote
-
-            $methods[] = array('title' => ' (AusPost excess length)', 'cost' => $cost ) ; // update method
+            $methods[] = array('id' => $this->code,'title' => ' (AusPost excess length)', 'cost' => $cost ) ; // update method //BMH issue#19
             $this->quotes['methods'] = $methods;   // set it
             return $this->quotes;
         }  // exceeds AustPost maximum length. No point in continuing.
@@ -289,7 +288,7 @@ class aupostoverseas extends base
         if($girth > $MAXGIRTH_P ) {
             $cost = $this->_get_int_error_cost($dest_country) ;
            if ($cost == 0)  return  ;   // no quote
-           $methods[] = array('title' => ' (AusPost excess girth)', 'cost' => $cost ) ;
+           $methods[] = array('id' => $this->code,'title' => ' (AusPost excess girth)', 'cost' => $cost ) ; //BMH issue#19
            $this->quotes['methods'] = $methods;   // set it
            return $this->quotes;
         }  // exceeds AustPost maximum girth. No point in continuing.
@@ -297,7 +296,7 @@ class aupostoverseas extends base
         if ($parcelweight > $MAXWEIGHT_P) {
             $cost = $this->_get_int_error_cost($dest_country) ;
             if ($cost == 0)  return  ;   // no quote
-            $methods[] = array('title' => ' (AusPost excess weight)', 'cost' => $cost ) ;
+            $methods[] = array('id' => $this->code,'title' => ' (AusPost excess weight)', 'cost' => $cost ) ; //BMH issue#19
             $this->quotes['methods'] = $methods;   // set it
             return $this->quotes;
         }  // exceeds AustPost maximum weight. No point in continuing.
