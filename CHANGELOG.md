@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.8 01 July 2025
+------------------------------------------
+Changes for new rates and parcel sizes effective 01 July 2025
+
 AusPost Shipping Module 2.5.7a 30 Nov 2024
 --------------------------------------------------------------------------
 - issue#19 Missing method 'id' for excess length, volume and weight quotes
