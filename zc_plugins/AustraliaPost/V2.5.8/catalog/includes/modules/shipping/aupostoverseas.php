@@ -11,7 +11,7 @@ define('USE_CACHE_INT','No');           // BMH disable cache // set to 'No' for 
 define('MINEXTRACOVER_OVERIDE','No');  // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER // Used for testing.
 
 //BMH declare constants
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.7b'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.8'); }
 
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } //
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
