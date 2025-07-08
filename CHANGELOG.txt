@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.8a 09 July 2025
+------------------------------------------
+Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
+
 AusPost Shipping Module 2.5.8 01 July 2025
 ------------------------------------------
 Changes for new rates and parcel sizes effective 01 July 2025

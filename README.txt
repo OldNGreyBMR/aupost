@@ -1,165 +1,134 @@
-aupost zen cart Australia postage plug in
-==========================================
-Australia Post Shipping Module 2.5.8
---------------------------------------
-Updated 01 July 2025 by OldNGrey BMH
+CHANGELOG
+=========
+AusPost Shipping Module 2.5.8a 09 July 2025
+------------------------------------------
+Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
 
-For code changes see the changelog.
+AusPost Shipping Module 2.5.8 01 July 2025
+------------------------------------------
+Changes for new rates and parcel sizes effective 01 July 2025
 
-### This version tested on Zen Cart version 1.5.7, 1.5.8, 1.5.8a , 2.0.0, 2.1.0 and PHP 8.0, 8.1, 8.2, 8.3; 8.4;
+AusPost Shipping Module 2.5.7a 30 Nov 2024
+--------------------------------------------------------------------------
+- issue#19 Missing method 'id' for excess length, volume and weight quotes
 
-This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server.
+AusPost Shipping Module 2.5.7 17 Nov 2024
+--------------------------------------------------------------------------
+- correct pricing with sub options eg extracover + sig; 
+- created _debug_output function
 
-To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
- https://developers.auspost.com.au/
- 
-The aupost.php module is required for postage rates within Australia only.
-The aupostoverseas.php module is required for postage rates for overseas only.
+AusPost Shipping Module 2.5.6e 11 Nov 2024
+--------------------------------------------------------------------------
+- correct issue #16 initialised $methods
+- use count($methods); 
 
-Australian Delivery Options:
-============================
-Letters:
--------
-- Aust Standard  
-- Aust Priority  
-- Aust Express  
-- Aust Express +sig  
-- Aust Express Insured +sig  
-- Aust Express Insured (no sig)  
+AusPost Shipping Module 2.5.6d 16 July 2024
+--------------------------------------------------------------------------
+- correct issue #12 valid Australian postcodes
 
-Parcels:
-========
-- Regular Parcel  
-- Regular Parcel +sig 
-- Regular Parcel Insured +sig 
-- Regular Parcel Insured (no sig) 
-- Prepaid Satchel 
-- Prepaid Satchel +sig 
-- Prepaid Satchel Insured +sig 
-- Prepaid Satchel Insured (no sig) 
-- Express Parcel 
-- Express Parcel +sig 
-- Express Parcel Insured +sig 
-- Express Parcel Insured (no sig) 
-- Prepaid Express Satchel 
-- Prepaid Express Satchel +sig 
-- Prepaid Express Satchel Insured +sig 
-- Prepaid Express Satchel Insured (no sig) 
+AusPost Shipping Module 2.5.6.a + AusPost Overseas Shipping Module 2.5.6.a 15 Feb 2024
+--------------------------------------------------------------------------
+- correct issue #5 blank handling fee causes error
 
-Parcels do not include Australia Post prices that require additional AP packaging.
+AusPost Shipping Module 2.5.6 + AusPost Overseas Shipping Module 2.5.6 13 Feb 2024
+--------------------------------------------------------------------------
+- update CODES to Exclude AP options that require purchasing additional AP packaging
+- correct issue #10 related to incorrect price for some parcels >500 and <1000g
 
-International Delivery Options:
-===============================
-International letters are not offered as no items of commercial value can be send by International Letter
-- Sea Mail 
-- Sea Mail +sig 
-- Sea Mail Insured +sig 
-- Sea Mail Insured (no sig) 
-- Economy Air Mail 
-- Economy Air Mail +sig 
-- Economy Air Mail Insured +sig 
-- Economy Air Mail Insured (no sig) 
-- Standard Post International 
-- Standard Post International +sig 
-- Standard Post International Insured +sig 
-- Standard Post International Insured (no sig) 
-- Express Post International 
-- Express Post International International +sig 
-- Express Post International International Insured +sig 
-- Express Post International International Insured (no sig) 
-- Courier International 
-- Courier International Insured  
+Shipping Module 2.5.5j + AusPost Overseas Shipping Module 2.5.5j 20 Jan 2024
+----------------------------------------------------------------------------
+- use strict_types=1; 
+- add declared vars identified; 
+- strval used for str_replace
+- version numbering v n.n.na
 
-Installation:
-==============
-1 Data
-------
-To obtain really accurate postage quotes directly from Australia Post the following fields are preferred. The module will still return quotations if dimensions are not provided.
 
-To use this Zen Cart plugin for calculating postage with Australia Post IT IS PREFERRED that you 
-have made the following customisation to Zen Cart.
+Version 2.5.5-07 16 Oct 2023:
+---------------------------
+- Added AUSPARCELREGULAR - Aust Post have reverted to default code for large parcels
 
-    The products table SHOULD include the following fields:
-    - products_width (included by default in Zen Cart)
-    - products_length (included by default in Zen Cart 2.0)
-    - products_height. (included by default in Zen Cart 2.0)
-    
-    The latter three fields can be added by installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
-    Dimensions should be in cm, weight should be in grams (gms).
-    If you have used the OzPpost postage calculator previously you will have these 
-    fields. If you do not add the extra fields and populate their values the module will use default values.
-    The default values are 10cm x 10cm x 2cm which will be a small parcel.
- 
-2 Australia Post Account
-------------------------
-To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
- https://developers.auspost.com.au/
- 
-3.1 Installing on zencart v158+
--------------------------------
-    3.1 Configuration - Australia Post
-    3.1.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
-    3.1.2 Upload the 'zc_plugins/AustraliaPost' folder to the root folder of your Zen Cart store.
-    3.1.3 A CSS file is in \catalog\includes\templates\template_default\css. A new icon file is in \catalog\includes\templates\template_default\images\icons. 
-        Upload the icons folder and the css folder to the template used on your site.
-    3.1.4 In Admin go to: modules > plugin manager and select AustraliaPost and install.
-       If you have a previous version installed, uninstall it first, but take note of your settings and AP key.
-    3.1.5 In Admin go to modules > shipping select aupost and edit
-    3.1.6 Under 'Auspost API Key', enter your 36 digit API key.
-    3.1.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-    3.1.7 Scroll down and click 'update'.
+Version 2.5.5-05 17 Sep 2023:
+---------------------------
+- Corrected error that let smallest satchel through when satchels are not included in Admin config settings
+- double checked tax inclusions
+- checked for and excluded some redundant returned codes returned by AustPost
 
-3.2 Installing on zencart v157
-----------------------------
-    3.2 Configuration - Australia Post
-    3.2.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
-    3.2.2 Upload the 'includes' folder to the root folder of your Zen Cart store.
-    3.2.3 A CSS file is uploaded to \includes\templates\template_default\css\. A new icon file is uploaded \includes\templates\template_default\images\icons. 
-        Upload the icons folder and the css folder to the template used on your site.
-    3.2.4 In Admin go to: modules > shipping > Australia Post > select it and click install. If you have a previous version of the module installed, uninstall the existing version then reinstall.
-    3.2.5 Under 'Auspost API Key', enter your 36 digit API key.
-    3.2.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-    3.2.7 Scroll down and click 'update'.
 
-Congratulations! You have now successfully installed the Australia Post Shipping Module.
+Version 2.5.5-03 11 Apr 2023:
+---------------------------
+- Local postage girth not used anymore - Aus Post based on max vol 0.25 cubic meters
+- define MODULE_SHIPPING_AUPOST_TAX_BASIS
+- improved output formatting in debug lines
 
-4 Additional Configurations
-=========================
-4.1 Select the postage options you wish to offer to customers.
-4.2 Add handling fees if you factor in costs for material and packaging.
-4.3 Cost on error is the default if a valid postage rate is not returned or the Australia Post servers cannot be reached. I recommend an amount large enough to cover most postage and that will be obvious eg 99.99.
-4.4 The Tare percent allows for weight of packaging etc when requesting postage rates. The default is 10.
+Version 2.5.5 22 Mar 2023:
+---------------------------
+- removed hard coded values for returned methods
+- better allows for potential malformed entries when postage options changed multiple times. This is inherent intermittent Zen Cart issue.
+- icons to be in template folder. Corrected format in returned array.
+____________________________________
 
-5   Configuration - Australia Post International
-================================================
-5.1 Repeat steps 3.1 above
-5.2 In Admin go to: modules > shipping > Australia Post International > click install
-5.3 Repeat step 3.1.4 to 3.1.5 above
-5.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-5.7 Scroll down and click 'update'.
+Australia Post Shipping Module 2.5.4
+Version 2.5.4 21 Feb 2023:
+___________________________________
+Files changed in 2.5.4
+- included version number
+- handling fee not included on all base options for overseas
 
--------------------------------------------------
-Upgrading from Australia Post Shipping Module previous versions
--------------------------------------------------
-A complete removal and reinstall is recommended.
-1. Note Australia Post API key and other settings.
-2. Remove old module.
-3. Overwrite the files with the new fileset.
-4. Install new version.
-5. Re-enter Australia Post API key and other settings.
+------------------------------------
+Version 2.5.3 14 Feb 2023:
+___________________________________
+Files changed in 2.5.3
+- Updated for ZC version 1.5.8 and backwards compatible with PHP 7.4
 
-If you have used the defunct OzPost Shipping Module ensure that all OzPost files are removed.
 
-Tax (GST) Calculations
-======================
-Australia Post postage rates to Australian destinations includes GST. This is taken into account in the module by providing the GST exempt price to Zen Cart and letting Zen Cart process the tax according to the rules you have defined. The tax-basis returned by aupost is "Shipping" 
-    so ensure that the setting 
-        Admin | Configuration | My Store | Basis of Shipping Tax is set to "Shipping" 
-    and that the Tax Class set in 
-        Admin | Modules |shipping |aupost is set to your tax rate that covers GST.
-Australia Post postage rates to overseas destinations do not include GST. Set your Tax Class in 
-    Admin | Modules |shipping |aupostoverseas     to your tax rate that does not include GST.
+Version 2.5-2 04 Feb 2023:
+___________________________________
+Files changed in 2.5.2
+- Updated for ZC version 1.5.8 and PHP 8.2
+- Error msg and error handling when Australia Post servers are down
+- define more class public vars
+- move the logo display to avoid icon loading on file opening and no quote selected
+- change defines
+- ensure unique var names to avoid clash between aupost and aupostoverseas modules
+- data load select all options and make handling fee 2.00 on all, show handling fees
+- restructure logic to not fail with Australia Post invalid codes returned
+- disable cache for zc158
+- remove redundant options no longer available via API (may be available over the counter)
 
-Parcel sizing calculations
-==========================
-NOTE: The sizing calculations are primitive eg dimensions are totalled so many small items are made into one long parcel.
+
+Australia Post Shipping Module 2.5.0
+----------------------------------
+Version 2.5-0 16 Nov 2022:
+__________________________________
+Files changed in 2.5.0
+- Updated for ZC version 1.5.8 and PHP 8.1
+- added options for regular parcels, express parcels
+- round up extra cover value
+- do not check insurance if below min cover amt
+- Version 2.5 runs on Zen Cart 158
+- rearrange logic for PHP8.1
+- quotes on AUS; hide ins for parcels where value less than min ins value
+- standard formatting - removes some divs
+- ensure each option has unique identifier
+
+Australia Post Shipping Module 2.4.2
+----------------------------------
+Version 2.4-2 31 July 2022:
+__________________________________
+Files changed in 2.4.2
+- Updated for ZC version 1.5.7d and PHP 8.0
+- defined constants in aupost.php and aupostoverseas.php
+- aupost.php will only return postage charges for Australian destinations
+- aupostoverseas.php will only return postage charges for overseas destinations
+- postage rates with zero charges and duplicate charges are filtered out
+- postage rates are sorted lowest to highest
+- Australia Post information URL updated
+- postage rates return all rates within a category
+- maximum parcel weight set to 22kg
+- defaulted weight measurement to gms
+- Updated Aus Post codes
+- Debug mode only shows valid options
+- included letters: regular, priority and express
+- included parcels: extra cover and signature for regular and satchels
+- updated Australia Post icon
+- included css file for debugging options
