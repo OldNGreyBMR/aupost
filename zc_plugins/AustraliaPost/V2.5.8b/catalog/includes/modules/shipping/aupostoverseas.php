@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   overseasaupost.php, v2.5.8a Jul 2025
+ $Id:   overseasaupost.php, v2.5.8b Jul 2025
   v2.5.8 check correct australia post zones
   v2.5.8a 2025-07-06 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR ie TBA
+  v2.5.8b 2025-07-17 check for Constants on initial install
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');           // BMH 2nd level debug to display all returned data from Aus Post
@@ -12,7 +13,7 @@ define('USE_CACHE_INT','No');           // BMH disable cache // set to 'No' for 
 define('MINEXTRACOVER_OVERIDE','No');   // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER_INT // Used for testing.
 
 //BMH declare constants
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.8A'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.8B'); }
 
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } //
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
@@ -101,17 +102,18 @@ class aupostoverseas extends base
                 $this->title = MODULE_SHIPPING_OVERSEASAUPOST_TEXT_TITLE;
             }
             $check_coe = FALSE;
-            if ( trim(MODULE_SHIPPING_OVERSEASAUPOST_COST_ON_ERROR) == "TBA") { 
-                $check_coe = TRUE; 
+            if (defined('MODULE_SHIPPING_OVERSEASAUPOST_COST_ON_ERROR')) {
+                if ( trim(MODULE_SHIPPING_OVERSEASAUPOST_COST_ON_ERROR) == "TBA") { 
+                    $check_coe = TRUE; 
+                }
+                if ( is_numeric(trim(MODULE_SHIPPING_OVERSEASAUPOST_COST_ON_ERROR)) ) { 
+                    $check_coe = TRUE; 
+                }
+                if ($check_coe == FALSE) {
+                    $this->title .=  '<span class="alert"> (Cost on Error has invalid value</span>';
+                }
             }
-            if ( is_numeric(trim(MODULE_SHIPPING_OVERSEASAUPOST_COST_ON_ERROR)) ) { 
-                $check_coe = TRUE; 
-            }
-            if ($check_coe == FALSE) {
-                $this->title .=  '<span class="alert"> (Cost on Error has invalid value</span>';
-            }
-
-        }
+        } // end Admin section
 
         $shipping_num_boxes = 1; // 2025-03-07
 
