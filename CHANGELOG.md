@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.8b 18 July 2025
+------------------------------------------
+2025-07-17 v2.5.8b 2025-07-17 check for Constants on initial install
+        
 AusPost Shipping Module 2.5.8a 09 July 2025
 ------------------------------------------
 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
