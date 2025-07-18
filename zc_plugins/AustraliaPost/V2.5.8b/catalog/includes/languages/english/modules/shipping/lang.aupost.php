@@ -1,5 +1,5 @@
 <?php
-/*   $Id: aupost.php,v 2.5.8a Jul 2025 */
+/*   $Id: aupost.php,v 2.5.8b Jul 2025 */
 // BMH 2025-07-09
 $define = [
     'MODULE_SHIPPING_AUPOST_TEXT_TITLE' => 'Australia Post',
@@ -10,5 +10,6 @@ $define = [
     'ERROR_MAX_CUBIC_MSG' => 'Exceeds maximum cubic vol /girth',  // limit to 30 chars length for presentation
     'ERROR_MAX_WEIGHT_MSG' => 'Exceeds maximum weight',  // limit to 30 chars length for presentation
     'ERROR_NO_VALID_PARCEL_QUOTE_MSG' => 'No valid parcel quote  from Australia Post',  // limit to 30 chars length for presentation
+    'ERROR_NO_VALID_LETTER_QUOTE_MSG' => 'No valid letter quote from Australia Post',  // limit to 30 chars length for presentation];
 ];
 return $define;
