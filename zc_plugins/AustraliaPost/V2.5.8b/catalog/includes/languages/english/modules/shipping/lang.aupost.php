@@ -12,5 +12,4 @@ $define = [
     'ERROR_NO_VALID_PARCEL_QUOTE_MSG' => 'No valid parcel quote  from Australia Post',  // limit to 30 chars length for presentation
     'ERROR_NO_VALID_LETTER_QUOTE_MSG' => 'No valid letter quote from Australia Post',  // limit to 30 chars length for presentation];
 ];
-return $define;
-
+return $define; 
