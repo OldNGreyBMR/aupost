@@ -1,4 +1,4 @@
-aupost zen cart Australia postage plug in
+aupost Zen Cart Australia postage plug in
 ==========================================
 Australia Post Shipping Module 2.5.8a
 --------------------------------------
@@ -95,7 +95,7 @@ have made the following customisation to Zen Cart.
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
  
-3.1 Installing on zencart v158+
+3.1 Installing on zencart v2.0.0+
 -------------------------------
     3.1 Configuration - Australia Post
     3.1.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
@@ -109,7 +109,7 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.1.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
     3.1.7 Scroll down and click 'update'.
 
-3.2 Installing on zencart v157
+3.2 Installing on zencart v158 and 157
 ----------------------------
     3.2 Configuration - Australia Post
     3.2.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 

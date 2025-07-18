@@ -76,9 +76,7 @@ $pickup = false; //BMH
           <td class="pageHeadingR " align="right"><?php echo zen_image(DIR_WS_IMAGES . HEADER_LOGO_IMAGE, HEADER_ALT_TEXT); ?>
             <!-- //BMH change to align right -->
             <br>
-            <span class="pageHeadingTax"><?php echo TITLE_INVOICE .
-            . ' v2.5.8 ZBMH ' . // BMH DEBUG 
-            ;?> </span>
+            <span class="pageHeadingTax"><?php echo TITLE_INVOICE ;?> </span>
             <!-- BMH eof -- -->
           </td>
         </tr>
