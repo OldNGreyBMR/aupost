@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   aupost.php,v2.5.8a Jul 2025
+ $Id:   aupost.php,v2.5.8b Jul 2025
         v2.5.8 2025-07-01 AustraliaPost Price and parcel changes for July 2025
         v2.5.8a 2025-07-05 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
+        v2.5.8b 2025-07-17 check for Constants on initial install
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug
@@ -15,7 +16,7 @@ define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cov
 // **********************
 
 //BMH declare constants
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8a');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8b');}
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_AUPOST_TAX_CLASS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPES1')) { define('MODULE_SHIPPING_AUPOST_TYPES1',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPE_LETTERS')) { define('MODULE_SHIPPING_AUPOST_TYPE_LETTERS',''); }
@@ -121,14 +122,16 @@ class aupost extends base
                 $this->title = MODULE_SHIPPING_AUPOST_TEXT_TITLE;
             }
             $check_coe = FALSE;
-            if ( trim(MODULE_SHIPPING_AUPOST_COST_ON_ERROR) == "TBA") { 
-                $check_coe = TRUE; 
-            }
-            if ( is_numeric(trim(MODULE_SHIPPING_AUPOST_COST_ON_ERROR)) ) { 
-                $check_coe = TRUE; 
-            }
-            if ($check_coe == FALSE) {
-                $this->title .=  '<span class="alert"> (Cost on Error has invalid value</span>';
+            if (defined('MODULE_SHIPPING_AUPOST_COST_ON_ERROR')) {
+                if ( trim(MODULE_SHIPPING_AUPOST_COST_ON_ERROR) == "TBA") { 
+                    $check_coe = TRUE; 
+                }
+                if ( is_numeric(trim(MODULE_SHIPPING_AUPOST_COST_ON_ERROR)) ) { 
+                    $check_coe = TRUE; 
+                }
+                if ($check_coe == FALSE) {
+                    $this->title .=  '<span class="alert"> (Cost on Error has invalid value</span>';
+                }
             }
 
             $lh1=defined('MODULE_SHIPPING_AUPOST_LETTER_HANDLING');
@@ -137,7 +140,7 @@ class aupost extends base
             if (($lh1<0) || ($lh2<0)  || ($lh3<0)){
                 echo '<br/> ln125 check handling fees';
             }
-        }
+        } // end Admin section
 
         $shipping_num_boxes = 1;
 
