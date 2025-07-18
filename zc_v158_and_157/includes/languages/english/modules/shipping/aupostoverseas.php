@@ -16,3 +16,4 @@ define('ERROR_MAX_CUBIC_MSG_INT', 'Exceeds maximum cubic vol /girth');     // li
 define('ERROR_MAX_GIRTH_MSG_INT', 'Exceeds maximum girth');     // limit to 30 chars length for presentation
 define('ERROR_MAX_WEIGHT_MSG_INT', 'Exceeds maximum weight');             // limit to 30 chars length for presentation
 define('ERROR_NO_VALID_PARCEL_QUOTE_MSG_INT', 'No valid parcel quote  from Australia Post');  // limit to 30 chars length for presentation
+define('MSGNOTRACKING_INT', '<b> (No tracking) </b>');         // label append // emphasis to minimise complaints
