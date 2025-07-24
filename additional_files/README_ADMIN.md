@@ -14,10 +14,16 @@ invoice.php
 The new invoice file:
     includes the title "Tax Invoice" as required by the Australian Tax Office,
     removes the SHIP TO address and replaces it with "PICKUP" if the order is to be collected,
-    reorganizes the sections an dthe size of the addresses so the invoice can be folded in half then folded 
+    reorganizes the sections and the size of the addresses so the invoice can be folded in half then folded 
     again to fit into an address sleeve.
 
 Before you copy this new invoice.php file, locate the original and rename it eg rename invoice.php to invoice_ori.php2
+
+This invoice is designed to NOT include product images. If your invoice is including the images edit the 
+admin/includes/extra_datafiles/site_specific_admin_overrides.php file and set the $show_product_images and 
+$show_product_images_pack variables to false. 
+
+This will prevent the display of product images on both invoices and packing slips. 
 
 Language override file
 ----------------------
@@ -28,5 +34,5 @@ It changes;
     changes the logo widths to reduce wasted space;
     changes weight units displayed from lbs to grams and kgs to gms;
     changes header names to MY STORE NAME and changes to logos to MY LOGO names
-    ALTER THESE SETTINGS TO SUIT YOUR STORE.
+    ALTER THESE SETTINGS TO SUIT YOUR STORE or do simply not install the file if you have these settings defined elsewhere.
 
