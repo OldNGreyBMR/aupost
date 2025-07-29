@@ -1,0 +1,6 @@
+nppBackup
+nppBackup\*
+dev-*
+*.php2
+*.bak
+*.css2
