@@ -1,19 +1,21 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   overseasaupost.php, v2.5.8b Jul 2025
+ $Id:   overseasaupost.php, v2.5.8c Jul 2025
   v2.5.8 check correct australia post zones
   v2.5.8a 2025-07-06 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR ie TBA
   v2.5.8b 2025-07-17 check for Constants on initial install
+  v2.5.8c 2025-07-25 check min size with sig + insurance
+          comment out all unused variables
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');           // BMH 2nd level debug to display all returned data from Aus Post
 define('BMHDEBUG_INT2','No');           // BMH 3rd level debug to display all returned data from Aus Post
 define('USE_CACHE_INT','No');           // BMH disable cache // set to 'No' for testing;
-define('MINEXTRACOVER_OVERIDE','No');   // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER_INT // Used for testing.
+define('MINEXTRACOVER_OVERIDE','Yes');   // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER_INT // Used for testing.
 
 //BMH declare constants
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.8B'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.8c'); }
 
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } //
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
@@ -32,11 +34,9 @@ if (!defined('AUPOST_URL_PROD')) { define('AUPOST_URL_PROD','digitalapi.auspost.
 if (!defined('PARCEL_INT_URL_STRING')) { define('PARCEL_INT_URL_STRING','/postage/parcel/international/service.xml?');}    // Aust Post URI api what services are avail for destination
 if (!defined('PARCEL_INT_URL_STRING_CALC')) { define('PARCEL_INT_URL_STRING_CALC','/postage/parcel/international/calculate.xml?'); }   // Aust Post URI api calc charges for each type
 
-// set product variables
 
-$aupost_url_string = AUPOST_URL_PROD ;
-
-$lettersize = 0;                //set flag for letters
+// $aupost_url_string = AUPOST_URL_PROD ; // UNUSED
+// $lettersize = 0; // UNUSED
 
 // class constructor
 
@@ -47,7 +47,7 @@ class aupostoverseas extends base
     public $log_file_name = "AuPost.log"; //
     public $add_int;            //
     public $allowed_methods;    //
-    public $aus_rate_int_int;   // tax rate
+    // public $aus_rate_int_int;   // UNUSED
     public $code;               // Declare shipping module alias code
     public $description;        // Shipping module display description
     public $dest_country;       // destination country
@@ -58,17 +58,17 @@ class aupostoverseas extends base
     public $icon;               // Shipping module icon filename/path
     public $included_option;    //
     public $logo;               // au post logo
-    public $myarray = [];       //
-    public $myorder;            //
+    // public $myarray = [];       // UNUSED
+    // public $myorder;            // UNUSED
     public $ordervalue;         // value of order
-    public $qu2;                // quote string
-    public $qu2_sig;            // quote2 string for signatures
+    // public $qu2;                // UNUSED
+    // public $qu2_sig;            // UNUSED
     public $quotes =[];         //
     public $sort_order;         // sort order for quotes options
     public $tax_basis;          //
     public $tax_class_int;      //
     public $tax_class;      //
-    public $testmethod;         //
+    // public $testmethod;         // UNUSED
     public $title;              // Shipping module display name
     public $usemod;             //
     public $usetitle;           //
@@ -1235,16 +1235,16 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
 
     // write to log file
     private function _log($msg, $suffix = '')
-	{
+    {
         global $purchaseOrderId;
         $file = $this->_logDir . '/' . $this->log_file_name;
-		if ($fp = @fopen($file, 'a'))
-		{
+        if ($fp = @fopen($file, 'a'))
+        {
             $today = date("Y-m-d_H:i:s");     
-			@fwrite($fp, "".time().": ".$today . ": " ."AuPostOS " .$msg . " " . $purchaseOrderId ."\r\n"); // stores epoch time + date
-			@fclose($fp);
-		}
-	}
+            @fwrite($fp, "".time().": ".$today . ": " ."AuPostOS " .$msg . " " . $purchaseOrderId ."\r\n"); // stores epoch time + date
+            @fclose($fp);
+        }
+    }
 public function _debug_output($x,$debug_message,$dump)
     {
         switch ($x) {
@@ -1298,7 +1298,7 @@ public function install()
       $result = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'SHIPPING_ORIGIN_ZIP'"  ) ;
       $pcode = $result->fields['configuration_value'] ;
 
-	if (!$pcode) $pcode = "2000" ;
+    if (!$pcode) $pcode = "2000" ;
 
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) 
         VALUES ('Enable this module?', 'MODULE_SHIPPING_OVERSEASAUPOST_STATUS', 'True', 'Enable this Module', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
@@ -1317,7 +1317,7 @@ public function install()
         VALUES ('Handling Fee - Standard Post International', 'MODULE_SHIPPING_OVERSEASAUPOST_STANDARD_HANDLING', '2.00', 'Handling Fee for Standard Post International.', '6', '8', now())");
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
         VALUES ('Handling Fee - Express Post International', 'MODULE_SHIPPING_OVERSEASAUPOST_EXPRESS_HANDLING', '2.00', 'Handling Fee for Express Post International.', '6', '9', now())");
-	$db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
+    $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
         VALUES ('Handling Fee - Courier International', 'MODULE_SHIPPING_OVERSEASAUPOST_COURIER_HANDLING', '2.00', 'Handling Fee for Courier International.', '6', '10', now())");
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) 
         VALUES ('Hide Handling Fees?', 'MODULE_SHIPPING_OVERSEASAUPOST_HIDE_HANDLING', 'No', 'The handling fees are still in the total shipping cost but the Handling Fee is not itemised on the invoice.', '6', '16', 'zen_cfg_select_option(array(\'Yes\', \'No\'), ', now())");
@@ -1347,7 +1347,7 @@ public function install()
     $result = $db->Execute($sql);
     while (!$result->EOF) {
       if  ($result->fields['Field'] == 'products_length') {
- 	  unset($inst) ;
+      unset($inst) ;
           break;
       }
       $result->MoveNext();
