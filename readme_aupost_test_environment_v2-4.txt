@@ -8,4 +8,3 @@ The following API key is required to TEST these APIs:
 28744ed5982391881611cca6cf5c240
 
 Source: [https://developers.auspost.com.au/apis/pac/getting-started ]
-
