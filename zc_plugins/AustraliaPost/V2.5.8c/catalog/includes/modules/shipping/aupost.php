@@ -1,10 +1,13 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   aupost.php,v2.5.8b Jul 2025
+ $Id:   aupost.php,v2.5.8c Jul 2025
         v2.5.8 2025-07-01 AustraliaPost Price and parcel changes for July 2025
         v2.5.8a 2025-07-05 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
         v2.5.8b 2025-07-17 check for Constants on initial install
+        v2.5.8c postcode validationlogic moved to its own method validate_au_postcode
+                comment out all unused variables
+        v2.5.8c 2025-07-29 correct configuration_group_id and change from 7 to 6 error introduced v256 
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug
@@ -12,11 +15,11 @@ define('BMH_P_DEBUG2','No'); // No or Yes // BMH 3nd level debug to display all 
 define('BMH_L_DEBUG1', 'No'); // No or Yes // BMH 3nd level debug
 define('BMH_L_DEBUG2', 'No'); // No or Yes // BMH 3nd level debug to display all returned XML data from Aus Post
 define('USE_CACHE', 'No');     // BMH disable cache // set to 'No' for testing;
-define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cover on orders less than MINVALUEEXTRACOVER for PRODUCTION SET TO "No' ln547
+define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cover on orders less than MINVALUEEXTRACOVER. For PRODUCTION SET TO "No' ln547
 // **********************
 
 //BMH declare constants
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8b');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8c');}
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_AUPOST_TAX_CLASS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPES1')) { define('MODULE_SHIPPING_AUPOST_TYPES1',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPE_LETTERS')) { define('MODULE_SHIPPING_AUPOST_TYPE_LETTERS',''); }
@@ -44,13 +47,8 @@ if (!defined('LETTER_URL_STRING_CALC')) { define('LETTER_URL_STRING_CALC','/post
 if (!defined('PARCEL_URL_STRING')) { define('PARCEL_URL_STRING','/postage/parcel/domestic/service.xml?from_postcode='); } //
 if (!defined('PARCEL_URL_STRING_CALC')) { define('PARCEL_URL_STRING_CALC','/postage/parcel/domestic/calculate.xml?from_postcode='); }//
 
-// set product variables
-$aupost_url_string = AUPOST_URL_PROD ;
-if (IS_ADMIN_FLAG === true) {
- //   $this->title = MODULE_SHIPPING_AUPOST_TEXT_TITLE ; // Aupost module title in Admin
-}
-
-$lettersize = 0;    //set flag for letters
+// $aupost_url_string = AUPOST_URL_PROD ; // UNUSED
+// $lettersize = 0;    // UNUSED
 
 // class constructor
 
@@ -62,7 +60,7 @@ class aupost extends base
     public $add;                // add on charges
     public $allowed_methods;    //
     public $allowed_methods_l;  //
-    public $FlatText;           //
+    // public $FlatText;           // UNUSED
     public $aus_rate;           //
     public $_check;             //
     public $code;               // Declare shipping module alias code
@@ -76,17 +74,17 @@ class aupost extends base
     public $icon;               // Shipping module icon filename/path
     public $itemcube;          // cubic volume of item
     public $logo;               // au post logo
-    public $myarray = [];       //
-    public $myorder;            //
+    // public $myarray = [];       // UNUSED
+    // public $myorder;            // UNUSED
     public $ordervalue;         // value of order
-    public $parcel_cube;        // cubic volume of parcel // NOT USED YET
+    // public $parcel_cube;        // UNUSED cubic volume of parcel
     public $producttitle;       //
     public $quotes =[];         //
     public $shipping_num_boxes; //
     public $sort_order;         // sort order for quotes options
     public $tax_basis;          //
     public $tax_class;          //
-    public $testmethod;         //
+    // public $testmethod;         // UNUSED
     public $title;              //
     public $topcode;            //
     public $usemod;             //
@@ -215,7 +213,7 @@ class aupost extends base
 
             $MAXLETTERFOLDSIZE = 15;                        // mm for edge of envelope
             $MAXLETTERPACKINGDIM = 4;                       // mm thickness of packing. Letter max height is 20mm including packing
-            $MAXWEIGHT_L = 500 ;                            // 500g
+            //$MAXWEIGHT_L = 500 ;                            // 500g
             $MAXLENGTH_L = (360 - $MAXLETTERFOLDSIZE);      // 360mm max letter length  less fold size on edges
             $MAXWIDTH_L =  (260 - $MAXLETTERFOLDSIZE);      // 260mm max letter width  less fold size on edges
             $MAXHEIGHT_L = (20 - $MAXLETTERPACKINGDIM);     // 20mm max letter height LESS packing thickness
@@ -224,38 +222,38 @@ class aupost extends base
             $MAXWIDTH_L_SM = (130 - $MAXLETTERFOLDSIZE);    // 130mm
             $MAXWEIGHT_L_WT1 = 125;                         // weight 125
             $MAXWEIGHT_L_WT2 = 250;                         //
-            $MAXWEIGHT_L_WT3 = 500;                         //
+            //$MAXWEIGHT_L_WT3 = 500;                         //
             $MSGLETTERTRACKING = MSGLETTERTRACKING;         // label append formatted in language file
-            $MAXWIDTH_L_SM_EXP = 110;                       // DL envelope prepaid Express envelopes
-            $MAXLENGTH_L_SM_EXP = 220;                      // DL envelope prepaid Express envelopes
-            $MAXWIDTH_L_MED_EXP = 162;                      // C5 envelope prepaid Express envelopes
-            $MAXLENGTH_L_MED_EXP = 229;                     // C5 envelope prepaid Express envelopes
-            $MAXWIDTH_L_LRG_EXP = 250;                      // B4 envelope prepaid Express envelopes
-            $MAXLENGTH_L_LRG_EXP = 353;                     // B4 envelope prepaid Express envelopes
+            //$MAXWIDTH_L_SM_EXP = 110;                       // DL envelope prepaid Express envelopes
+            //$MAXLENGTH_L_SM_EXP = 220;                      // DL envelope prepaid Express envelopes
+            //$MAXWIDTH_L_MED_EXP = 162;                      // C5 envelope prepaid Express envelopes
+            //$MAXLENGTH_L_MED_EXP = 229;                     // C5 envelope prepaid Express envelopes
+            //$MAXWIDTH_L_LRG_EXP = 250;                      // B4 envelope prepaid Express envelopes
+            //$MAXLENGTH_L_LRG_EXP = 353;                     // B4 envelope prepaid Express envelopes
             $MINVALUEEXTRACOVER = 101;                      // Aust Post amount for min insurance charge
             $MINLETTERWEIGHT = 15;                          // minimum weight of letter container
 
             // initialise variables
             $letterwidth = 0.0 ;
             $letterwidthcheck = 0 ;
-            $letterwidthchecksmall = 0 ;
+            //$letterwidthchecksmall = 0 ;
             $letterlength = 0.0 ;
             $letterlengthcheck = 0 ;
-            $letterlengthchecksmall = 0 ;
+            //$letterlengthchecksmall = 0 ;
             $letterheight = 0.0 ;
             $letterheightcheck = 0 ;
-            $letterheightchecksmall = 0 ;
+            //$letterheightchecksmall = 0 ;
             $letterweight = 0 ;
-            $lettercube = 0 ;
+            //$lettercube = 0 ;
             $letterchecksmall = 0 ;
             $lettercheck = 0 ;
-            $lettersmall = 0;
+            //$lettersmall = 0;
             $letterlargewt1 = 0;
             $letterlargewt2 = 0;
             $letterlargewt3 = 0;
-            $letterexp_small = 0;
-            $letterexp_med = 0;
-            $letterexp_lrg = 0;
+            //$letterexp_small = 0;
+            //$letterexp_med = 0;
+            //$letterexp_lrg = 0;
             $letterprefix = 'LETTER ';               // prefix label to differentiate from parcel - include space after
 
         }
@@ -265,7 +263,7 @@ class aupost extends base
         // Maximums - parcels
         $MAXWEIGHT_P = 22 ;     // BMH change from 20 to 22kg 2021-10-07
         $MAXLENGTH_P = 105 ;    // 105cm max parcel length
-        $MAXGIRTH_P =  140 ;    // 140cm max parcel girth  ( (width + height) * 2) // 2023 girth not used for local parcel
+        //$MAXGIRTH_P =  140 ;    // 140cm max parcel girth  ( (width + height) * 2) // 2023 girth not used for local parcel
         $MAXCUBIC_P = 0.25 ;    // 0.25 cubic meters max dimensions (width * height * length)
 
         // default dimensions   // parcels
@@ -278,43 +276,25 @@ class aupost extends base
         $parcellength = 0 ;
         $parcelheight = 0 ;
         $parcelweight = 0 ;
-        $cube = 0 ;
+        //$cube = 0 ;
         $details = ' ';
         $itemcube = 0;
-        $parcel_cube = 0;  // NOT USED YET
+        //$parcel_cube = 0;  // NOT USED YET
 
         $frompcode = (MODULE_SHIPPING_AUPOST_SPCODE);
         $dest_country=($order->delivery['country']['iso_code_2'] ?? '');    //
 
+
         // BMH Only proceed for AU addresses
-        if ($dest_country != "AU") {            //BMH There are no quotes
-            return;                             //BMH  exit as overseas post is a separate module
-        }
-        $topcode = str_replace(" ", "", ($order->delivery['postcode'] ?? '')); // check postcode field
-
-        if (($topcode == "") && ($dest_country == "AU")) {
+        if ($dest_country != "AU") {
             return;
-        }                                       //  This will occur with guest user first quote where no postcode is available
-
-        // validate postcode format
-        if (strlen($topcode) <> 0)              // must have a value to validate
-        {
-            if (preg_match("/\D/", $topcode) || //REGEXP: true if "any match for non-numeral"
-            strlen($topcode) <> 4    )          //check length is 4 char
-            {
-                //echo 'ERROR: incorrect postcode format = ' . $topcode;
-                $order->delivery['postcode'] = "";          // reset postcode 
-                return false;
-            }
-            $topcode_pattern1 ="/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/"; //REGEXP: Match Australian Post Code validation Source: https://www.etl-tools.com/regular-expressions/is-australian-post-code.html
-
-            if (!preg_match($topcode_pattern1, $topcode) ) //REGEXP: Match Australian Post Code validation Source: https://www.etl-tools.com/regular-expressions/is-australian-post-code.html
-            {
-                // echo ' ERROR: incorrect postcode = ' . $topcode;
-                $order->delivery['postcode'] = "";          // reset postcode BMH E
-                 return false;
-            }
         }
+        $topcode = str_replace(" ", "", ($order->delivery['postcode'] ?? ''));
+
+        if (!$this->validate_au_postcode($topcode, $dest_country, $order)) {
+            return;
+        }
+    // ...existing code...
 
         $aus_rate = (float)$currencies->get_value('AUD') ;      // get $AU exchange rate
         // EOF PARCELS - values
@@ -330,8 +310,8 @@ class aupost extends base
         $tare = MODULE_SHIPPING_AUPOST_TARE ;                         // percentage to add for packing etc
 
         if (($topcode == "") && ($dest_country == "AU")) {
-			return;
-		}           //  This will occur with guest user first quote where no postcode is available
+            return;
+        }           //  This will occur with guest user first quote where no postcode is available
 
        // BMH not developed $FlatText = " Using AusPost Flat Rate." ; // BMH Not in use
 
@@ -418,7 +398,7 @@ class aupost extends base
             // check letter height small
             if (($letterheight) <= $MAXHEIGHT_L_SM ) {
                 $letterheightchecksmall = 1;
-                $letterchecksmall = 1;                          // BMH DEBUG echo '<br> ln331 $letterlengthcheckSmall=' . $letterlengthcheckSmall;
+                $letterchecksmall = 1;                          
             }
 
             // letter length in range for small
@@ -448,7 +428,7 @@ class aupost extends base
             // check letter weight // in grams
             $letterweight = ($parcelweight + ($parcelweight* $tare/100));
             $letterweight = $letterweight + $MINLETTERWEIGHT;                   //add weight of envelope
-            $letterweight = ceil($letterweight);                                // round up to integer
+            $letterweight = ceil($letterweight);                           // round up to integer
             if ((($letterweight ) <= $MAXWEIGHT_L_WT1 ) && ($letterchecksmall == 3) ){
                 $lettersmall = 1;
             }
@@ -1391,6 +1371,33 @@ class aupost extends base
         //  //  ///////////////////////////////  Final Exit Point //////////////////////////////////
     } // eof function quote method
 
+    /**
+     * Validates an Australian postcode for AU addresses. Resets postcode in $order if invalid.
+     * @param string $postcode
+     * @param string $country
+     * @param array|object $order (passed by reference)
+     * @return bool
+     */
+    private function validate_au_postcode($postcode, $country, &$order)
+    {
+        if ($country != "AU") {
+            return false;
+        }
+        if ($postcode === "") {
+            return false;
+        }
+        if (strlen($postcode) !== 4 || preg_match("/\D/", $postcode)) {
+            $order->delivery['postcode'] = "";
+            return false;
+        }
+        $pattern = "/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/";
+        if (!preg_match($pattern, $postcode)) {
+            $order->delivery['postcode'] = "";
+            return false;
+        }
+        return true;
+    }
+
 private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MINVALUEEXTRACOVER,
     $dcode, $parcellength, $parcelwidth, $parcelheight, $parcelweight, $optionservicecode, $optioncode, $suboptioncode,
     $id_option, $description, $details, $dest_country, $order, $currencies, $aus_rate, $shipping_num_boxes)
@@ -1580,17 +1587,17 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
 
 // write to log file
     private function _log($msg, $suffix = '')
-	{
+    {
         global $purchaseOrderId;
         $file = $this->_logDir . '/' . $this->log_file_name;
-		if ($fp = @fopen($file, 'a'))
-		{
+        if ($fp = @fopen($file, 'a'))
+        {
             $today = date("Y-m-d_H:i:s");         // BMH
-			@fwrite($fp, "".time().": ".$today . ": " .$msg . " " . $purchaseOrderId ."\r\n"); // stores epoch time + date
+            @fwrite($fp, "".time().": ".$today . ": " .$msg . " " . $purchaseOrderId ."\r\n"); // stores epoch time + date
             // BMH @fwrite($fp, "".time().": ".$msg); // stores time as epoch time
-			@fclose($fp);
-		}
-	}
+            @fclose($fp);
+        }
+    }
 // format on screen debug statements
     public function _debug_output($x,$debug_message,$dump)
     {
@@ -1639,11 +1646,11 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
         global $messageStack;
         // check for XML // BMH
         if (!class_exists('SimpleXMLElement')) {
-			$messageStack->add('aupost', 'Installation FAILED. AusPpost requires SimpleXMLElement to be installed on the system ');
+            $messageStack->add('aupost', 'Installation FAILED. AusPpost requires SimpleXMLElement to be installed on the system ');
             //$messageStack->add(sprintf('Installation FAILED. AusPpost requires SimpleXMLElement to be installed on the system ', 'info'));
-		echo "<br/> This module requires SimpleXMLElement to work. Most Web hosts will support this.<br>Installation will NOT continue.<br>Press your back-page to continue ";
+        echo "<br/> This module requires SimpleXMLElement to work. Most Web hosts will support this.<br>Installation will NOT continue.<br>Press your back-page to continue ";
         exit;
-		}
+        }
 
         $result = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'SHIPPING_ORIGIN_ZIP'"  ) ;
         $pcode = $result->fields['configuration_value'] ;
@@ -1652,13 +1659,13 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
         //
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added)
-            VALUES ('Enable this module?', 'MODULE_SHIPPING_AUPOST_STATUS', 'True', 'Enable this Module', '7', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
+            VALUES ('Enable this module?', 'MODULE_SHIPPING_AUPOST_STATUS', 'True', 'Enable this Module', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
 
        $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
-           VALUES ('Auspost API Key:', 'MODULE_SHIPPING_AUPOST_AUTHKEY', 'Add API Auth key from Australia Post', 'To use this module, you must obtain a 36 digit API Key from the <a href=\"https:\\developers.auspost.com.au\" target=\"_blank\">Auspost Development Centre</a>', '7', '2', now())");
+           VALUES ('Auspost API Key:', 'MODULE_SHIPPING_AUPOST_AUTHKEY', 'Add API Auth key from Australia Post', 'To use this module, you must obtain a 36 digit API Key from the <a href=\"https:\\developers.auspost.com.au\" target=\"_blank\">Auspost Development Centre</a>', '6', '2', now())");
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
-            VALUES ('Dispatch Postcode', 'MODULE_SHIPPING_AUPOST_SPCODE', $pcode, 'Dispatch Postcode?', '7', '2', now())");
+            VALUES ('Dispatch Postcode', 'MODULE_SHIPPING_AUPOST_SPCODE', $pcode, 'Dispatch Postcode?', '6', '2', now())");
         // BMH bof LETTERS
 
         $db->Execute(
@@ -1666,7 +1673,7 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
                 VALUES ('<hr>AustPost Letters (and small parcels@letter rates)', 'MODULE_SHIPPING_AUPOST_TYPE_LETTERS',
                     'Aust Standard, Aust Priority, Aust Express, Aust Express +sig, Aust Express Insured +sig, Aust Express Insured (no sig)',
                     'Select the methods you wish to allow',
-                    '7','3',
+                    '6','3',
                     'zen_cfg_select_multioption(array(\'Aust Standard\',\'Aust Priority\',\'Aust Express\',\'Aust Express +sig\',\'Aust Express Insured +sig\',\'Aust Express Insured (no sig)\',), ',
                     now())"
         );
@@ -1674,59 +1681,61 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
              VALUES ('Handling Fee - Standard Letters',
-             'MODULE_SHIPPING_AUPOST_LETTER_HANDLING', '2.00', 'Handling Fee for Standard letters.', '7', '13', now())"
+             'MODULE_SHIPPING_AUPOST_LETTER_HANDLING', '2.00', 'Handling Fee for Standard letters.', '6', '13', now())"
         );
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
              VALUES ('Handling Fee - Priority Letters',
-             'MODULE_SHIPPING_AUPOST_LETTER_PRIORITY_HANDLING', '2.00', 'Handling Fee for Priority letters.', '7', '13', now())"
+             'MODULE_SHIPPING_AUPOST_LETTER_PRIORITY_HANDLING', '2.00', 'Handling Fee for Priority letters.', '6', '13', now())"
         );
         $db->Execute(
             "INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
              VALUES ('Handling Fee - Express Letters',
-             'MODULE_SHIPPING_AUPOST_LETTER_EXPRESS_HANDLING', '2.00', 'Handling Fee for Express letters.', '7', '13', now())"
+             'MODULE_SHIPPING_AUPOST_LETTER_EXPRESS_HANDLING', '2.00', 'Handling Fee for Express letters.', '6', '13', now())"
         );
         // BMH eof LETTERS
 
         // bof PARCELS
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added)
             VALUES ('Shipping Methods for Australia', 'MODULE_SHIPPING_AUPOST_TYPES1', 'Regular Parcel, Regular Parcel +sig, Regular Parcel Insured +sig, Regular Parcel Insured (no sig), Prepaid Satchel, Prepaid Satchel +sig, Prepaid Satchel Insured +sig, Prepaid Satchel Insured (no sig), Express Parcel, Express Parcel +sig, Express Parcel Insured +sig, Express Parcel Insured (no sig), Prepaid Express Satchel, Prepaid Express Satchel +sig, Prepaid Express Satchel Insured +sig, Prepaid Express Satchel Insured (no sig)',
-                'Select the methods you wish to allow', '7', '4',
+                'Select the methods you wish to allow', '6', '4',
                 'zen_cfg_select_multioption(array(\'Regular Parcel\',\'Regular Parcel +sig\',\'Regular Parcel Insured +sig\',\'Regular Parcel Insured (no sig)\',\'Prepaid Satchel\',\'Prepaid Satchel +sig\',\'Prepaid Satchel Insured +sig\',\'Prepaid Satchel Insured (no sig)\',\'Express Parcel\',\'Express Parcel +sig\',\'Express Parcel Insured +sig\',\'Express Parcel Insured (no sig)\',\'Prepaid Express Satchel\',\'Prepaid Express Satchel +sig\',\'Prepaid Express Satchel Insured +sig\',\'Prepaid Express Satchel Insured (no sig)\'), ',
                 now())") ;
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
-            VALUES ('Handling Fee - Regular parcels', 'MODULE_SHIPPING_AUPOST_RPP_HANDLING', '2.00', 'Handling Fee Regular parcels', '7', '6', now())");
+            VALUES ('Handling Fee - Regular parcels', 'MODULE_SHIPPING_AUPOST_RPP_HANDLING', '2.00', 'Handling Fee Regular parcels', '6', '6', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
-            VALUES ('Handling Fee - Prepaid Satchels', 'MODULE_SHIPPING_AUPOST_PPS_HANDLING', '2.00', 'Handling Fee for Prepaid Satchels.', '7', '7', now())");
+            VALUES ('Handling Fee - Prepaid Satchels', 'MODULE_SHIPPING_AUPOST_PPS_HANDLING', '2.00', 'Handling Fee for Prepaid Satchels.', '6', '7', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
             VALUES ('Handling Fee - Prepaid Satchels - Express', 'MODULE_SHIPPING_AUPOST_PPSE_HANDLING', '2.00', 'Handling Fee for Prepaid Express Satchels.', '6', '8', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
             VALUES ('Handling Fee - Express parcels', 'MODULE_SHIPPING_AUPOST_EXP_HANDLING', '2.00', 'Handling Fee for Express parcels.', '6', '9', now())");
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added)    
-            VALUES ('Hide Handling Fees?', 'MODULE_SHIPPING_AUPOST_HIDE_HANDLING', 'No', 'The handling fees are still in the total shipping cost but the Handling Fee is not itemised on the invoice.', '7', '16', 'zen_cfg_select_option(array(\'Yes\', \'No\'), ', now())");
+            VALUES ('Hide Handling Fees?', 'MODULE_SHIPPING_AUPOST_HIDE_HANDLING', 'No', 'The handling fees are still in the total shipping cost but the Handling Fee is not itemised on the invoice.', '6', '16', 'zen_cfg_select_option(array(\'Yes\', \'No\'), ', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
-            VALUES ('Default Product /Parcel Dimensions', 'MODULE_SHIPPING_AUPOST_DIMS', '10,10,2', 'Default Product /Parcel dimensions (in cm). Three comma separated values (eg 10,10,2 = 10cm x 10cm x 2cm). These are used if the dimensions of individual products are not set', '7', '40', now())");
+            VALUES ('Default Product /Parcel Dimensions', 'MODULE_SHIPPING_AUPOST_DIMS', '10,10,2', 'Default Product /Parcel dimensions (in cm). Three comma separated values (eg 10,10,2 = 10cm x 10cm x 2cm). These are used if the dimensions of individual products are not set', '6', '40', now())");
         
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
-            VALUES ('Cost on Error', 'MODULE_SHIPPING_AUPOST_COST_ON_ERROR', '99.99', 'If an error occurs this Flat Rate fee will be used. If TBA is entered an error msg will be displayed on the postage rate and Zero value postage displayed.</br> A value of zero will disable this module on error.', '7', '20', now())");
+            VALUES ('Cost on Error', 'MODULE_SHIPPING_AUPOST_COST_ON_ERROR', '99.99', 'If an error occurs this Flat Rate fee will be used. If TBA is entered an error msg will be displayed on the postage rate and Zero value postage displayed.</br> A value of zero will disable this module on error.', '6', '20', now())");
         /*    
             $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
-            VALUES ('Cost on Error', 'MODULE_SHIPPING_AUPOST_COST_ON_ERROR', '99', 'If an error occurs this Flat Rate fee will be used.</br> A value of zero will disable this module on error.', '7', '20', now())");
+            VALUES ('Cost on Error', 'MODULE_SHIPPING_AUPOST_COST_ON_ERROR', '99', 'If an error occurs this Flat Rate fee will be used.</br> A value of zero will disable this module on error.', '6', '20', now())");
         */
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) 
-            VALUES ('Parcel Weight format', 'MODULE_SHIPPING_AUPOST_WEIGHT_FORMAT', 'gms', 'Are your store items weighted by grams or Kilos? (required so that we can pass the correct weight to the server).', '7', '25', 'zen_cfg_select_option(array(\'gms\', \'kgs\'), ', now())");
+            VALUES ('Parcel Weight format', 'MODULE_SHIPPING_AUPOST_WEIGHT_FORMAT', 'gms', 'Are your store items weighted by grams or Kilos? (required so that we can pass the correct weight to the server).', '6', '25', 'zen_cfg_select_option(array(\'gms\', \'kgs\'), ', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) 
-            VALUES ('Show AusPost logo?', 'MODULE_SHIPPING_AUPOST_ICONS', 'Yes', 'Show Auspost logo in place of text?', '7', '19', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
+            VALUES ('Show AusPost logo?', 'MODULE_SHIPPING_AUPOST_ICONS', 'Yes', 'Show Auspost logo in place of text?', '6', '19', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
+            
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) 
-            VALUES ('Enable Debug?', 'MODULE_SHIPPING_AUPOST_DEBUG', 'No', 'See how parcels are created from individual items.</br>Shows all methods returned by the server, including possible errors. <strong>Do not enable in a production environment</strong>', '7', '40', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
+            VALUES ('Enable Debug?', 'MODULE_SHIPPING_AUPOST_DEBUG', 'No', 'See how parcels are created from individual items.</br>Shows all methods returned by the server, including possible errors. <strong>Do not enable in a production environment</strong>', '6', '40', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
+            
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
-            VALUES ('Tare percent.', 'MODULE_SHIPPING_AUPOST_TARE', '10', 'Add this percentage of the items total weight as the tare weight. (This module ignores the global settings that seems to confuse many users. 10% seems to work pretty well.).', '7', '50', now())");
+            VALUES ('Tare percent.', 'MODULE_SHIPPING_AUPOST_TARE', '10', 'Add this percentage of the items total weight as the tare weight. (This module ignores the global settings that seems to confuse many users. 10% seems to work pretty well.).', '6', '50', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) 
-            VALUES ('Sort order of display.', 'MODULE_SHIPPING_AUPOST_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '7', '55', now())");
+            VALUES ('Sort order of display.', 'MODULE_SHIPPING_AUPOST_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '55', now())");
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) 
-            VALUES ('Tax Class', 'MODULE_SHIPPING_AUPOST_TAX_CLASS', '1', 'Set Tax class or -none- if not registered for GST.', '7', '60', 'zen_get_tax_class_title', 'zen_cfg_pull_down_tax_classes(', now())");
+            VALUES ('Tax Class', 'MODULE_SHIPPING_AUPOST_TAX_CLASS', '1', 'Set Tax class or -none- if not registered for GST.', '6', '60', 'zen_get_tax_class_title', 'zen_cfg_pull_down_tax_classes(', now())");
         // eof parcels
 
         /////////////////////////  update tables //////

@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.8c 29 July 2025
+------------------------------------------
+Corrects the invalid configuration_group_id values
+
 AusPost Shipping Module 2.5.8b 18 July 2025
 ------------------------------------------
 2025-07-17 v2.5.8b 2025-07-17 check for Constants on initial install
