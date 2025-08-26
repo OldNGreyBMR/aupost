@@ -1,6 +1,10 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
 
+AusPost Shipping Module 2.5.8d
+-------------------------------
+Updated 26 August 2025 by OldNGrey BMH
+
 AusPost Shipping Module 2.5.8c 
 -------------------------------
 Updated 29 July 2025 by OldNGrey BMH
@@ -103,20 +107,27 @@ have made the following customisation to Zen Cart.
 ------------------------
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
- 
+
+3.0 Upgrading on ZenCart v2.0.0+
+--------------------------------
+    3.0.1 In Admin go to: Modules > Shipping Modules, select "Australia Post" take note of your settings and AP key.
+    3.0.2 click "Remove Module" twice.
+    3.0.3 repeat for Australia Post International
+    3.0.4 In Admin go to: Modules > Plugin Manager and select "Australia Post" and click "Un-Install" twice
+    3.0.5 Go to step 3.1
 3.1 Installing on zencart v2.0.0+
 -------------------------------
-    3.1 Configuration - Australia Post
-    3.1.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
-    3.1.2 Upload the 'zc_plugins/AustraliaPost' folder to the root folder of your Zen Cart store.
-    3.1.3 A CSS file is in \catalog\includes\templates\template_default\css. A new icon file is in \catalog\includes\templates\template_default\images\icons. 
+    3.1.1 Configuration - Australia Post
+    3.1.2 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
+    3.1.3 Upload the 'zc_plugins/AustraliaPost' folder to the root folder of your Zen Cart store.
+    3.1.4 A CSS file is in \catalog\includes\templates\template_default\css. A new icon file is in \catalog\includes\templates\template_default\images\icons. 
         Upload the icons folder and the css folder to the template used on your site.
-    3.1.4 In Admin go to: modules > plugin manager and select AustraliaPost and install.
+    3.1.5 In Admin go to: Modules > Plugin Manager and select "Australia Post" and install.
        If you have a previous version installed, uninstall it first, but take note of your settings and AP key.
-    3.1.5 In Admin go to modules > shipping select aupost and edit
-    3.1.6 Under 'Auspost API Key', enter your 36 digit API key.
-    3.1.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-    3.1.7 Scroll down and click 'update'.
+    3.1.6 In Admin go to modules > shipping select aupost and edit
+    3.1.7 Under 'Auspost API Key', enter your 36 digit API key.
+    3.1.8 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
+    3.1.9 Scroll down and click 'update'.
 
 3.2 Installing on zencart v158 and 157
 ----------------------------
@@ -171,4 +182,5 @@ Australia Post postage rates to overseas destinations do not include GST. Set yo
 
 Parcel sizing calculations
 ==========================
-NOTE: The sizing calculations are primitive eg dimensions are totalled so many small items are made into one long parcel.
+NOTE: The sizing calculations are primitive eg dimensions are totalled so many small items are made into one long parcel. Read the "cubing.txt" file included in this build.
+
