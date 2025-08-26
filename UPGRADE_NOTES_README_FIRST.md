@@ -1,7 +1,6 @@
-Aus Post v2.5.8c
+Aus Post v2.5.8d
 =================
-This version corrects the invalid configuration_group_id values. TO remove the old entries 
-    from the database the previouse version of the module MUST be uninstalled.
+TO remove the old entries from the database the previouse version of the module MUST be uninstalled.
     
 Upgrade Notes
 -------------
@@ -21,7 +20,7 @@ Remove and un-install the previous version:
     select "Australia Post", and click "Clean Up" , select the previous version and click "confirm"
     
     
-Copy the directory zc_plugins/ AustraliaPost / V2.5.8c to your plugins folder
+Copy the directory zc_plugins/ AustraliaPost / V2.5.8d to your plugins folder
 
 Install and configure the latest version
 ---------------------

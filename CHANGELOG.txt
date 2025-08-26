@@ -1,5 +1,11 @@
 CHANGELOG
 =========
+AusPost Shipping Module 2.5.8d 26 Aug 2025
+------------------------------------------
+Check for from postcode and API key as some users ignore the warnings in the Admin config page. Write to error log and return without processing to avoid crash.
+Remove check for empty letter quote.
+
+
 AusPost Shipping Module 2.5.8c 29 July 2025
 ------------------------------------------
 Corrects the invalid configuration_group_id values
