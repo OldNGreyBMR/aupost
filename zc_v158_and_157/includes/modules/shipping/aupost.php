@@ -1,13 +1,15 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   aupost.php,v2.5.8c Jul 2025
+ $Id:   aupost.php,v2.5.8d Aug 2025
         v2.5.8 2025-07-01 AustraliaPost Price and parcel changes for July 2025
         v2.5.8a 2025-07-05 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
         v2.5.8b 2025-07-17 check for Constants on initial install
         v2.5.8c postcode validationlogic moved to its own method validate_au_postcode
                 comment out all unused variables
         v2.5.8c 2025-07-29 correct configuration_group_id and change from 7 to 6 error introduced v256 
+        v2.5.8d 2025-08-23 check for from postcode and API key; write to error log and return without processing to avoid crash
+        v2.5.8d 2025-08-26 remove check for empty letter quote 
 */
 // BMHDEBUG switches
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug
@@ -19,7 +21,7 @@ define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cov
 // **********************
 
 //BMH declare constants
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8c');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8d');}
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_AUPOST_TAX_CLASS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPES1')) { define('MODULE_SHIPPING_AUPOST_TYPES1',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPE_LETTERS')) { define('MODULE_SHIPPING_AUPOST_TYPE_LETTERS',''); }
@@ -282,6 +284,10 @@ class aupost extends base
         //$parcel_cube = 0;  // NOT USED YET
 
         $frompcode = (MODULE_SHIPPING_AUPOST_SPCODE);
+        if (!isset($frompcode) || $frompcode == '') {
+            $frompcode = '4121'; // default to Tarragindi
+            $this->_log(msg: 'From postcode not set in module settings. Defaulting to 4121 Tarragindi'); // BMH write to log file
+        }
         $dest_country=($order->delivery['country']['iso_code_2'] ?? '');    //
 
 
@@ -364,7 +370,7 @@ class aupost extends base
                 $dim_query = "select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id='$producttitle' limit 1 ";
                 $name = $db->Execute($dim_query);
                 $parcellength = (int)$parcellength; $parcelwidth = (int)$parcelwidth; $parcelheight = (int)$parcelheight;
-                echo "<center><table class=\"aupost-debug-table\" border=1><th colspan=8> Debugging information ln361 [aupost Flag set in Admin console | shipping | aupost] version:" . VERSION_AU . " </hr>
+                echo "<center><table class=\"aupost-debug-table\" border=1><th colspan=8> Debugging information [aupost Flag set in Admin console | shipping | aupost] version:" . VERSION_AU . " </hr>
                 <tr><th>Item " . ($x + 1) . "</th><td colspan=7>" . $name->fields['products_name'] . "</td>
                 <tr><th width=15%>Attribute</th><th colspan=3>Item</th><th colspan=4>Parcel</th></tr>
                 <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . $w . "</td>
@@ -685,18 +691,18 @@ class aupost extends base
                 }  // end display output //////// only list valid options without debug info // BMH
 
             }  // eof foreach loop
-
-            //  check to ensure we have at least one valid LETTER quote - produce error message if not.
-           // if  (sizeof($methods) == 0) { BMH DEBUG
-            if( (is_array($methods)) && (count($methods) == 0) ) { // use count and not sizeof
-                $error_msg_ap = ERROR_NO_VALID_LETTER_QUOTE_MSG;  //BMH DEBUG 
-                $cost = $this->_get_error_cost($dest_country,$error_msg_ap) ; // retrieve default rate
-
-               // BMH if ($cost == 0)  return  ;
-               if ($this->enabled == FALSE ) return;
-
-               $methods[] = array( 'id' => "Error",  'title' =>MODULE_SHIPPING_AUPOST_TEXT_ERROR ,'cost' => $cost ) ;
-            }
+/* before displaying error msg for no letter quotes check that letters have been enabled */ //BMH TODO: 
+                 //  check to ensure we have at least one valid LETTER quote - produce error message if not.
+                // if  (sizeof($methods) == 0) { BMH DEBUG
+             //    if( (is_array($methods)) && (count($methods) == 0) ) { // use count and not sizeof
+             //        $error_msg_ap = ERROR_NO_VALID_LETTER_QUOTE_MSG;  //BMH DEBUG 
+             //        $cost = $this->_get_error_cost($dest_country,$error_msg_ap) ; // retrieve default rate
+             //
+             //       // BMH if ($cost == 0)  return  ;
+             //       if ($this->enabled == FALSE ) return;
+             //
+             //       $methods[] = array( 'id' => "Error",  'title' =>MODULE_SHIPPING_AUPOST_TEXT_ERROR ,'cost' => $cost ) ;
+             //    }
         }
         //// EOF LETTERS /////////
 
@@ -808,9 +814,10 @@ class aupost extends base
                 </tr>       </table></center> ";
             echo  "<center> <table class=\"aupost-debug-table\" border=1>
                 <tr >   <th width=15%> Handling fees</th>
-                    <td colspan=7> LETTER_EXPRESS=" . MODULE_SHIPPING_AUPOST_LETTER_EXPRESS_HANDLING . "; PARCEL=" . MODULE_SHIPPING_AUPOST_RPP_HANDLING . " PARCEL Exp=" . MODULE_SHIPPING_AUPOST_EXP_HANDLING .
+                    <td colspan=7> Parcel=" . MODULE_SHIPPING_AUPOST_RPP_HANDLING . "; Parcel Exp=" . MODULE_SHIPPING_AUPOST_EXP_HANDLING . "; Prepaid=" . MODULE_SHIPPING_AUPOST_PPS_HANDLING . 
+                    "; Prepaid Exp=" . MODULE_SHIPPING_AUPOST_PPSE_HANDLING . ";" .
                 "</td>  </tr>   </table></center> ";
-            if(BMH_MIN_ORDER_VALUE_DEBUG == "Yes" ) {
+            if(BMH_MIN_ORDER_VALUE_DEBUG == "Yes" ) { 
                 echo "<center> <table class=\"aupost-debug-table\" border=1>
                     <tr >   <th width=15%> Extra cover </th>
                         <td colspan=7> Forced on. Order value = " . $MINVALUEEXTRACOVER + 1 .
@@ -1517,8 +1524,13 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
             }
             else {
             $aupost_url_apiKey = MODULE_SHIPPING_AUPOST_AUTHKEY;
+            if($aupost_url_apiKey   ==   '' || $aupost_url_apiKey   ==   '0') {
+                echo '<br><strong>Australia Post API Key is not set.</strong> Please notify the administrator to set the API Key in the module settings.';
+                $this->_log("Australia Post API Key is not set. Please set the API Key  in the module settings. Cust:". $customer_id); // BMH write to log file
+                return; 
             }
-        if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
+        }
+            if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
             // echo '<br> ln1635 get_auspost_api $url= ' . $url;
             // echo '<br> ln1636 $aupost_url_apiKey= ' . $aupost_url_apiKey;
         }
