@@ -1,6 +1,6 @@
 <?php
 return [
-    'pluginVersion' => 'v2.5.8d',
+    'pluginVersion' => 'v2.5.8e',
     'pluginName' => 'Australia Post',
     'pluginDescription' => 'Obtain postage quoted from Australia Post servers.',
     'pluginAuthor' => 'OldNGrey (BMH)',

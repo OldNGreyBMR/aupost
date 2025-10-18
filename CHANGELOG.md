@@ -1,5 +1,10 @@
 CHANGELOG
 =========
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8e 19 Oct 2025
+------------------------------------------
+Check for value over max cover without signature; check for error returned from AP notin XML format
+improve debugging 
+
 AusPost Shipping Module 2.5.8d 26 Aug 2025
 ------------------------------------------
 Check for from postcode and API key as some users ignore the warnings in the Admin config page. Write to error log and return without processing to avoid crash.
