@@ -1,0 +1,29 @@
+2025-07-18
+==========
+$Id:   overseasaupost.php,v2.5.6 Feb 2024
+        V2.5.5.03 zen cart 158 php8.2       // update ln40 as well
+
+        2023-02-01  define all class variables
+                    data load select all options and make handling fee 2.00 on all, show handling fees
+                    Error msg and error handling when Australia Post servers are down
+                    change var names to avoid clash with Aupost (local post plugin)
+                    recoding to bypass error from AustPost API where returned options for INT_PARCEL_AIR_OWN_PACKAGING do not match documentation
+                    removed $info - was support for now redundant registered post
+        2023-02-07  tax_basis //removed
+                    tax_class change to tax_class_int
+        2023-02-08  ln114 tax_basis //reinstated
+        2023-02-21  correct handling fee not included in base options
+                    include version number
+        2023-02-22  php8.2 strict types string() on objects
+        2023-03-12  moved MSGNOTRACKING to lang file
+        2023-03-22  replace all hard coded options with str_replace("_", "", and vars to ensure all undescores are removed
+        2023-04-11  define MODULE_SHIPPING_AUPOST_TAX_BASIS
+        2023-09-17  ln162 quotes 'id'
+        2023-12-18 ln 2 strict_types=1; add declared vars identified
+        2024-01-18  v2.5.5.j ln430 str_replace arg 3 must be type array
+        2024-11-09 V2.5.6.e  initialised $methods = [] issue#16; revert to count on array
+        2024-11-30 v2.5.7a   issue#19 Missing method 'id' for excess length, volume and weight quotes
+		2025-07-01 v2.5.8 Changes for new rates and parcel sizes effective 01 July 2025
+        2025-07-09 v2.5.8a Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR eg TBA
+        2025-07-17 v2.5.8b 2025-07-17 check for Constants on initial install
+===========
