@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   aupost.php,v2.5.8d Aug 2025
+ $Id:   aupost.php,v2.5.9 Dec 2025
         v2.5.8 2025-07-01 AustraliaPost Price and parcel changes for July 2025
         v2.5.8a 2025-07-05 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR
         v2.5.8b 2025-07-17 check for Constants on initial install
@@ -12,6 +12,7 @@ declare(strict_types=1);
         v2.5.8d 2025-08-26 remove check for empty letter quote 
         v2.5.8e 2025-10-18 check for returned quote is error msg not in xml format eg insured value exceeds limit and requires signature 
         v2.5.8f 2025-10-20 use PHP __LINE__ for line numbers; global $maxcoverexceeded ;
+        v2.5.9  2025-12-10 PHP 8.5 compatibility
 */
 // BMHDEBUG switches // WARNING DO NOT ENABLE FOR PRODUCTION
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug
@@ -25,7 +26,7 @@ define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cov
 // **********************
 
 //BMH declare constants
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.8f');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.9');}
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_AUPOST_TAX_CLASS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPES1')) { define('MODULE_SHIPPING_AUPOST_TYPES1',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPE_LETTERS')) { define('MODULE_SHIPPING_AUPOST_TYPE_LETTERS',''); }
@@ -542,9 +543,9 @@ class aupost extends base
 
                 switch ($id) {
 
-                case  "AUSLETTEREXPRESSSMALL" ;
-                case  "AUSLETTEREXPRESSMEDIUM" ;
-                case  "AUSLETTEREXPRESSLARGE" ;
+                case  "AUSLETTEREXPRESSSMALL" :
+                case  "AUSLETTEREXPRESSMEDIUM" :
+                case  "AUSLETTEREXPRESSLARGE" :
                     if ((in_array("Aust Express", $this->allowed_methods_l))) {
                         $add = MODULE_SHIPPING_AUPOST_LETTER_EXPRESS_HANDLING ; $f = 1 ;
 
@@ -644,32 +645,32 @@ class aupost extends base
                     }
                 break;  //eof express
 
-                case  "AUSLETTERPRIORITYSMALL" ;    // normal own packaging + label
-                case  "AUSLETTERPRIORITYLARGE125" ; // normal own packaging + label
-                case  "AUSLETTERPRIORITYLARGE250" ; // normal own packaging + label
-                case  "AUSLETTERPRIORITYLARGE500" ; // normal own packaging + label
+                case  "AUSLETTERPRIORITYSMALL" :    // normal own packaging + label
+                case  "AUSLETTERPRIORITYLARGE125" : // normal own packaging + label
+                case  "AUSLETTERPRIORITYLARGE250" : // normal own packaging + label
+                case  "AUSLETTERPRIORITYLARGE500" : // normal own packaging + label
                     if ((in_array("Aust Priority", $this->allowed_methods_l)))
                     {
                         $add =  MODULE_SHIPPING_AUPOST_LETTER_PRIORITY_HANDLING ; $f = 1 ;
                     }
                     break;
 
-                case  "AUSLETTERREGULARSMALL";      // normal mail - own packaging
-                case  "AUSLETTERREGULARLARGE125";   // normal mail - own packaging
-                case  "AUSLETTERREGULARLARGE250";   // normal mail - own packaging
-                case  "AUSLETTERREGULARLARGE500";   // normal mail - own packaging
+                case  "AUSLETTERREGULARSMALL":      // normal mail - own packaging
+                case  "AUSLETTERREGULARLARGE125":   // normal mail - own packaging
+                case  "AUSLETTERREGULARLARGE250":   // normal mail - own packaging
+                case  "AUSLETTERREGULARLARGE500":   // normal mail - own packaging
                     if (in_array("Aust Standard", $this->allowed_methods_l))
                     {
                         $add = MODULE_SHIPPING_AUPOST_LETTER_HANDLING ; $f = 1 ;
                     }
                     break;
 
-                case  "AUSLETTERSIZEDL";  // This requires purchase of Aus Post packaging   // BMH Not processed
-                case  "AUSLETTERSIZEC6";  // This requires purchase of Aus Post packaging   // BMH Not processed
-                case  "AUSLETTERSIZEC5";  // This requires purchase of Aus Post packaging   // BMH Not processed
-                case  "AUSLETTERSIZEC4";  // This requires purchase of Aus Post packaging   // BMH Not processed
-                case  "AUSLETTERSIZEB4";  // This requires purchase of Aus Post packaging   // BMH Not processed
-                case  "AUSLETTERSIZEOTH"; // This requires purchase of Aus Post packaging   // BMH Not processed
+                case  "AUSLETTERSIZEDL":  // This requires purchase of Aus Post packaging   // BMH Not processed
+                case  "AUSLETTERSIZEC6":  // This requires purchase of Aus Post packaging   // BMH Not processed
+                case  "AUSLETTERSIZEC5":  // This requires purchase of Aus Post packaging   // BMH Not processed
+                case  "AUSLETTERSIZEC4":  // This requires purchase of Aus Post packaging   // BMH Not processed
+                case  "AUSLETTERSIZEB4":  // This requires purchase of Aus Post packaging   // BMH Not processed
+                case  "AUSLETTERSIZEOTH": // This requires purchase of Aus Post packaging   // BMH Not processed
                 //case  "AUSLETTEREXPRESSDL"  // Same as AUSLETTEREXPRESSSMALL      // not returned by AusPost 2023-09
                 //case  "AUSLETTEREXPRESSC5"  // Same as AUSLETTEREXPRESSMEDIUM     // not returned by AusPost 2023-09
                 //case  "AUSLETTEREXPRESSB4"  // Same as AUSLETTEREXPRESSLARGE      // not returned by AusPost 2023-09
@@ -919,12 +920,12 @@ class aupost extends base
 
             switch ($id) {
 
-                case  "AUSPARCELREGULARSATCHELEXTRALARGE" ; // fall through and treat as one block
-                case  "AUSPARCELREGULARSATCHELLARGE" ;      // fall through and treat as one block
-                case  "AUSPARCELREGULARSATCHELMEDIUM" ;     // fall through and treat as one block
-                case  "AUSPARCELREGULARSATCHELSMALL" ;      // fall through and treat as one block
-                case  "AUSPARCELREGULARSATCHELEXTRASMALL" ;      // fall through and treat as one block // BMH v2.5.8
-                //case  "AUSPARCELREGULARSATCHEL500G" ;     // fall through and treat as one block
+                case  "AUSPARCELREGULARSATCHELEXTRALARGE": // fall through and treat as one block
+                case  "AUSPARCELREGULARSATCHELLARGE":      // fall through and treat as one block
+                case  "AUSPARCELREGULARSATCHELMEDIUM":     // fall through and treat as one block
+                case  "AUSPARCELREGULARSATCHELSMALL":      // fall through and treat as one block
+                case  "AUSPARCELREGULARSATCHELEXTRASMALL":      // fall through and treat as one block // BMH v2.5.8
+                //case  "AUSPARCELREGULARSATCHEL500G":     // fall through and treat as one block
 
                     if (in_array("Prepaid Satchel", $this->allowed_methods,$strict = true)) {
                                                 
@@ -1062,11 +1063,11 @@ class aupost extends base
                     }
                     break;
 
-                case  "AUSPARCELEXPRESSSATCHELEXTRALARGE" ; // fall through and treat as one block
-                case  "AUSPARCELEXPRESSSATCHELLARGE" ;      // fall through and treat as one block
-                case  "AUSPARCELEXPRESSSATCHELMEDIUM" ;     // fall through and treat as one block
-                case  "AUSPARCELEXPRESSSATCHELSMALL" ;      // fall through and treat as one block
-                case  "AUSPARCELEXPRESSSATCHELEXTRASMALL" ;      // fall through and treat as one block
+                case  "AUSPARCELEXPRESSSATCHELEXTRALARGE": // fall through and treat as one block
+                case  "AUSPARCELEXPRESSSATCHELLARGE":      // fall through and treat as one block
+                case  "AUSPARCELEXPRESSSATCHELMEDIUM":     // fall through and treat as one block
+                case  "AUSPARCELEXPRESSSATCHELSMALL" :      // fall through and treat as one block
+                case  "AUSPARCELEXPRESSSATCHELEXTRASMALL" :      // fall through and treat as one block
 
                     if ((in_array("Prepaid Express Satchel", $this->allowed_methods))) {
                         if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
@@ -1195,9 +1196,9 @@ class aupost extends base
                     }
                     break;
 
-                //case  "AUSPARCELREGULARPACKAGESMALL";         // requires additonal AP packaging
-                //case  "AUSPARCELREGULARPACKAGE";              // requires additional AP packaging normal mail
-                case  "AUSPARCELREGULAR";                       // normal mail - own packaging
+                //case  "AUSPARCELREGULARPACKAGESMALL":        // requires additonal AP packaging
+                //case  "AUSPARCELREGULARPACKAGE":             // requires additional AP packaging normal mail
+                case  "AUSPARCELREGULAR":                       // normal mail - own packaging
                     if (in_array("Regular Parcel", $this->allowed_methods,$strict = true)) {
 
                         if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
@@ -1335,7 +1336,7 @@ class aupost extends base
                     }
                 break;
 
-                case  "AUSPARCELEXPRESS" ;              // express mail - own packaging
+                case  "AUSPARCELEXPRESS":              // express mail - own packaging
                     if (in_array("Express Parcel", $this->allowed_methods,$strict = true)) {
 
                         if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
@@ -1456,21 +1457,21 @@ class aupost extends base
                     }
                 break;
 
-                case  "AUSPARCELEXPRESSSATCHEL5KG" ;        // superceded
-                case  "AUSPARCELEXPRESSSATCHEL3KG" ;        // superceded
-                case  "AUSPARCELEXPRESSSATCHEL1KG" ;        // superceded
-                case  "AUSPARCELEXPRESSSATCHEL500G";        // superceded by AUSPARCELEXPRESSSATCHELSMALL
+                case  "AUSPARCELEXPRESSSATCHEL5KG" :        // superceded
+                case  "AUSPARCELEXPRESSSATCHEL3KG" :        // superceded
+                case  "AUSPARCELEXPRESSSATCHEL1KG" :        // superceded
+                case  "AUSPARCELEXPRESSSATCHEL500G":        // superceded by AUSPARCELEXPRESSSATCHELSMALL
                 //
-                case  "AUSPARCELREGULARSATCHEL5KG" ;        // superceded by
-                case  "AUSPARCELREGULARSATCHEL3KG" ;        // superceded by AUSPARCELREGULARSATCHELLARGE
-                case  "AUSPARCELREGULARSATCHEL1KG" ;        // superceded
-                case  "AUSPARCELREGULARSATCHEL500G";        // still returned but superceded by AUSPARCELREGULARSATCHELSMALL
+                case  "AUSPARCELREGULARSATCHEL5KG" :        // superceded by
+                case  "AUSPARCELREGULARSATCHEL3KG" :        // superceded by AUSPARCELREGULARSATCHELLARGE
+                case  "AUSPARCELREGULARSATCHEL1KG" :        // superceded
+                case  "AUSPARCELREGULARSATCHEL500G":        // still returned but superceded by AUSPARCELREGULARSATCHELSMALL
                 //
-                //case  "AUSPARCELEXPRESSPACKAGESMALL";     // This is cheaper but requires extra purchase of Aus Post packaging
+                //case  "AUSPARCELEXPRESSPACKAGESMALL":     // This is cheaper but requires extra purchase of Aus Post packaging
                 //
-                //case  "AUSPARCELREGULARPACKAGESMALL";     // This is cheaper but requires extra purchase of Aus Post packaging
-                //case  "AUSPARCELREGULARPACKAGEMEDIUM";    // This is cheaper but requires extra purchase of Aus Post packaging
-                //case  "AUSPARCELREGULARPACKAGELARGE";     // This is cheaper but requires extra purchase of Aus Post packaging
+                //case  "AUSPARCELREGULARPACKAGESMALL":     // This is cheaper but requires extra purchase of Aus Post packaging
+                //case  "AUSPARCELREGULARPACKAGEMEDIUM":    // This is cheaper but requires extra purchase of Aus Post packaging
+                //case  "AUSPARCELREGULARPACKAGELARGE":     // This is cheaper but requires extra purchase of Aus Post packaging
                       // $optioncode =""; $optionservicecode = ""; $suboptioncode = "";
 
                 $cost = 0; $f=0; $add= 0;
@@ -1759,7 +1760,7 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
                 Please report this error to System Owner. Then try the back button on your browser.');
         }
 
-        curl_close($crl);
+        // PHP8.5 only required for  prior to PHP 8.0 curl_close($crl);
         return $ret;
     }
     // end auspost API

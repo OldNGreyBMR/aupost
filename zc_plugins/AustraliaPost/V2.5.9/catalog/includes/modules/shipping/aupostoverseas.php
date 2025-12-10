@@ -1,12 +1,13 @@
 <?php
 declare(strict_types=1);
 /*
- $Id:   overseasaupost.php, v2.5.8c Jul 2025
+ $Id:   overseasaupost.php, v2.5.9 Aug 2025
   v2.5.8 check correct australia post zones
   v2.5.8a 2025-07-06 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR ie TBA
   v2.5.8b 2025-07-17 check for Constants on initial install
   v2.5.8c 2025-07-25 check min size with sig + insurance;           comment out all unused variables
   V2.5.8e 2025-10-19  check for returned quote is error msg not in xml format eg insured value exceeds limit and requires signature; improve debugging  
+  v2.5.9  2025-12-10 PHP 8.5 compatibility
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');           // BMH 2nd level debug to display all returned data from Aus Post
@@ -485,7 +486,7 @@ class aupostoverseas extends base
 
             switch ($id) {
 
-                case  "INTPARCELAIROWNPACKAGING" ;                          //BMH NOTE No tracking MAX Weight 3.5kg limited countries
+                case  "INTPARCELAIROWNPACKAGING":                          //BMH NOTE No tracking MAX Weight 3.5kg limited countries
                     $description = $description . ' ' . $MSGNOTRACKING;     // ADD NOTE NOTRACKING FOR ECONOMY AIR
                     $included_option =0;
                     $add_int = MODULE_SHIPPING_OVERSEASAUPOST_AIRMAIL_HANDLING ;
@@ -596,7 +597,7 @@ class aupostoverseas extends base
 
                 break;
 
-                case  "INTPARCELSEAOWNPACKAGING" ;                          //BMH NOTE MIN Weight 2kg limited countries
+                case  "INTPARCELSEAOWNPACKAGING":                          //BMH NOTE MIN Weight 2kg limited countries
                     $description = $description . ' ' . $MSGNOTRACKING;     // ADD NOTE NO TRACKING FOR SEA
                     $included_option =0;
                     if (in_array("Sea Mail", $this->allowed_methods))
@@ -694,7 +695,7 @@ class aupostoverseas extends base
                     }
                 break;
 
-                case  "INTPARCELSTDOWNPACKAGING" ;
+                case  "INTPARCELSTDOWNPACKAGING":
                     $included_option =0;
                     if ( in_array("Standard Post International", $this->allowed_methods)) {
                         $included_option =1;
@@ -797,7 +798,7 @@ class aupostoverseas extends base
                     }
                 break;
 
-                case  "INTPARCELEXPOWNPACKAGING" ;
+                case  "INTPARCELEXPOWNPACKAGING":
                     $included_option =0;
                     if (in_array("Express Post International", $this->allowed_methods)) {
                         $included_option =1;
@@ -842,7 +843,7 @@ class aupostoverseas extends base
                     }
                 break;
 
-                case  "INTPARCELCOROWNPACKAGING" ;
+                case  "INTPARCELCOROWNPACKAGING":
                     $included_option =0;
                     if (in_array("Courier International", $this->allowed_methods)) {
                         $included_option =1;
@@ -884,7 +885,7 @@ class aupostoverseas extends base
                     }
                 break;
 
-                case  "INTPARCELREGULARPACKAGELARGE";      // garbage collector
+                case  "INTPARCELREGULARPACKAGELARGE":      // garbage collector
                     $cost = 0;$f=0; $add_int= 0;
                     // echo "shouldn't be here"; //BMH debug do nothing - ignore the code
                 break;
@@ -1207,7 +1208,7 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
                 Please report this error to System Owner. Then try the back button on you browser.');
         }
 
-        curl_close($crl);
+        // PHP8.5 only required for  prior to PHP 8.0 curl_close($crl);
         return $ret;
     }
     // end auspost API

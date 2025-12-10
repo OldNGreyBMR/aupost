@@ -1,8 +1,8 @@
 CHANGELOG
 =========
-AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8f 08 Nov 2025
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9 10 Dec 2025
 ------------------------------------------
-use PHP __LINE__ for line numbers; global $maxcoverexceeded 
+PHP 8.5 Case statements followed by a semicolon (;) are deprecated, use a colon (:); curl_close() deprecated, not used PHP8.0 +
 
 AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8e 19 Oct 2025
 ------------------------------------------
