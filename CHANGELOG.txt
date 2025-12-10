@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8f 08 Nov 2025
+------------------------------------------
+use PHP __LINE__ for line numbers; global $maxcoverexceeded 
+
 AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8e 19 Oct 2025
 ------------------------------------------
 Check for value over max cover without signature; check for error returned from AP notin XML format
