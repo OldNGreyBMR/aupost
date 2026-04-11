@@ -8,6 +8,7 @@ declare(strict_types=1);
   v2.5.8c 2025-07-25 check min size with sig + insurance;           comment out all unused variables
   V2.5.8e 2025-10-19  check for returned quote is error msg not in xml format eg insured value exceeds limit and requires signature; improve debugging  
   v2.5.9  2025-12-10 PHP 8.5 compatibility
+  v2.5.9a 2026-01-19 improve response handling for when Internet is down
 */
 // BMHDEBUG switches
 define('BMHDEBUG_INT1','No');           // BMH 2nd level debug to display all returned data from Aus Post
@@ -16,7 +17,7 @@ define('USE_CACHE_INT','No');           // BMH disable cache // set to 'No' for 
 define('MINEXTRACOVER_OVERIDE','Yes');   // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER_INT // Used for testing.
 
 //BMH declare constants
-if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.8e'); }
+if (!defined('VERSION_AU_INT')) { define('VERSION_AU_INT', '2.5.9a'); }
 
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL')) { define('MODULE_SHIPPING_OVERSEASAUPOST_HIDE_PARCEL',''); } //
 if (!defined('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_OVERSEASAUPOST_TAX_CLASS',''); }
@@ -1184,6 +1185,23 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
                 $this->_debug_output("n",'ln1186 Error Occurred $ret= ' . $ret . ' </p> ',"");
             }
         }
+
+        // BMH bof added code for when Australia Post is down // 
+        $edata = curl_exec($crl);           // 
+        $errtext = curl_error($crl);        // 
+        $errnum = curl_errno($crl);         // 
+        $commInfo = curl_getinfo($crl);     // 
+        if ($edata === "Access denied") {
+            $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>support@bmh.com.au  ";
+        }
+     
+        if(!$ret){
+            die('<p><br><b>AUPostOverseas An Error occurred:</b> (curl): "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) .
+                ' <br><b>Major Fault - Cannot contact Australia Post.</b>
+                Please report this error to System Owner. Then try the back button on you browser.</p>');
+        }
+        //BMH eof
+
         $xml = ($ret == '') ? array() : new SimpleXMLElement($ret) ; // If we have any results, parse them into an array
         if ($xml->errorMessage) {
             $ret = 'Error ' . $ret;
@@ -1192,20 +1210,6 @@ function _get_int_secondary_options( $add_int, $allowed_option, $ordervalue, $MI
             $methods[] = array('id' => $this->code,'title '. $xml->errorMessage, 'cost' => $cost ) ; //BMH issue#19
             $this->quotes['methods'] = $methods;   // set it
             return $ret;
-        }
-        // added code for when Australia Post is down // bof
-        $edata = curl_exec($crl);           // 
-        $errtext = curl_error($crl);        // 
-        $errnum = curl_errno($crl);         // 
-        $commInfo = curl_getinfo($crl);     // 
-        if ($edata === "Access denied") {
-            $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>support@bmh.com.au  ";
-        }
-        //BMH eof
-        if(!$ret){
-            die('<br>Error (curl): "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) .
-                ' <br>Major Fault - Cannot contact Australia Post.
-                Please report this error to System Owner. Then try the back button on you browser.');
         }
 
         // PHP8.5 only required for  prior to PHP 8.0 curl_close($crl);
