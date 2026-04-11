@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Jan 2026
+------------------------------------------
+improve response handling for when Internet is down
+
 AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9 10 Dec 2025
 ------------------------------------------
 PHP 8.5 Case statements followed by a semicolon (;) are deprecated, use a colon (:); curl_close() deprecated, not used PHP8.0 +

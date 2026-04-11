@@ -1,5 +1,9 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
+AusPost Shipping Module 2.5.9a
+-------------------------------
+Updated 18 January 2026 by OldNGrey BMH
+
 AusPost Shipping Module 2.5.9
 -------------------------------
 Updated 10 December 2025 by OldNGrey BMH
@@ -108,10 +112,10 @@ have made the following customisation to Zen Cart.
     - products_length (included by default in Zen Cart 2.0)
     - products_height. (included by default in Zen Cart 2.0)
     
-    The latter three fields can be added by installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
+    The latter three fields can be added to earlier versions of ZC by installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
     Dimensions should be in cm, weight should be in grams (gms).
-    If you have used the OzPpost postage calculator previously you will have these 
-    fields. If you do not add the extra fields and populate their values the module will use default values.
+    If you have used the OzPpost postage calculator previously you will have these fields. 
+    If you do not add the extra fields and populate their values the module will use default values.
     The default values are 10cm x 10cm x 2cm which will be a small parcel.
  
 2 Australia Post Account
@@ -126,6 +130,7 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.0.3 repeat for Australia Post International
     3.0.4 In Admin go to: Modules > Plugin Manager and select "Australia Post" and click "Un-Install" twice
     3.0.5 Go to step 3.1
+    
 3.1 Installing on zencart v2.0.0+
 -------------------------------
     3.1.1 Configuration - Australia Post
@@ -194,4 +199,12 @@ Australia Post postage rates to overseas destinations do not include GST. Set yo
 Parcel sizing calculations
 ==========================
 NOTE: The sizing calculations are primitive eg dimensions are totalled so many small items are made into one long parcel. Read the "cubing.txt" file included in this build.
+
+If you have many very small items and customers buy them in ses of 10 or 100, create an item with that qty and apply the correct dimensions.
+One small item x 100 will have a percent added for packaging for each item and the total will be calculated as a much larger parcel than 100 of the same items packed closely together.
+
+AUPost does not attempt to break an order down to multiple parcels / boxes. Why? Some things to consider: what is the weight of an empty box; what are the internal dimensions of a box (to fit things in); what are the external dimensions of a box (this is how you get charged for parcel dimensions); what boxes get priority; how many different boxes are required; are boxes only Australia Post official boxes or are they different? etc
+
+
+
 

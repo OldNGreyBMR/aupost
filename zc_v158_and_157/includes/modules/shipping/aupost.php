@@ -13,6 +13,7 @@ declare(strict_types=1);
         v2.5.8e 2025-10-18 check for returned quote is error msg not in xml format eg insured value exceeds limit and requires signature 
         v2.5.8f 2025-10-20 use PHP __LINE__ for line numbers; global $maxcoverexceeded ;
         v2.5.9  2025-12-10 PHP 8.5 compatibility
+        v2.5.9a 2026-01-19 improve response handling for when Internet is down
 */
 // BMHDEBUG switches // WARNING DO NOT ENABLE FOR PRODUCTION
 define('BMHDEBUG1','No'); // No or Yes // BMH 2nd level debug
@@ -26,7 +27,7 @@ define('BMH_MIN_ORDER_VALUE_DEBUG', 'No');  // BMH set to yes to force extra cov
 // **********************
 
 //BMH declare constants
-if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.9');}
+if (!defined('VERSION_AU')) { define('VERSION_AU', '2.5.9a');}
 if (!defined('MODULE_SHIPPING_AUPOST_TAX_CLASS')) { define('MODULE_SHIPPING_AUPOST_TAX_CLASS',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPES1')) { define('MODULE_SHIPPING_AUPOST_TYPES1',''); }
 if (!defined('MODULE_SHIPPING_AUPOST_TYPE_LETTERS')) { define('MODULE_SHIPPING_AUPOST_TYPE_LETTERS',''); }
@@ -1732,9 +1733,25 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
         $ret = curl_exec($crl);
 
         // Check the response: if the body is empty then an error occurred
-        if (( BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes") && (BMH_P_DEBUG3 == "Yes")) {
-            $this->_debug_output("x",'ln' . __line__ . ' x2 get_auspost_api curl $ret= <br>' , $ret); //
+        if (( BMHDEBUG1 == "No") && (BMH_P_DEBUG2 == "Yes") && (BMH_P_DEBUG3 == "Yes")) {
+            $this->_debug_output("x",'ln' . __line__ . ' x2 get_auspost_api curl $ret= <br>' , $ret); // will display empty box
         }
+
+        //BMH bof  code for when Australia Post is down 
+        $edata = curl_exec($crl);
+        $errtext = curl_error($crl);
+        $errnum = curl_errno($crl);
+        $commInfo = curl_getinfo($crl);
+        if ($edata === "Access denied") {
+            $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>System Owner ";
+        }
+        
+        if(!$ret){
+            die('<p><br><b>An Error occurred:</b> "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) .
+                ' <br><b>Major Fault - Cannot contact Australia Post. </b>
+                Please report this error to the System Owner. Then try the back button on your browser.</p>');
+        }
+        //BMH eof
 
         $xml = ($ret == '') ? array() : new SimpleXMLElement($ret) ; // If we have any results, parse them into an array
         if ($xml->errorMessage) {
@@ -1745,20 +1762,7 @@ private function _get_secondary_options( $add, $allowed_option, $ordervalue, $MI
             $this->quotes['methods'] = $methods;   // set it
             return $ret;
         }
-        //BMH bof  code for when Australia Post is down 
-        $edata = curl_exec($crl);
-        $errtext = curl_error($crl);
-        $errnum = curl_errno($crl);
-        $commInfo = curl_getinfo($crl);
-        if ($edata === "Access denied") {
-            $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>System Owner ";
-        }
-        //BMH eof
-        if(!$ret){
-            die('<br>Error: "' . curl_error($crl) . '" - Code: ' . curl_errno($crl) .
-                ' <br>Major Fault - Cannot contact Australia Post .
-                Please report this error to System Owner. Then try the back button on your browser.');
-        }
+
 
         // PHP8.5 only required for  prior to PHP 8.0 curl_close($crl);
         return $ret;
