@@ -1,16 +1,17 @@
 CHANGELOG
 =========
-AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Jan 2026
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Apr 2026
 ------------------------------------------
-improve response handling for when Internet is down
+improve response handling for when Internet is down; 
+check for XML response in case Australia Post turns it off again
 
-AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9 10 Dec 2025
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Apr 2025
 ------------------------------------------
 PHP 8.5 Case statements followed by a semicolon (;) are deprecated, use a colon (:); curl_close() deprecated, not used PHP8.0 +
 
 AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8e 19 Oct 2025
 ------------------------------------------
-Check for value over max cover without signature; check for error returned from AP notin XML format
+Check for value over max cover without signature; check for error returned from AP not in XML format
 improve debugging 
 
 AusPost Shipping Module 2.5.8d 26 Aug 2025

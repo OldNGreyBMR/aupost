@@ -2,7 +2,7 @@ aupost Zen Cart Australia postage plug in
 ==========================================
 AusPost Shipping Module 2.5.9a
 -------------------------------
-Updated 18 January 2026 by OldNGrey BMH
+Updated 18 Apr 2026 by OldNGrey BMH
 
 AusPost Shipping Module 2.5.9
 -------------------------------
@@ -34,7 +34,7 @@ Updated 09 July 2025 by OldNGrey BMH
 
 For code changes see the changelog.
 
-### This version tested on Zen Cart version 1.5.7, 1.5.8, 1.5.8a , 2.0.0, 2.1.0 and PHP 8.0, 8.1, 8.2, 8.3; 8.4;
+### This version tested on Zen Cart version 1.5.7, 1.5.8, 1.5.8a , 2.0.0, 2.1.0, 2.2.2 and PHP 8.0, 8.1, 8.2, 8.3; 8.4;
 
 This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server.
 
