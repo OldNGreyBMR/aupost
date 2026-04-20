@@ -1,42 +1,13 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 2.5.9a
+AusPost Shipping Module 3.0.0
 -------------------------------
-Updated 18 Apr 2026 by OldNGrey BMH
+Updated 21 April 2026 by OldNGrey BMH
 
-AusPost Shipping Module 2.5.9
--------------------------------
-Updated 10 December 2025 by OldNGrey BMH
 
-AusPost Shipping Module 2.5.8f
--------------------------------
-Updated 08 November 2025 by OldNGrey BMH
+### This version tested on Zen Cart version 1.5.8, 1.5.8a , 2.0.0, 2.1.0, 2.2.0, 2.2.2 and PHP 8.2, 8.3; 8.4;
 
-AusPost Shipping Module 2.5.8e
--------------------------------
-Updated 19 October 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8d
--------------------------------
-Updated 26 August 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8c 
--------------------------------
-Updated 29 July 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8b 
--------------------------------
-Updated 18 July 2025 by OldNGrey BMH
-
-Australia Post Shipping Module 2.5.8a
---------------------------------------
-Updated 09 July 2025 by OldNGrey BMH
-
-For code changes see the changelog.
-
-### This version tested on Zen Cart version 1.5.7, 1.5.8, 1.5.8a , 2.0.0, 2.1.0, 2.2.2 and PHP 8.0, 8.1, 8.2, 8.3; 8.4;
-
-This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server.
+This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server via the json API
 
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
@@ -145,18 +116,6 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.1.8 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
     3.1.9 Scroll down and click 'update'.
 
-3.2 Installing on zencart v158 and 157
-----------------------------
-    3.2 Configuration - Australia Post
-    3.2.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
-    3.2.2 Upload the 'includes' folder to the root folder of your Zen Cart store.
-    3.2.3 A CSS file is uploaded to \includes\templates\template_default\css\. A new icon file is uploaded \includes\templates\template_default\images\icons. 
-        Upload the icons folder and the css folder to the template used on your site.
-    3.2.4 In Admin go to: modules > shipping > Australia Post > select it and click install. If you have a previous version of the module installed, uninstall the existing version then reinstall.
-    3.2.5 Under 'Auspost API Key', enter your 36 digit API key.
-    3.2.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-    3.2.7 Scroll down and click 'update'.
-
 Congratulations! You have now successfully installed the Australia Post Shipping Module.
 
 4 Additional Configurations
@@ -184,8 +143,6 @@ A complete removal and reinstall is recommended.
 4. Install new version.
 5. Re-enter Australia Post API key and other settings.
 
-If you have used the defunct OzPost Shipping Module ensure that all OzPost files are removed.
-
 Tax (GST) Calculations
 ======================
 Australia Post postage rates to Australian destinations includes GST. This is taken into account in the module by providing the GST exempt price to Zen Cart and letting Zen Cart process the tax according to the rules you have defined. The tax-basis returned by aupost is "Shipping" 
@@ -204,7 +161,3 @@ If you have many very small items and customers buy them in ses of 10 or 100, cr
 One small item x 100 will have a percent added for packaging for each item and the total will be calculated as a much larger parcel than 100 of the same items packed closely together.
 
 AUPost does not attempt to break an order down to multiple parcels / boxes. Why? Some things to consider: what is the weight of an empty box; what are the internal dimensions of a box (to fit things in); what are the external dimensions of a box (this is how you get charged for parcel dimensions); what boxes get priority; how many different boxes are required; are boxes only Australia Post official boxes or are they different? etc
-
-
-
-
