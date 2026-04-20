@@ -14,7 +14,7 @@ declare(strict_types=1);
  *        v2.5.8f 2025-10-20 use PHP __LINE__ for line numbers; global $maxcoverexceeded ;
  *        v2.5.9  2025-12-10 PHP 8.5 compatibility
  *        v2.5.9a 2026-01-19 improve response handling for when Internet is down 
- *        v2.5.9a 2026-04-17 ln1757 check for XML response display raw response in error message; check for empty response and display error message;                            write errors to log file;  
+ *        v2.5.9a 2026-04-17 ln1757 check for XML response display raw response in error message; check for empty response and display error message; write errors to log file;  
  */
 
 // BMHDEBUG switches // WARNING DO NOT ENABLE FOR PRODUCTION

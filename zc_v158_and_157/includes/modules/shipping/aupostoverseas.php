@@ -212,7 +212,7 @@ class aupostoverseas extends base
             if (zen_not_null($this->icon))
                 $this->quotes['icon'] = zen_image($this->icon, $this->title); // set icon for  quotes array    
             if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-                $this->_debug_output("x", "<br> aupost-overseas ln148 return->quotes<br>", $this->quotes);
+                $this->_debug_output("x", '<br>ln' . __LINE__ . 'aupost-overseas return->quotes<br>', $this->quotes);
             }
             return $this->quotes;   // return a single quote
         }  //  Single Quote Exit Point //
@@ -243,7 +243,7 @@ class aupostoverseas extends base
         $frompcode = MODULE_SHIPPING_OVERSEASAUPOST_SPCODE;                 // not used at present
         $dest_country = ($order->delivery['country']['iso_code_2'] ?? '');    //
         if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes")) {
-            $this->_debug_output("n", 'AUOS ln208 $dest_country code = ' . $dest_country, "");
+            $this->_debug_output("n", 'ln' . __LINE__ . 'AUOS $dest_country code = ' . $dest_country, "");
         }
 
         // country check here
@@ -333,7 +333,7 @@ class aupostoverseas extends base
                 $dim_query = "select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id='$t' limit 1 ";
                 $name = $db->Execute($dim_query); // BMH Undefined array key "products_weight"
 
-                echo "<center><table class=\"aupost-debug-table\" border=1 ><th colspan=8>Debugging information ln235 [aupost-oseas Flag set in Admin console | shipping | aupostoverseas]</hr>
+                echo "<center><table class=\"aupost-debug-table\" border=1 ><th colspan=8>Debugging information ln" . __LINE__ . " [aupost-oseas Flag set in Admin console | shipping | aupostoverseas]</hr>
                 <tr><th>Item " . ($x + 1) . "</th><td colspan=7>" . $name->fields['products_name'] . "</td>
                 <tr><th width=1%>Attribute</th><th colspan=3>Item</th><th colspan=4>Parcel</th></tr>
                 <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . ($dims->fields['products_weight'] ?? '') . "</td>
@@ -429,7 +429,7 @@ class aupostoverseas extends base
                     $this->quotes = $_SESSION['overseasaupostQuotes'];
 
                     if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-                        $this->_debug_output("x", '<br> aupost-overseas ln327 return->quotes<br>', $this->quotes);
+                        $this->_debug_output("x", '<br>ln' . __LINE__ / 'aupost-overseas return->quotes<br>', $this->quotes);
                     }
                     return $this->quotes;
                     ///////////////////////////////////  Cache Exit Point //////////////////////////////////
@@ -452,7 +452,7 @@ class aupostoverseas extends base
         $this->quotes = array('id' => $this->code, 'module' => $this->title);        // 
 
         if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-            $this->_debug_output("n", '<br>parcels ** aupost-oseas ln408 url called <br>' .
+            $this->_debug_output("n", '<br> ln' . __LINE__ . 'parcels ** aupost-oseas url called <br>' .
                 'https://' . $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight" . '</p>', "");
         }
         //// ++++++++++++++++++++++++++++++
@@ -515,7 +515,7 @@ class aupostoverseas extends base
         $methods = [];                                              // initialise array
 
         if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-            $this->_debug_output("x", "d2 ln466 dump allowed methods  <br>", $this->allowed_methods);
+            $this->_debug_output("x", 'ln' . __LINE__ . 'd2 dump allowed methods  <br>', $this->allowed_methods);
         }   // BMH DEBUG
 
         foreach ($xml as $foo => $bar) {
@@ -695,7 +695,7 @@ class aupostoverseas extends base
                         );
 
                         if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                            echo '<p class="aupost-debug"> ln515 $result_int_secondary_options = '; //BMH ** DEBUG
+                            echo '<p class="aupost-debug"> ln' . __LINE__ . ' $result_int_secondary_options = '; //BMH ** DEBUG
                             var_dump($result_int_secondary_options);
                             echo ' <\p>';
                         }
@@ -855,7 +855,7 @@ class aupostoverseas extends base
                         );
 
                         if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                            $this->_debug_output("n", 'n2 ln687 $result_int_secondary_options = ', $result_int_secondary_options);
+                            $this->_debug_output("n", 'n2 ln' . __LINE__ . ' $result_int_secondary_options = ', $result_int_secondary_options);
                         } // BMH DEBUG
 
                         if (strlen($id) > 1) {
@@ -1009,7 +1009,7 @@ class aupostoverseas extends base
                             );
 
                             if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                                $this->_debug_output("n", 'n2 ln790 $result_int_secondary_options = ', $result_int_secondary_options);
+                                $this->_debug_output("n", 'n2 ' . __LINE__ . ' $result_int_secondary_options = ', $result_int_secondary_options);
                             } // BMH DEBUG
 
                             if (strlen($id) > 1) {
@@ -1171,7 +1171,7 @@ class aupostoverseas extends base
             $cost = $cost / $aus_rate_int;      // cost includes postage
 
             if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                $this->_debug_output("n", '<br> n2 ln909 $i=' . $i . "</p>", "");
+                $this->_debug_output("n", '<br>ln' . __LINE__ . ' n2 $i=' . $i . "</p>", "");
             } // BMH DEBUG
 
             //// end parcel options that do not have sub options ////
@@ -1216,7 +1216,7 @@ class aupostoverseas extends base
         }
 
         if (BMHDEBUG_INT2 == "Yes") {
-            $this->_debug_output("n", '<br>parcels ***<br>aupost-overseas n2 ln955 ' . 'https://' .
+            $this->_debug_output("n", '<br>ln' . __LINE__ . 'parcels ***<br>aupost-overseas n2 ' . 'https://' .
                 $aupost_url_string . PARCEL_INT_URL_STRING . "&country_code=$dcode&weight=$parcelweight" . '</p>', "");
         } //BMH ** DEBUG
 
@@ -1225,7 +1225,7 @@ class aupostoverseas extends base
         $_SESSION['overseasaupostQuotes'] = $this->quotes; // save as session to avoid reprocessing when single method required
 
         if (BMHDEBUG_INT1 == "Yes" && BMHDEBUG_INT2 == "Yes") {
-            $this->_debug_output("x", '<br> aupost-overseas x2 ln963 all done return->quotes<br>', $this->quotes);
+            $this->_debug_output("x", '<br>ln' . __LINE__ . 'aupost-overseas x2 all done return->quotes<br>', $this->quotes);
         }
         return $this->quotes;   //  all done //
 
@@ -1270,7 +1270,7 @@ class aupostoverseas extends base
                 $optioncode = $OPTIONCODE_SIG;
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                    $this->_debug_output("n", 'n2 ln992 sig only ' . PARCEL_INT_URL_STRING_CALC .
+                    $this->_debug_output("n", 'ln' . __LINE__ . ' n2 sig only ' . PARCEL_INT_URL_STRING_CALC .
                         "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode
                     " . "</p>", "");
                 }  // BMH DEBUG
@@ -1312,7 +1312,7 @@ class aupostoverseas extends base
                 $optioncode = $OPTIONCODE_SIG;
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                    $this->_debug_output("n", '<br> ln968 ins + sig get_auspost_api_int <br>' . 'https://' .
+                    $this->_debug_output("n", '<br>ln' . __LINE__ . ' ins + sig get_auspost_api_int <br>' . 'https://' .
                         $aupost_url_string . PARCEL_INT_URL_STRING_CALC . "&country_code=$dcode&weight=$parcelweight&service_code=$optionservicecode&option_code=$optioncode&extra_cover=$ordervalue" . "</p>", "");
                 }       // BMH ** DEBUG
                 // get quote for sig + extra
@@ -1335,6 +1335,7 @@ class aupostoverseas extends base
                 $cost_sig = $xmlquote_2s->total_cost;   // cost inc sig
                 $cost_option = $cost_sig;
 
+
                 $optioncode = $OPTIONCODE_COVER; // cover quote price varies with cover value
 
                 $qu2_cover = $this->get_auspost_api_int('https://' . $aupost_url_string . PARCEL_INT_URL_STRING_CALC .
@@ -1343,8 +1344,8 @@ class aupostoverseas extends base
                 $xmlquote_2c = ($qu2_cover == '') ? array() : new SimpleXMLElement($qu2_cover); // XML format
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
-                    $this->_debug_output("x", "<strong>>> Server Returned BMHDEBUG1+2 ln999 secondary options sig
-                        + cover xmlquote_2c << </strong> <br> <textarea> ", $xmlquote_2c);
+                    $this->_debug_output("x", 'ln' . __LINE__ . '<strong>>> Server Returned BMHDEBUG1+2 secondary options sig
+                        + cover xmlquote_2c << </strong> <br> ', $xmlquote_2c);
                 }
 
                 if (isset($xmlquote_2c->errorMessage)) {  // BMH DEBUG
@@ -1361,7 +1362,7 @@ class aupostoverseas extends base
 
                 if ((MODULE_SHIPPING_OVERSEASAUPOST_DEBUG == "Yes") && (BMHDEBUG_INT1 == "Yes") && (BMHDEBUG_INT2 == "Yes")) {
                     $this->_debug_output("x", "<strong>>> Server Returned BMHDEBUG1+2
-                        ln1018 secondary options sig + cover xmlquote_2c << </strong> <br> <textarea> ", $xmlquote_2c);
+                        ln1018 secondary options sig + cover xmlquote_2c << </strong> <br> ", $xmlquote_2c);
                 }
 
                 // build the main quote
@@ -1453,7 +1454,7 @@ class aupostoverseas extends base
         $xml = [];
         global $customer_id;
         if (BMHDEBUG_INT2 == "Yes") {
-            $this->_debug_output("n", "<br>ln1170 function get_auspost_api_int \$url= <br>" . $url . ' </p> ', "");
+            $this->_debug_output("n", '<br>ln' . __LINE__ . ' function get_auspost_api_int \$url= <br>' . $url . ' </p> ', "");
         }
         $crl = curl_init();
         $timeout = 5;
@@ -1466,10 +1467,10 @@ class aupostoverseas extends base
 
         // Check the response: if the body is empty then an error occurred
         if (BMHDEBUG_INT2 == "Yes") {
-            $this->_debug_output("n", 'ln1183 exit function get_auspost_api_int $ret = ' . $ret . ' </p> ', ""); // BMH var_dump($ret);
+            $this->_debug_output("n", 'ln' . __LINE__ . ' exit function get_auspost_api_int $ret = ' . $ret . ' </p> ', ""); // BMH var_dump($ret);
 
             if (str_contains($ret, "error")) {
-                $this->_debug_output("n", 'ln1186 Error Occurred $ret= ' . $ret . ' </p> ', "");
+                $this->_debug_output("n", 'ln' . __LINE__ . ' Error Occurred $ret= ' . $ret . ' </p> ', "");
             }
         }
 
@@ -1522,7 +1523,7 @@ class aupostoverseas extends base
     {
         if (MODULE_SHIPPING_OVERSEASAUPOST_HIDE_HANDLING != 'Yes') {
             if (is_string($add_int)) {
-                $add = (float) $add_int;
+                $add_int = (float) $add_int;
             }
             $details = ' (Inc ' . $currencies->format($add_int / $aus_rate_int) . ' P &amp; H';  // Abbreviated for space saving in final quote format
 
