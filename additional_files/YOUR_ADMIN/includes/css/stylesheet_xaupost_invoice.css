@@ -1,0 +1,33 @@
+/** stylesheet_xauspost_invoice.css
+ * @package admin
+ * @copyright Copyright 2025 BMH Trading
+ * @version $Id: Author: BRowe    Included for ZC v1.5.5;1.5.7c; 158; 210; 220; 221; 222
+*
+ // BMH 2026-04-14 to override ZC admin settings in stylesheet.css
+ */
+body {
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 14px;
+}
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, 
+    .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+     padding: 2px;
+    }
+/* invoice settings */ /* BMH 2026-04-14 */ /* + packingslip */
+.table-invoice {
+  margin-bottom: 0;
+  border: 0;
+  width: 90%;
+}
+.pageHeadingL {width: 50%; font-size: 1rem; font-weight:600;}
+.pageHeadingR {height:5em;}
+.pageHeadingR { width: 50%; float: right;}
+.pageHeadingR img { width:100%;}
+.pageHeadingTax {font-size:1.75rem; text-align:left !important;}
+
+.address_table {font-size: 2.75rem; width: 90%; border: 0;}
+.main-ship-name {font-size:1.75rem; width: 90%;}
+.main-ship-name-small {font-size:1.25rem; width: 90%; }
+
+.main-address1 {font-size: 1.25rem;}
