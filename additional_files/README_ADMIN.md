@@ -1,10 +1,10 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
 AusPost Shipping Module 2.5.9a
-2026-04-18
+2026-04-30
 
 files located in the additional_files folder provide:
-    a sample invoice, (updated 2026-04-18)[ YOUR_ADMIN/invoice.php]
+    a sample invoice, (updated 2026-04-30)[ YOUR_ADMIN/invoice.php]
     a language file for the new invoice, and [YOUR_ADMIN/includes/languages/english/extra_definitions/lang.invoice.php]
     an overide language file for Australia settings [YOUR_ADMIN/includes/languages/english/extra_definitions/lang.zbmh_overrides.php].
     
@@ -12,6 +12,7 @@ files located in the additional_files folder provide:
 invoice.php
 -----------
 The new invoice file:
+  NOTE: This version of the invoice is for ZC versions < 2.x. 
     Now contains a switch to display the customers Telephone number and email address below the Delivery Address. From 2026-05-31 it is a requirement from Australia Post to provide this information for every parcel lodged. See the example images. To set the switch, in the invoice.php file, change the variable $SHOW_AP_TELEPHONE  to "Yes";
 
     includes the title "Tax Invoice" as required by the Australian Tax Office,
