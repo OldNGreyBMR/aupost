@@ -1,5 +1,9 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
+AusPost Shipping Module 2.5.9b
+-------------------------------
+Updated 19 Apr 2026 by OldNGrey BMH
+
 AusPost Shipping Module 2.5.9a
 -------------------------------
 Updated 18 Apr 2026 by OldNGrey BMH
