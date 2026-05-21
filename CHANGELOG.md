@@ -1,7 +1,8 @@
 CHANGELOG
 =========
-AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Apr 2026
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9b 19 Apr 2026
 ------------------------------------------
+strict check boolean $maxcoverexceeded
 improve response handling for when Internet is down; 
 check for XML response in case Australia Post turns it off again
 
