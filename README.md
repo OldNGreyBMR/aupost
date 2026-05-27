@@ -1,11 +1,14 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 2.6.0
+AusPost Shipping Module 3.0.0
 -------------------------------
+Updated 21 April 2026 by OldNGrey BMH
 
+This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server via the json API
+**************************
 For code changes see the changelog.
 
-### This version tested on Zen Cart version 1.5.8a, 2.1.0, 2.2.2 and PHP 8.2, 8.3, 8.4, 8.5;
+### This version tested on Zen Cart version 2.1.0, 2.2.2 and PHP 8.2, 8.3, 8.4, 8.5;
 
 This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server.
 The module:
@@ -81,7 +84,7 @@ Installation:
 To obtain really accurate postage quotes directly from Australia Post the following fields are preferred. The module will still return quotations if dimensions are not provided.
 
 To use this Zen Cart plugin for calculating postage with Australia Post IT IS PREFERRED that you 
-have made the following customisation to Zen Cart.
+have populated the following fields for each of your products in Zen Cart.
 
     The products table SHOULD include the following fields:
     - products_width (included by default in Zen Cart)
@@ -89,8 +92,6 @@ have made the following customisation to Zen Cart.
     - products_height. (included by default in Zen Cart 2.0)
 
 These fields are build into Zen Cart from Version 2.0.0. 
-For Zen Cart Version 1.5.8a these fields can be added by:
-    installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
     
 Dimensions should be in cm, weight should be in grams (gms).
     If you have used the OzPpost postage calculator previously you will have these 
@@ -125,17 +126,6 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.1.8 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
     3.1.9 Scroll down and click 'update'.
 
-3.2 Installing on zencart v158a
-----------------------------
-    3.2 Configuration - Australia Post
-    3.2.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
-    3.2.2 Upload the 'includes' folder to the root folder of your Zen Cart store.
-    3.2.3 A CSS file is uploaded to \includes\templates\template_default\css\. A new icon file is uploaded \includes\templates\template_default\images\icons. 
-        Upload the icons folder and the css folder to the template used on your site.
-    3.2.4 In Admin go to: modules > shipping > Australia Post > select it and click install. If you have a previous version of the module installed, uninstall the existing version then reinstall.
-    3.2.5 Under 'Auspost API Key', enter your 36 digit API key.
-    3.2.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-    3.2.7 Scroll down and click 'update'.
 
 Congratulations! You have now successfully installed the Australia Post Shipping Module.
 
@@ -153,18 +143,6 @@ Congratulations! You have now successfully installed the Australia Post Shipping
 5.3 Repeat step 3.1.4 to 3.1.5 above
 5.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
 5.7 Scroll down and click 'update'.
-
--------------------------------------------------
-Upgrading from Australia Post Shipping Module previous versions
--------------------------------------------------
-A complete removal and reinstall is recommended.
-1. Note Australia Post API key and other settings.
-2. Remove old module.
-3. Overwrite the files with the new fileset.
-4. Install new version.
-5. Re-enter Australia Post API key and other settings.
-
-If you have used the defunct OzPost Shipping Module ensure that all OzPost files are removed.
 
 Tax (GST) Calculations
 ======================
@@ -188,6 +166,11 @@ The NEW sizing calculations follows the following process:
 
 HISTORY
 =======
+
+AusPost Shipping Module 2.6.0
+-------------------------------
+Updated 27 May 2026 by OldNGrey BMH
+
 AusPost Shipping Module 2.5.9
 -------------------------------
 Updated 10 December 2025 by OldNGrey BMH
