@@ -1,46 +1,18 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 2.5.9b
+AusPost Shipping Module 2.6.0
 -------------------------------
-Updated 19 Apr 2026 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.9a
--------------------------------
-Updated 18 Apr 2026 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.9
--------------------------------
-Updated 10 December 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8f
--------------------------------
-Updated 08 November 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8e
--------------------------------
-Updated 19 October 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8d
--------------------------------
-Updated 26 August 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8c 
--------------------------------
-Updated 29 July 2025 by OldNGrey BMH
-
-AusPost Shipping Module 2.5.8b 
--------------------------------
-Updated 18 July 2025 by OldNGrey BMH
-
-Australia Post Shipping Module 2.5.8a
---------------------------------------
-Updated 09 July 2025 by OldNGrey BMH
 
 For code changes see the changelog.
 
-### This version tested on Zen Cart version 1.5.7, 1.5.8, 1.5.8a , 2.0.0, 2.1.0, 2.2.2 and PHP 8.0, 8.1, 8.2, 8.3; 8.4;
+### This version tested on Zen Cart version 1.5.8a, 2.1.0, 2.2.2 and PHP 8.2, 8.3, 8.4, 8.5;
 
 This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server.
+The module:
+- Calculates optimal parcel size
+- Displays Live/Real-Time Shipping rates on your Zen Cart Shopping Cart page
+- Supports both domestic and international shipping options, including standard, express, and economy services.
+- Is easy to install and configure, with no coding required.
 
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
@@ -115,11 +87,16 @@ have made the following customisation to Zen Cart.
     - products_width (included by default in Zen Cart)
     - products_length (included by default in Zen Cart 2.0)
     - products_height. (included by default in Zen Cart 2.0)
+
+These fields are build into Zen Cart from Version 2.0.0. 
+For Zen Cart Version 1.5.8a these fields can be added by:
+    installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
     
-    The latter three fields can be added to earlier versions of ZC by installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly. 
-    Dimensions should be in cm, weight should be in grams (gms).
-    If you have used the OzPpost postage calculator previously you will have these fields. 
-    If you do not add the extra fields and populate their values the module will use default values.
+Dimensions should be in cm, weight should be in grams (gms).
+    If you have used the OzPpost postage calculator previously you will have these 
+    fields. 
+    
+If you do not add the extra fields and populate their values the module will use default values.
     The default values are 10cm x 10cm x 2cm which will be a small parcel.
  
 2 Australia Post Account
@@ -134,7 +111,6 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.0.3 repeat for Australia Post International
     3.0.4 In Admin go to: Modules > Plugin Manager and select "Australia Post" and click "Un-Install" twice
     3.0.5 Go to step 3.1
-    
 3.1 Installing on zencart v2.0.0+
 -------------------------------
     3.1.1 Configuration - Australia Post
@@ -149,7 +125,7 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.1.8 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
     3.1.9 Scroll down and click 'update'.
 
-3.2 Installing on zencart v158 and 157
+3.2 Installing on zencart v158a
 ----------------------------
     3.2 Configuration - Australia Post
     3.2.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
@@ -202,13 +178,41 @@ Australia Post postage rates to overseas destinations do not include GST. Set yo
 
 Parcel sizing calculations
 ==========================
-NOTE: The sizing calculations are primitive eg dimensions are totalled so many small items are made into one long parcel. Read the "cubing.txt" file included in this build.
+NOTE: The sizing calculations have been upgraded from the previous more primitive calculation where dimensions were totalled so many small items are made into one long parcel. 
+The NEW sizing calculations follows the following process:
+ * Items are sorted largest-first (by volume) for better packing efficiency.
+  - Each item quantity is split into a grid: items are placed side-by-side to minimise height, favouring a roughly square footprint.
+  - The parcel footprint grows to fit the widest/longest row of items.
+  - Height accumulates per product row (stacked on top of previous rows).
 
-If you have many very small items and customers buy them in ses of 10 or 100, create an item with that qty and apply the correct dimensions.
-One small item x 100 will have a percent added for packaging for each item and the total will be calculated as a much larger parcel than 100 of the same items packed closely together.
 
-AUPost does not attempt to break an order down to multiple parcels / boxes. Why? Some things to consider: what is the weight of an empty box; what are the internal dimensions of a box (to fit things in); what are the external dimensions of a box (this is how you get charged for parcel dimensions); what boxes get priority; how many different boxes are required; are boxes only Australia Post official boxes or are they different? etc
+HISTORY
+=======
+AusPost Shipping Module 2.5.9
+-------------------------------
+Updated 10 December 2025 by OldNGrey BMH
 
+AusPost Shipping Module 2.5.8f
+-------------------------------
+Updated 08 November 2025 by OldNGrey BMH
 
+AusPost Shipping Module 2.5.8e
+-------------------------------
+Updated 19 October 2025 by OldNGrey BMH
 
+AusPost Shipping Module 2.5.8d
+-------------------------------
+Updated 26 August 2025 by OldNGrey BMH
+
+AusPost Shipping Module 2.5.8c 
+-------------------------------
+Updated 29 July 2025 by OldNGrey BMH
+
+AusPost Shipping Module 2.5.8b 
+-------------------------------
+Updated 18 July 2025 by OldNGrey BMH
+
+Australia Post Shipping Module 2.5.8a
+--------------------------------------
+Updated 09 July 2025 by OldNGrey BMH
 
