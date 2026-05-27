@@ -1,18 +1,25 @@
 CHANGELOG
 =========
-AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9b 19 Apr 2026
+AusPost Shipping Module + AusPost Overseas Shipping Module 2.6.0 27 May 2026
+ - array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
+ - check PHP 8.5 compatibility
+ - parcel calc moved to function; parcel size optimised, letter size optimised 
+ - processing time is no slower even with extra sizing calculations
+ - caching is set to ON by default, so if nothing has changed on the shopping cart page a new request will NOT be made to the Australia Post servers
+ 
+ AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9b  19 Apr 2026
+ 
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Jan 2026
 ------------------------------------------
-strict check boolean $maxcoverexceeded
-improve response handling for when Internet is down; 
-check for XML response in case Australia Post turns it off again
+improve response handling for when Internet is down
 
-AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9a 18 Apr 2025
+AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9 10 Dec 2025
 ------------------------------------------
 PHP 8.5 Case statements followed by a semicolon (;) are deprecated, use a colon (:); curl_close() deprecated, not used PHP8.0 +
 
 AusPost Shipping Module + AusPost Overseas Shipping Module2.5.8e 19 Oct 2025
 ------------------------------------------
-Check for value over max cover without signature; check for error returned from AP not in XML format
+Check for value over max cover without signature; check for error returned from AP notin XML format
 improve debugging 
 
 AusPost Shipping Module 2.5.8d 26 Aug 2025

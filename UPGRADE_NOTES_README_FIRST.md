@@ -1,4 +1,4 @@
-Aus Post v2.5.8d
+Aus Post v2.5.9b
 =================
 TO remove the old entries from the database the previouse version of the module MUST be uninstalled.
     
@@ -20,7 +20,7 @@ Remove and un-install the previous version:
     select "Australia Post", and click "Clean Up" , select the previous version and click "confirm"
     
     
-Copy the directory zc_plugins/ AustraliaPost / V2.5.8d to your plugins folder
+Copy the directory zc_plugins/ AustraliaPost / V2.5.9b to your plugins folder
 
 Install and configure the latest version
 ---------------------
