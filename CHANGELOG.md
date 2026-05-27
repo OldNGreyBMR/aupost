@@ -1,5 +1,11 @@
 CHANGELOG
 =========
+AusPost Shipping Module 3.0.0
+-------------------------------
+Updated 21 April 2026 by OldNGrey BMH
+This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server via the json API
+======================================
+
 AusPost Shipping Module + AusPost Overseas Shipping Module 2.6.0 27 May 2026
  - array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
  - check PHP 8.5 compatibility
