@@ -1,10 +1,10 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 2.5.9a
-2026-04-30
+AusPost Shipping Module 2.6.0 
+2025-05-27
 
 files located in the additional_files folder provide:
-    a sample invoice, (updated 2026-04-30)[ YOUR_ADMIN/invoice.php]
+    a sample invoice, [ YOUR_ADMIN/invoice.php]
     a language file for the new invoice, and [YOUR_ADMIN/includes/languages/english/extra_definitions/lang.invoice.php]
     an overide language file for Australia settings [YOUR_ADMIN/includes/languages/english/extra_definitions/lang.zbmh_overrides.php].
     
@@ -12,15 +12,12 @@ files located in the additional_files folder provide:
 invoice.php
 -----------
 The new invoice file:
-  NOTE: This version of the invoice is for ZC versions < 2.x. 
-    Now contains a switch to display the customers Telephone number and email address below the Delivery Address. From 2026-05-31 it is a requirement from Australia Post to provide this information for every parcel lodged. See the example images. To set the switch, in the invoice.php file, change the variable $SHOW_AP_TELEPHONE  to "Yes";
-
     includes the title "Tax Invoice" as required by the Australian Tax Office,
     removes the SHIP TO address and replaces it with "PICKUP" if the order is to be collected,
-    reorganizes the sections and the size of the addresses so the invoice can be folded in half then folded 
+    reorganizes the sections an dthe size of the addresses so the invoice can be folded in half then folded 
     again to fit into an address sleeve.
 
-Before you copy this new invoice.php file, locate the original and rename it eg rename invoice.php to invoice_ori.php2, so that you can always revert back if required.
+Before you copy this new invoice.php file, locate the original and rename it eg rename invoice.php to invoice_ori.php2
 
 Language override file
 ----------------------
@@ -33,6 +30,3 @@ It changes;
     changes header names to MY STORE NAME and changes to logos to MY LOGO names
     ALTER THESE SETTINGS TO SUIT YOUR STORE.
 
-CSS file
---------
-A new css file "stylesheet_xaupost_invoice.css" for improved formatting of the invoice and avoids editing stylesheet.css whci can be overwritten with upgrades
