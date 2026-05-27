@@ -1,4 +1,4 @@
-Aus Post v2.5.9b
+Aus Post v2.6.0
 =================
 TO remove the old entries from the database the previouse version of the module MUST be uninstalled.
     
@@ -20,11 +20,11 @@ Remove and un-install the previous version:
     select "Australia Post", and click "Clean Up" , select the previous version and click "confirm"
     
     
-Copy the directory zc_plugins/ AustraliaPost / V2.5.9b to your plugins folder
+Copy the new directory zc_plugins/ AustraliaPost to your plugins folder
 
 Install and configure the latest version
 ---------------------
     in Admin | Modules | Plugin Manager 
-    select "Australia Post", and click "Install" . If you have a choice of versions, select V2.5.8c
+    select "Australia Post", and click "Install" . If you have a choice of versions, select the most recent
     go to  Admin | Modules | Shipping Modules, select "Australia Post" and click "Install Module", enter the API key, check your settings and "Update"
     repeat for "Australia Post International" settings.
