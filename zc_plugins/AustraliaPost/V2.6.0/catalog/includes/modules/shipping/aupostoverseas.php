@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * $Id:   overseasaupost.php, v2.5.9 Aug 2025
+ * $Id:   overseasaupost.php, v2.6.0 May 2026
  *  v2.5.8 check correct australia post zones
  *  v2.5.8a 2025-07-06 Improved error msgs; output errors to log file; display dims as int as AP only shows as int now; improve handling of  MODULE_SHIPPING_AUPOST_COST_ON_ERROR ie TBA
  *  v2.5.8b 2025-07-17 check for Constants on initial install
@@ -485,6 +485,7 @@ class aupostoverseas extends base
         // ---- check for error msg eg Auth key is incorrect ------------- //
         if ((strpos($qu, "<") != 1) && (str_contains($qu, "error"))) {
             echo '<br> AUPOST - Overseas ERROR IN POSTAGE CONFIGURATION. PLEASE CONTACT THE STORE ADMINISTRATOR';
+            $this->_log('aupos ln' . __LINE__ . 'Config error' . $this->error_msg_ap_int . " #" . " Cust:" . $customer_id);
             exit;
         }
 
