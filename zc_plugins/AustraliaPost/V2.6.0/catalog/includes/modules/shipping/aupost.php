@@ -75,7 +75,7 @@ if (!defined('MODULE_SHIPPING_AUPOST_AUTHKEY')) {
 }
 if (!defined('AUPOST_TESTMODE_AUTHKEY')) {
     define('AUPOST_TESTMODE_AUTHKEY', '28744ed5982391881611cca6cf5c240');
-} // DO NOT CHANGE
+}       // DO NOT CHANGE
 if (!defined('AUPOST_URL_TEST')) {
     define('AUPOST_URL_TEST', 'test.npe.auspost.com.au');
 }       // No longer used - leave as prod url
@@ -95,8 +95,9 @@ if (!defined('PARCEL_URL_STRING_CALC')) {
     define('PARCEL_URL_STRING_CALC', '/postage/parcel/domestic/calculate.xml?from_postcode=');
 }//
 
-// class constructor
-
+/**
+ * class constructor
+ */
 class aupost extends base
 {
     private ?string $_logDir = DIR_FS_SQL_CACHE;    //
@@ -139,7 +140,6 @@ class aupost extends base
 
     public function __construct()
     {
-        /* +++++++++ */
         global $order, $db, $template, $tax_basis, $messageStack;
         global $frompcode;
         global $maxcoverexceeded;
@@ -191,9 +191,9 @@ class aupost extends base
 
         $this->ap_shipping_num_boxes = 1;
 
-
+        // ---- use ZC tax class -------------------------------------------//
         $this->tax_class = defined('MODULE_SHIPPING_AUPOST_TAX_CLASS') ? MODULE_SHIPPING_AUPOST_TAX_CLASS : null;
-        // use ZC tax basis
+        // ---- use ZC tax basis -------------------------------------------//
         $this->tax_basis = defined('MODULE_SHIPPING_AUPOST_TAX_BASIS') ? MODULE_SHIPPING_AUPOST_TAX_BASIS : null;
 
         if (zen_get_shipping_enabled($this->code))
@@ -221,6 +221,7 @@ class aupost extends base
         global $maxcoverexceeded;
         global $maxcover;
         global $producttitle, $tare;
+        global $methods;
 
         // method argument is supplied to this module by Zen Cart if required (single quote).
         // see later comments on removing underscores from AusPost-defined shipping methods.
@@ -235,7 +236,8 @@ class aupost extends base
 
             $usemod = $this->title;
             $usetitle = $temp['title'];
-            if (MODULE_SHIPPING_AUPOST_ICONS != "No") {                  // strip the icons //
+             // ---- strip the icons ---------------------------------------- //
+            if (MODULE_SHIPPING_AUPOST_ICONS != "No") {
                 if (preg_match('/(title)=("[^"]*")/', $this->title, $module))
                     $usemod = trim($module[2], "\"");
                 if (preg_match('/(title)=("[^"]*")/', $temp['title'], $title))
@@ -263,13 +265,13 @@ class aupost extends base
             if (zen_not_null($this->icon))
                 $this->quotes['icon'] = zen_image($this->icon, $this->title);
             return $this->quotes;                // return a single quote
-        }  ///  Single Quote Exit Point ////
+        }  // ---- Single Quote Exit Point --------------------------------- //
 
         /* check from postcode and only posting to Australia */
         $frompcode = (MODULE_SHIPPING_AUPOST_SPCODE);
         if (!isset($frompcode) || $frompcode == '') {
             $frompcode = '4121';                            // default to Tarragindi, Qld 4121
-            $this->_log(msg: 'From postcode not set in module settings. Defaulting to 4121 Tarragindi'); // write to log file
+            $this->_log(msg: 'ln' .__LINE__ .  'From postcode not set in module settings. Defaulting to 4121 Tarragindi'); // write to log file
         }
         $dest_country = ($order->delivery['country']['iso_code_2'] ?? '');    //
 
@@ -308,7 +310,7 @@ class aupost extends base
             //$MAXLENGTH_L_MED_EXP = 229;               // C5 envelope prepaid Express envelopes
             //$MAXWIDTH_L_LRG_EXP = 250;                // B4 envelope prepaid Express envelopes
             //$MAXLENGTH_L_LRG_EXP = 353;               // B4 envelope prepaid Express envelopes
-            $MINVALUEEXTRACOVER = 101;                  // Aust Post amount for min insurance charge
+
             $MINLETTERWEIGHT = 15;                      // minimum weight of letter container
 
             // initialise variables
@@ -335,10 +337,10 @@ class aupost extends base
             $letterprefix = 'LETTER ';                      // prefix label to differentiate from parcel - include space after
 
         }
-        // EOF LETTERS - values
-
+        // ---- EOF LETTERS - values --------------------------------------- //
         // PARCELS - values
         // Maximums - parcels
+           $MINVALUEEXTRACOVER = 101;                  // Aust Post amount for min insurance charge
         $MAXWEIGHT_P = 22;                                  // change from 20 to 22kg 2021-10-07
         $MAXLENGTH_P = 105;                                 // 105cm max parcel length
         //$MAXGIRTH_P =  140 ;                              // 140cm max parcel girth  ( (width + height) * 2) // 2023 girth not used for local parcel
@@ -384,12 +386,13 @@ class aupost extends base
             return;
         }           //  This will occur with guest user first quote where no postcode is available
 
-        /* BMH not developed $FlatText = " Using AusPost Flat Rate." ;
-            This concept requires prices for each packaging option in addition to the calculated postage cost. AP flat rate packaging has loose descriptions and dimensions and would
-            probably require config via the Admin interface
+        /* BMH not developed
+        $FlatText = " Using AusPost Flat Rate." ;
+            This concept requires prices for each packaging option in addition to the calculated postage cost.
+            AP flat rate packaging has loose descriptions and dimensions and would probably require config via the Admin interface
         */
 
-        // loop through cart extracting productIDs and qtys //
+        // ---- loop through cart extracting productIDs and qtys ----------- //
         $myorder = $_SESSION['cart']->get_products();
 
         // $result = $this->calculateParcelDimensions($_SESSION['cart'], $db, $defaultdims);
@@ -408,7 +411,7 @@ class aupost extends base
         $packageitems = $result['items'];
         $parcelweight = $result['weight'];
 
-        // /////////////////////// LETTERS //////////////////// //////////////
+        // ---- LETTERS ---------------------------------------------------- //
         if (MODULE_SHIPPING_AUPOST_TYPE_LETTERS <> null) {    // only calculate letter dimensions if letter service is enabled
 
             // for letter dimensions
@@ -473,7 +476,7 @@ class aupost extends base
                 }
                 // do not send 500g letters, default to parcel for extra packing
 
-                // DEBUG2 display the letter values ';
+                // ---- DEBUG2 display the letter values -------------------- //
                 if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMH_L_DEBUG2 == "Yes")) {
                     $this->_debug_output("n", "<br>dl2 aupost ln" . __LINE__ . " \$lettercheck=" . $lettercheck . ' $letterchecksmall=' . $letterchecksmall . ' $letterlengthcheck = ' . $letterlengthcheck . ' $letterwidthcheck = ' . $letterwidthcheck . ' $letterheightcheck=' . $letterheightcheck, "");
                     if ($letterchecksmall == 3) {
@@ -509,7 +512,8 @@ class aupost extends base
 
                 // If we have any results, parse them into an array
 
-                $xmlquote_letter = ($quL == '') ? array() : new SimpleXMLElement($quL);
+                // BMH $xmlquote_letter = ($quL == '') ? array() : new SimpleXMLElement($quL);
+                $xmlquote_letter = $quL ? new SimpleXMLElement($quL) : [];
 
                 //  bof XML formatted output
                 if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMH_L_DEBUG2 == "Yes")) {
@@ -732,8 +736,8 @@ class aupost extends base
             } // end of if for letters
             //// EOF LETTERS /////////
 
-            //////////// // PACKAGE ADJUSTMENT FOR OPTIMAL PACKING // ////////////
-            // package created, now re-orientate and check dimensions
+        // ---- PACKAGE ADJUSTMENT FOR OPTIMAL PACKING --------------------- //
+            // ---- package created, now re-orientate and check dimensions - //
             $parcelheight = ceil($parcelheight);  // round up to next integer // cm for accuracy in pricing
             $var = array($parcelheight, $parcellength, $parcelwidth);
             sort($var);
@@ -748,14 +752,14 @@ class aupost extends base
                 $parcelweight = $parcelweight / 1000;
             }
 
-            //  save dimensions for display purposes on quote form
+            // ---- save dimensions for display purposes on quote form --------- //
             $_SESSION['swidth'] = $parcelwidth;
             $_SESSION['sheight'] = $parcelheight;
             $_SESSION['slength'] = $parcellength;
             $_SESSION['boxes'] = $this->ap_shipping_num_boxes;
             //$_SESSION['boxes'] = $shipping_num_boxes ; //global variable for number of boxes used in quote
 
-            // Check for maximum length allowed
+            // ---- Check for maximum length allowed ----------------------- //
             if ($parcellength >= $MAXLENGTH_P) {
                 $this->error_msg_ap = ERROR_MAX_LENGTH_MSG;
                 $cost = $this->_get_error_cost($dest_country, $this->error_msg_ap);
@@ -763,25 +767,25 @@ class aupost extends base
                 if ($this->enabled == FALSE)
                     return;    // no quote
 
-                $methods[] = array('id' => $this->code, 'title' => $this->error_msg_ap, 'cost' => $cost); // update method issue#19
+                $methods[] = array('id' => $this->code, 'title' => $this->error_msg_ap, 'cost' => $cost); // update method 
                 $this->quotes['methods'] = $methods;   // set it
                 $parcellength = 0;
                 return $this->quotes;
-            }  // exceeds AustPost maximum length. No point in continuing.
+            }  // ---- exceeds AustPost maximum length. No point in continuing. //
 
-            // Check cubic volume
+            // ---- Check cubic volume ------------------------------------- //
             if ($itemcube > $MAXCUBIC_P) {
                 $this->error_msg_ap = ERROR_MAX_CUBIC_MSG;
                 $cost = $this->_get_error_cost($dest_country, $this->error_msg_ap);
                 // if ($cost == 0)  return  ;
                 if ($this->enabled == FALSE)
-                    return;   // no quote
+                    return;                                                             // no quote
 
                 $methods[] = array('id' => $this->code, 'title' => $this->error_msg_ap, 'cost' => $cost); // issue#19
-                $this->quotes['methods'] = $methods;   // set it
+                $this->quotes['methods'] = $methods;                                    // set it
                 $itemcube = 0;
                 return $this->quotes;
-            }  // exceeds AustPost maximum cubic volume. No point in continuing.
+            }  // ---- exceeds AustPost maximum cubic volume. No point in continuing.  //
 
             if ($parcelweight > $MAXWEIGHT_P) {
                 $this->error_msg_ap = ERROR_MAX_WEIGHT_MSG;
@@ -794,10 +798,10 @@ class aupost extends base
                 $this->quotes['methods'] = $methods;   // set it
                 $parcelweight = 0;
                 return $this->quotes;
-            }  // exceeds AustPost maximum weight. No point in continuing.
+            }  // ---- exceeds AustPost maximum weight. No point in continuing. //
 
-            // Check to see if cache is useful
-            if (USE_CACHE == "Yes") {   // DEBUG disable cache for testing
+            // ---- Check to see if cache is useful ------------------------ //
+            if (USE_CACHE == "Yes") {                                        // DEBUG disable cache for testing
                 if (isset($_SESSION['aupostParcel'])) {
                     $test = explode(",", $_SESSION['aupostParcel']);
 
@@ -815,15 +819,15 @@ class aupost extends base
                             echo "<center><table border=1 width=95% ><td align=center><font color=\"#FF0000\">Using Cached quotes </font></td></table></center>";
                         }
 
-                        $this->quotes = isset($_SESSION['aupostQuotes']) ? $_SESSION['aupostQuotes'] : null;  //
+                        $this->quotes = isset($_SESSION['aupostQuotes']) ? $_SESSION['aupostQuotes'] : null;
                         return $this->quotes;
-                        ///////////////////////////////////  Cache Exit Point //////////////////////////////////
+                        // ---- Cache Exit Point ------------------------------- //
                     } // No cache match -  get new quote from server //
                 }  // No cache session -  get new quote from server //
             } // end cache option
-            ///////////////////////////////////////////////////////////////////////////////////////////////
 
-            // always save new session  CSV //
+
+            // ---- always save new session ------------------------------------ //
             $_SESSION['aupostParcel'] = implode(",", array($dest_country, $topcode, $parcelwidth, $parcelheight, $parcellength, $parcelweight, $ordervalue));
             $shipping_weight = $parcelweight;  // global value for zencart
 
@@ -864,12 +868,12 @@ class aupost extends base
                  $parcelheight = (int) $parcelheight;
                  $this->_debug_output("n", "<p class=\"aupost-debug\"> <br>aupost ln" . __LINE__ . " n2 parcels ***<br> " . 'https://' . $aupost_url_string . PARCEL_URL_STRING . $frompcode . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight" . "</p> ", "");
              } */
-            //// ++++++++++++++++++++++++++++++
-            // get parcel api
+
+            // ---- get parcel api --------------------------------------------- //
             $qu = $this->get_auspost_api(
                 'https://' . $aupost_url_string . PARCEL_URL_STRING . $frompcode . "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight"
             );
-            // // +++++++++++++++++++++++++++++
+
 
             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
                 //$this->_debug_output("n","<table class='aupost-debug'><tr><td><b>n2 auPost - Server Returned BMH_P_DEBUG2 ln842:</b><br>" . $qu . "</td></tr></table> ","");
@@ -877,21 +881,23 @@ class aupost extends base
                 echo " ln" . __LINE__ . " " . $qu;
             }
 
-            // Check for returned quote is really an error message
-            if (str_starts_with($qu, "{")) {
+            // ---- Check for returned quote is really an error message -------- //
+            if (str_starts_with($qu ?? '', "{")) {                 // 8.5 use Null Coalescing Operator
                 if (isset($myerrorarray['status']) && $myerrorarray['status'] === "Failed") {
                     echo '<br> Australia Post connection ' . $myerrorarray['status'] . '. Please report error to site owner';
-                    $this->_log("" . json_encode($myerrorarray) . " Cust:" . $customer_id); //
+                    $this->_log("ln" . __LINE__ . ' ' . json_encode($myerrorarray) . " Cust:" . $customer_id); //
                     return $this->quotes;
                 }
             }
-            if (str_contains(strtolower($qu), "cubic")) {  // trap for AP API allows >= for cubic measure // future maybe move all error traps here
+
+            // ---- trap for AP API allows >= for cubic measure TODO future maybe move all error traps here //
+            if (str_contains(strtolower($qu ?? ''), "cubic")) {     // 8.5 use Null Coalescing Operator
                 $this->error_msg_ap = ERROR_MAX_CUBIC_MSG;
                 $cost = $this->_get_error_cost($dest_country, $this->error_msg_ap);
                 if ($this->enabled == FALSE)
                     return;              // no quote
 
-                $this->_log("" . $this->error_msg_ap . " Cust:" . $customer_id); // write to log file
+                $this->_log("ln" . __LINE__ . ' ' . $this->error_msg_ap . " Cust:" . $customer_id); // write to log file
                 $methods[] = array('id' => $this->code, 'title' => $this->error_msg_ap, 'cost' => $cost); // issue#19
                 $this->quotes['methods'] = $methods;   // set it
                 return $this->quotes;
@@ -903,7 +909,15 @@ class aupost extends base
                 $this->_debug_output("x", "<p d2 class='aupost-debug' ><strong> >> Server Returned BMHDEBUG1+2 ln" . __LINE__ . " << <br> </strong> <textarea  > ", $xml);
             }
 
-            $maxcover = ($xml->service[0]->max_extra_cover); //  cast to int
+           //  $maxcover = ($xml->service[0])->max_extra_cover; //  cast to int 8.5*/
+           if (isset($xml->service)) {
+                 //$maxcover = ($xml->service)->max_extra_cover;
+                $service = $xml->service[0];
+                $maxcover = $service->max_extra_cover;
+                } else {
+                    $maxcover = 0; // or handle the error
+            }
+
 
             if ($ordervalue_ori > $maxcover) {  //  cast to int
                 $maxcoverexceeded = True;
@@ -916,20 +930,20 @@ class aupost extends base
             /////  Initialise our quotes['id'] required in includes/classes/shipping.php
             $this->quotes = array('id' => $this->code, 'module' => $this->title);
 
-            ///////////////////////////////////////
-            //  loop through the Parcel quotes retrieved //
+
+            // ---- loop through the Parcel quotes retrieved --------------- //
             $i = 0;  // counter
             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
                 $this->_debug_output("x", " <br>x2 ln" . __LINE__ . ' $this->allowed_methods = ', $this->allowed_methods); //
             }
             if (BMH_MIN_ORDER_VALUE_DEBUG == "Yes") {
                 $ordervalue = $MINVALUEEXTRACOVER + 1;
-            }                          // to force extra cover value FOR TESTING ONLY; auto cover to $100
+            }                                                               // to force extra cover value FOR TESTING ONLY; auto cover to $100
 
             foreach ($xml as $foo => $bar) {
-                $code = strval(($xml->service[$i]->code));                      //
+                $code = strval(($xml->service[$i]->code));                  //
                 $code = str_replace("_", " ", $code);
-                $code = substr($code, 11); //strip first 11 chars;               // keep API code for label
+                $code = substr($code, 11);                                  // strip first 11 chars;  keep API code for label
 
                 $id = str_replace("_", "", strval($xml->service[$i]->code));    /* remove underscores from AusPost methods.
 Zen Cart uses underscore as delimiter between module and method. Underscores must also be removed from case statements below. */
@@ -1758,7 +1772,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
                 $i++; // increment the counter to match XML array index
             }  // end foreach loop
 
-            //  //  ///////////////////////////////////////////////////////////////////
+            //
             //  check to ensure we have at least one valid quote - produce error message if not.
             if ((is_array($methods)) && (count($methods) == 0)) {                // no valid methods
                 $error_msg_ap = ERROR_NO_VALID_PARCEL_QUOTE_MSG;                //
@@ -1885,8 +1899,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
             if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
                 $this->_debug_output("n", '<br>n2 ln' . __LINE__ . ' allowed option = ' . $allowed_option . PARCEL_URL_STRING_CALC . $frompcode .
                     "&to_postcode=$dcode&length=$parcellength&width=$parcelwidth&height=$parcelheight&weight=$parcelweight
-                    &service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=
-                    $ordervalue", "");
+&service_code=$optionservicecode&option_code=$optioncode&suboption_code=$suboptioncode&extra_cover=$ordervalue", "");
             }
             $parcellength = (int) $parcellength;
             $parcelwidth = (int) $parcelwidth;
@@ -1910,7 +1923,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
                 $desc_option = $allowed_option;
                 $cost_option = (float) ($xmlquote_2->total_cost);
 
-                // got all of the option values // -----------
+                // got all of the option values ---------------------------- //
                 $cost = $cost_option;
 
                 if ((($cost > 0) && ($f == 1))) { //
@@ -1924,18 +1937,17 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
                         if ($t > 0)
                             $cost = $t;
                     }
-                    // //  ++++
+
                     $info = 0;  // Dummy used for REG POST - MAY BE REDUNDANT
 
                     $details = $this->_handling($details, $currencies, $add, $aus_rate, $info);  // check if handling rates included
-                    // //  ++++
 
-                }   // eof list option for normal operation
+                }   // ---- eof list option for normal operation ----------- //
                 $cost = $cost / $aus_rate;
 
                 $desc_option = "[" . $desc_option . "]";         // delimit option in square brackets
                 $result_secondary_options = array("id" => $id_option, "title" => $description . ' ' . $desc_option . ' ' . $details, "cost" => $cost);
-            } // valid result
+            }                                                   // valid result
             else {      // pass back a zero value as not a valid option from Australia Post eg extra cover may require a signature as well
                 $cost = 0;
                 $result_secondary_options = array("id" => '', "title" => '', "cost" => $cost);  // invalid result
@@ -1945,8 +1957,13 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
         return $result_secondary_options;
     } // eof function _get_secondary_options //
 
-    // // //
-    function _get_error_cost($dest_country, $error_msg_ap)
+    /**
+     * Summary of _get_error_cost
+     * @param mixed $dest_country
+     * @param mixed $error_msg_ap
+    */
+
+    private function _get_error_cost($dest_country, $error_msg_ap)
     {
         global $messageStack;
         global $cost;
@@ -1977,18 +1994,20 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
                 // bof output to logfile
                 $messageStack->add_session('aupost_error', $error_msg_ap, 'error');
                 $customer_id = $_SESSION['customer_id'] ?? '';                                  // include customer id if set
-                $this->_log("" . $this->error_msg_ap . " #" . " Cust:" . $customer_id);
+                $this->_log("ln" . __LINE__. ' ' . $this->error_msg_ap . " #" . " Cust:" . $customer_id);
                 // eof output to log file
             }
         }
         return $cost;
-
     }
+
     // ---- extra functions ------------------------------------------------ //
     /**
      * auspost API
+     * @param mixed $url
+     * @return bool|string
      */
-    function get_auspost_api($url)
+    private function get_auspost_api($url)
     {
         $xml = [];
         global $customer_id;
@@ -1999,14 +2018,15 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
             $aupost_url_apiKey = MODULE_SHIPPING_AUPOST_AUTHKEY;
             if ($aupost_url_apiKey == '' || $aupost_url_apiKey == '0') {
                 echo '<br><strong>Australia Post API Key is not set.</strong> Please notify the administrator to set the API Key in the module settings.';
-                $this->_log("Australia Post API Key is not set. Please set the API Key  in the module settings. Cust:" . $customer_id); //  write to log file
+                $this->_log('ln' . __LINE__ . " Australia Post API Key is not set. Please set the API Key  in the module settings. Cust:" . $customer_id); //  write to log file
                 return;
             }
         }
-        /*if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes") && (BMH_P_DEBUG3 == "Yes")) {
-            // echo '<br> ln' . __LINE__ . ' get_auspost_api $url= ' . $url;
+        if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes") && (BMH_P_DEBUG3 == "Yes")) {
+             echo '<br> ln' . __LINE__ . ' get_auspost_api $url= ' . $url;
             // echo '<br> ln' . __LINE__ . ' $aupost_url_apiKey= ' . $aupost_url_apiKey;
-        } */
+        }
+
         $crl = curl_init();
         $timeout = 5;
 
@@ -2018,7 +2038,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
         $ret = curl_exec($crl);
 
         // ---- Check the response: if the body is empty then an error occurred //
-        if ((BMHDEBUG1 == "No") && (BMH_P_DEBUG2 == "Yes") && (BMH_P_DEBUG3 == "Yes")) {
+        if ((BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes") && (BMH_P_DEBUG3 == "Yes")) {
             $this->_debug_output("x", 'ln' . __LINE__ . ' x2 get_auspost_api curl $ret= <br>', $ret); // will display empty box
         }
 
@@ -2027,6 +2047,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
         $errtext = curl_error($crl);
         $errnum = curl_errno($crl);
         $commInfo = curl_getinfo($crl);
+
         if ($edata === "Access denied") {
             $errtext = "<strong>" . $edata . ".</strong> Please report this error to <strong>System Owner ";
         }
@@ -2047,8 +2068,8 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
 
         // ---- XML response from Australia Post API is XML ---------------- //
         // ---- Try to parse the response as XML. If it fails, display an error message with the raw response for debugging. -- //
-        if ($xml === false) {
-            $xml = simplexml_load_string($ret);
+        $xml = simplexml_load_string($ret);
+
             if ($xml === false) {
                 $errtext = "Failed to parse XML response from Australia Post. <br>Response: " . $ret;
                 die('<p><br><b>An Error occurred:</b> "' . $errtext . '" - Code: ' . curl_errno($crl) .
@@ -2057,9 +2078,10 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
             }
             // ---- If we have any results, parse them into an array ----------- //
             $xml = ($ret == '') ? array() : new SimpleXMLElement($ret);
+
             if ($xml->errorMessage) {
                 $ret = 'Error ' . $ret;
-                $this->_log("" . $xml->errorMessage . " Cust:" . $customer_id); //  write to log file
+                $this->_log("ln" . __LINE__ . ' ' . $xml->errorMessage . " Cust:" . $customer_id); //  write to log file
                 $cost = "";
                 $methods[] = array('id' => $this->code, 'title ' . $xml->errorMessage, 'cost' => $cost);
                 $this->quotes['methods'] = $methods;   // set the method
@@ -2067,9 +2089,8 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
             }
 
             return $ret;
-        }
     }
-    // end auspost API
+    // ---- end auspost API ------------------------------------------------ //
 
     /**
      * Summary of _handling
@@ -2150,9 +2171,10 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
                 //$dim_query = "select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id='$producttitle' limit 1 ";
                 $dim_query = 'select products_name from ' . TABLE_PRODUCTS_DESCRIPTION . ' where products_id= ' . $producttitle . ' limit 1 ';
                 $name = $db->Execute($dim_query);
-                $parcellength = (int) $parcellength;
-                $parcelwidth = (int) $parcelwidth;
-                $parcelheight = (int) $parcelheight;
+                $parcellength += $parcellength;
+                $parcelwidth +=  $parcelwidth;
+                $parcelheight +=  $parcelheight;
+                $parcelweight +=  $parcelweight;
                 // Volume in litres (dimensions must be in cm)
                 $itemcube = $dims->fields['products_width']
                     * $dims->fields['products_height']
@@ -2161,18 +2183,20 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
                     * 0.000001;
                 $parcelcube += $itemcube;
 
+                // ---- Debugging output table controlled  by admin settings //
                 echo "<center><table class=\"aupost-debug-table\" border=1><th colspan=8> Debugging information [aupost Flag set in Admin console | shipping | aupost] version:" . VERSION_AU . " ln" . __LINE__ . "</hr>
-                <tr><th>Item " . ($x) . "</th><td colspan=7>" . $name->fields['products_name'] . "</td>
+                <tr><th>Item " . ($x) . "</th> <td colspan=7>" . $name->fields['products_name'] . "</td> </tr>
                 <tr><th width=15%>Attribute</th><th colspan=3>Item</th><th colspan=4>Parcel</th></tr>
                 <tr><th>Qty</th><td>&nbsp; " . $q . "<th>Weight</th><td>&nbsp; " . $w . "</td>
                 <th>Qty</th><td>&nbsp;$packageitems</td><th>Weight</th><td>&nbsp;";
                 echo $parcelweight + (($parcelweight * $tare) / 100);
                 echo " " . MODULE_SHIPPING_AUPOST_WEIGHT_FORMAT . "</td></tr>
-                <tr><th>Dims L W H </th><td colspan=3>&nbsp; " . (int) $dims->fields['products_length'] . " x " . (int) $dims->fields['products_width'] . " x " . (int) $dims->fields['products_height'] . "</td>
-                <td colspan=4>&nbsp;$parcellength  x  $parcelwidth  x $parcelheight </td></tr>
-                <tr><th>Cube</th><td colspan=3>&nbsp; itemcube=" . number_format($itemcube, 3) . " cubic vol" . "</td><td colspan=4>&nbsp;" . number_format($itemcube, 3) . " cubic vol" . " </td></tr>
-                <tr><th>CubicWeight</th><td colspan=3>&nbsp;" . ($itemcube * 250) . "Kgs  </td><td colspan=4>&nbsp;"
-                    . ($itemcube * 250) . "Kgs </td></tr>
+                <tr>
+                    <th>Dims L W H </th> <td colspan=3>&nbsp; " . $dims->fields['products_length'] . " x " .  $dims->fields['products_width'] . " x " .  $dims->fields['products_height'] . "</td>
+                    <td colspan=4>&nbsp;$parcellength  x  $parcelwidth  x $parcelheight </td>
+                </tr>
+                <tr><th>Cube</th> <td colspan=3>&nbsp; itemcube=" . number_format($itemcube, 3) . " cubic vol" . "</td><td colspan=4>&nbsp;" . number_format($itemcube, 3) . " cubic vol" . " </td></tr>
+                <tr><th>CubicWeight</th><td colspan=3>&nbsp;" . ($itemcube * 250) . "Kgs  </td><td colspan=4>&nbsp;"  . ($itemcube * 250) . "Kgs </td></tr>
                 </table></center> ";
             }
 
@@ -2344,12 +2368,12 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
         return;
     }   // end _debug_output function
 
-
     // --------------------------------------------------------------------- //
     // parts for admin module                                                //
     // --------------------------------------------------------------------- //
 
-    public function check()         //
+    // ---- Check to see if module is installed ---------------------------- //
+    public function check()
     {
         global $db;
         if (!isset($this->_check)) {
@@ -2366,7 +2390,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
         global $messageStack;
         // check for XML
         if (!class_exists('SimpleXMLElement')) {
-            $messageStack->add('aupost', 'Installation FAILED. AusPpost requires SimpleXMLElement to be installed on the system ');
+            $messageStack->add('aupost', 'Installation FAILED. AusPost requires SimpleXMLElement to be installed on the system ');
             //$messageStack->add(sprintf('Installation FAILED. AusPpost requires SimpleXMLElement to be installed on the system ', 'info'));
             echo "<br/> This module requires SimpleXMLElement to work. Most Web hosts will support this.<br>Installation will NOT continue.<br>Press your back-page to continue ";
             exit;
@@ -2425,15 +2449,19 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Handling Fee - Regular parcels', 'MODULE_SHIPPING_AUPOST_RPP_HANDLING', '2.00', 'Handling Fee Regular parcels', '6', '6', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Handling Fee - Prepaid Satchels', 'MODULE_SHIPPING_AUPOST_PPS_HANDLING', '2.00', 'Handling Fee for Prepaid Satchels.', '6', '7', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Handling Fee - Prepaid Satchels - Express', 'MODULE_SHIPPING_AUPOST_PPSE_HANDLING', '2.00', 'Handling Fee for Prepaid Express Satchels.', '6', '8', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Handling Fee - Express parcels', 'MODULE_SHIPPING_AUPOST_EXP_HANDLING', '2.00', 'Handling Fee for Express parcels.', '6', '9', now())");
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added)
             VALUES ('Hide Handling Fees?', 'MODULE_SHIPPING_AUPOST_HIDE_HANDLING', 'No', 'The handling fees are still in the total shipping cost but the Handling Fee is not itemised on the invoice.', '6', '16', 'zen_cfg_select_option(array(\'Yes\', \'No\'), ', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Default Product /Parcel Dimensions', 'MODULE_SHIPPING_AUPOST_DIMS', '10,10,2', 'Default Product /Parcel dimensions (in cm). Three comma separated values (eg 10,10,2 = 10cm x 10cm x 2cm). These are used if the dimensions of individual products are not set', '6', '40', now())");
 
@@ -2445,6 +2473,7 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
         */
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added)
             VALUES ('Parcel Weight format', 'MODULE_SHIPPING_AUPOST_WEIGHT_FORMAT', 'gms', 'Are your store items weighted by grams or Kilos? (required so that we can pass the correct weight to the server).', '6', '25', 'zen_cfg_select_option(array(\'gms\', \'kgs\'), ', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added)
             VALUES ('Show AusPost logo?', 'MODULE_SHIPPING_AUPOST_ICONS', 'Yes', 'Show Auspost logo in place of text?', '6', '19', 'zen_cfg_select_option(array(\'No\', \'Yes\'), ', now())");
 
@@ -2453,8 +2482,10 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
 
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Tare percent.', 'MODULE_SHIPPING_AUPOST_TARE', '10', 'Add this percentage of the items total weight as the tare weight. (This module ignores the global settings that seems to confuse many users. 10% seems to work pretty well.).', '6', '50', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added)
             VALUES ('Sort order of display.', 'MODULE_SHIPPING_AUPOST_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '55', now())");
+
         $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added)
             VALUES ('Tax Class', 'MODULE_SHIPPING_AUPOST_TAX_CLASS', '1', 'Set Tax class or -none- if not registered for GST.', '6', '60', 'zen_get_tax_class_title', 'zen_cfg_pull_down_tax_classes(', now())");
         // eof parcels

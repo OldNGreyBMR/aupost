@@ -5,8 +5,7 @@
  * @license https://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
  * @version $Id: lat9 2024 Nov 19 Modified in v2.1.0 $
  */
-//BMH 2024-12-29 compatability with Auspost
-//          ln74 Tax Invoice Title "TITLE_INVOICE";
+//BMH 2024-12-29 compatability with Auspost; Tax Invoice Title "TITLE_INVOICE";
 //          ln21 check IMAGE_ON_INVOICE_IMAGE_SHOW to switch images
 //          check address for pickup
 // BMH 2026-04-13 changes for Aus Post 2026-05-31 change requiring telephone and email for every parcel lodgement
@@ -15,7 +14,7 @@ require('includes/application_top.php');
 // variables  for values of heading displayed at bottom of shipping label
 $email_heading = "Email: ";
 $telephone_heading = "Tel: ";
-$aupost_invoice_version = "v2.5.10";
+$aupost_invoice_version = "v2.6.0";
 $SHOW_AP_TELEPHONE = "Yes"; // Yes or No - for AP to show additional telephone number and email on invoice at end of "ship to"
 
 $show_product_images = $show_product_images ?? true;
@@ -78,6 +77,7 @@ if (($order->billing['street_address'] != isset($order->delivery['street_address
 </head>
 
 <body>
+    <?= '<!-- Invoice Version ' . $aupost_invoice_version . ' -->' ?>
     <?php
     if (empty($order->info)) {
         ?>
@@ -152,7 +152,7 @@ if (($order->billing['street_address'] != isset($order->delivery['street_address
                                 </td>
                             </tr>
                             <tr>
-                                <td><?php echo zen_draw_separator('pixel_trans.gif', '1', '5'); ?></td>
+                                <td class="main-address1"> <?php echo zen_draw_separator('pixel_trans.gif', '1', '2'); ?></td>
                             </tr>
                             <tr>
                                 <td class="main-address1">
@@ -179,7 +179,7 @@ if (($order->billing['street_address'] != isset($order->delivery['street_address
                                     echo "</td>  </tr>";
                                     echo "<tr> <td><?php echo zen_draw_separator('pixel_trans.gif', '1', '5'); </td>  </tr>";
                                     if ($SHOW_AP_TELEPHONE == "Yes") {
-                                     echo " <tr> <td class='main-ship-name-small'> <br> <hr>" . $telephone_heading . $order->customer['telephone'] . '<br>' . $email_heading . $order->customer['email_address'] . "</td> </tr>";
+                                     echo " <tr> <td class='main-ship-name-small'> <hr>" . $telephone_heading . $order->customer['telephone'] . '<br>' . $email_heading . $order->customer['email_address'] . "</td> </tr>";
                                 }
                                 } else {
                                     echo 'PICKUP' . '<br>';
