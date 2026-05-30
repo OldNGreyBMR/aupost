@@ -16,8 +16,16 @@ declare(strict_types=1);
  *        v2.5.9a 2026-04-17 ln1757 check for XML response display raw response in error message; check for empty response and display error message; write errors to log file;
  *        v2.5.9b 2026-04-18 strict check boolean $maxcoverexceeded
  *        v2.6.0  2026-05-21 array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
- *                2026-05-25  parcel calc moved to function; parcel size optimised, letter size optimised
+ *                2026-05-25  parcel calc moved to function; parcel size optimised, letter size optimised; check topcode not blank; 
+ *                            improved postcode validation
  */
+/**
+ *  pull in degugging css from plugins template_default
+*/
+if (!defined('VERSION_AU')) {     define('VERSION_AU', '2.6.0'); }
+echo  file_get_contents(DIR_FS_CATALOG . "zc_plugins/AustraliaPost/" . "v" .VERSION_AU . "/catalog/includes/templates/template_default/css/stylesheet_zczaupost.php") ;
+
+
 
 // BMHDEBUG switches // WARNING DO NOT ENABLE FOR PRODUCTION
 define('BMHDEBUG1', 'No');                 // No or Yes  2nd level debug
@@ -279,9 +287,20 @@ class aupost extends base
         if ($dest_country != "AU") {
             return;
         }
-        $topcode = str_replace(" ", "", ($order->delivery['postcode'] ?? ''));
+        // take out any spaces
 
+        $topcode = str_replace(" ", "", ($order->delivery['postcode'] ?? ''));
+        $order->delivery['postcode'] = $topcode;
+
+        // Check if $topcode is not blank before validating
+        if (empty($topcode)) {
+            echo ('<p class="aupost-debug" ><strong> An error occurred. Blank Aus Post destination code. ');
+            return;
+            }
+
+        // Check format of $topcode is not blank before validating
         if (!$this->validate_au_postcode($topcode, $dest_country, $order)) {
+              echo ('<p class="aupost-debug" ><strong> An error occurred. Not a valid Aus Post destination code. ');
             return;
         }
 
@@ -767,7 +786,7 @@ class aupost extends base
                 if ($this->enabled == FALSE)
                     return;    // no quote
 
-                $methods[] = array('id' => $this->code, 'title' => $this->error_msg_ap, 'cost' => $cost); // update method 
+                $methods[] = array('id' => $this->code, 'title' => $this->error_msg_ap, 'cost' => $cost); // update method
                 $this->quotes['methods'] = $methods;   // set it
                 $parcellength = 0;
                 return $this->quotes;
@@ -1833,26 +1852,62 @@ Zen Cart uses underscore as delimiter between module and method. Underscores mus
      * @param array|object $order (passed by reference)
      * @return bool
      */
-    protected function validate_au_postcode($postcode, $country, &$order)
-    {
-        if ($country != "AU") {
-            return false;
-        }
-        if ($postcode === "") {
-            return false;
-        }
-        if (strlen($postcode) !== 4 || preg_match("/\D/", $postcode)) {
-            $order->delivery['postcode'] = "";
-            return false;
-        }
-        $pattern = "/^(0[289][0-9]{2})|([1345689][0-9]{3})|(2[0-8][0-9]{2})|(290[0-9])|(291[0-4])|(7[0-4][0-9]{2})|(7[8-9][0-9]{2})$/";
-        if (!preg_match($pattern, $postcode)) {
-            $order->delivery['postcode'] = "";
-            return false;
-        }
-        return true;
+    protected function validate_au_postcode(string $postcode, string $country, object &$order): bool
+{
+    if ($country !== 'AU') {
+        return false;
+    }
+// Strip spaces/whitespace early and write back so the field reflects it on reload
+    $postcode = preg_replace('/\s+/', '', $postcode);
+    $order->delivery['postcode'] = $postcode;
+    
+    if ($postcode === '') {
+        return false;
     }
 
+    // Must be exactly 4 digits
+    if (!preg_match('/^\d{4}$/', $postcode)) {
+        $order->delivery['postcode'] = '';
+        return false;
+    }
+    // Valid Australian postcode ranges per Australia Post:
+    // ACT:      0200–0299, 2600–2618, 2900–2920
+    // NSW:      1000–1999, 2000–2599, 2619–2899, 2921–2999
+    // NT:       0800–0899, 0900–0999
+    // QLD:      4000–4999, 9000–9999
+    // SA:       5000–5999
+    // TAS:      7000–7999
+    // VIC:      3000–3999, 8000–8999
+    // WA:       6000–6999
+    $intPostcode = (int) $postcode;
+
+    $validRanges = [
+        [200,  299],   // ACT (unique PO boxes/locked bags)
+        [800,  999],   // NT
+        [1000, 1999],  // NSW (LVRs/PO boxes)
+        [2000, 2599],  // NSW
+        [2600, 2618],  // ACT
+        [2619, 2899],  // NSW
+        [2900, 2920],  // ACT
+        [2921, 2999],  // NSW
+        [3000, 3999],  // VIC
+        [4000, 4999],  // QLD
+        [5000, 5999],  // SA
+        [6000, 6999],  // WA
+        [7000, 7999],  // TAS
+        [8000, 8999],  // VIC (LVRs/PO boxes)
+        [9000, 9999],  // QLD (LVRs/PO boxes)
+    ];
+
+    foreach ($validRanges as [$min, $max]) {
+        if ($intPostcode >= $min && $intPostcode <= $max) {
+            return true;
+        }
+    }
+
+    $order->delivery['postcode'] = '';
+    return false;
+}
 
     private function _get_secondary_options(
         $add,

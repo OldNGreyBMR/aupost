@@ -1,8 +1,11 @@
+<?php
 /**
  * Au Post debugging  Stylesheet
- * 2022-07-27 BMH introduced to clearly differentiate debugging
- *
+ * 2026-05-30 to clearly differentiate debugging
+ * aupost 2.6.0 test css maroon
  */
+?>
+<style>
 .aupost-debug {
     font-size: 0.9em;
     line-height:1.1em;
@@ -45,4 +48,4 @@ table.aupost-debug-table {
         width: 95%;
         color: maroon;
 }
-
+</style>

@@ -1,18 +1,21 @@
+<?php
 /**
  * Au Post debugging  Stylesheet
- * 2022-07-27 BMH introduced to clearly differentiate debugging
- *
+ * 2026-05-30 to clearly differentiate debugging
+ * aupost 2.6.0 test css magenta
  */
+?>
+
 .aupost-debug {
     font-size: 0.9em;
     line-height:1.1em;
-    color: maroon;
+    color: magenta;
     
 }
 .aupost-debug1 textarea {
     font-size: 0.9em;
     line-height:1.0em;
-    color: maroon;
+    color: magenta;
     width :auto;
     min-width: 55em;
     max-width: 100%;
@@ -25,7 +28,7 @@
 .aupost-debug textarea {
     font-size: 0.9em;
     line-height:1.0em;
-    color: maroon;
+    color: magenta;
     width :auto;
     min-width: 35em;
     max-width: 100%;
@@ -37,12 +40,11 @@
 .aupost-debug code {
         font-size: 1em;
     line-height:1.0em;
-    color: maroon;
+    color: magenta;
 }
 
 table.aupost-debug-table {
-        border: 1px solid maroon;
+        border: 1px solid magenta;
         width: 95%;
-        color: maroon;
+        color: magenta;
 }
-
