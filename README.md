@@ -5,7 +5,7 @@ AusPost Shipping Module 2.6.0
 
 For code changes see the changelog.
 
-### This version tested on Zen Cart version 1.5.8a, 2.1.0, 2.2.2 and PHP 8.2, 8.3, 8.4, 8.5;
+### This version tested on Zen Cart version 2.0.1, 2.1.0, 2.2.2 and PHP 8.3, 8.4, 8.5;
 
 This module uses the new Australia Post API to get valid quotes for letters and parcels directly from the Australia Post server.
 The module:
@@ -124,18 +124,6 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
     3.1.7 Under 'Auspost API Key', enter your 36 digit API key.
     3.1.8 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
     3.1.9 Scroll down and click 'update'.
-
-3.2 Installing on zencart v158a
-----------------------------
-    3.2 Configuration - Australia Post
-    3.2.1 Make sure you have entered your own postcode in your Zen Cart admin by going to: Configuration > shipping/packaging > postal code 
-    3.2.2 Upload the 'includes' folder to the root folder of your Zen Cart store.
-    3.2.3 A CSS file is uploaded to \includes\templates\template_default\css\. A new icon file is uploaded \includes\templates\template_default\images\icons. 
-        Upload the icons folder and the css folder to the template used on your site.
-    3.2.4 In Admin go to: modules > shipping > Australia Post > select it and click install. If you have a previous version of the module installed, uninstall the existing version then reinstall.
-    3.2.5 Under 'Auspost API Key', enter your 36 digit API key.
-    3.2.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-    3.2.7 Scroll down and click 'update'.
 
 Congratulations! You have now successfully installed the Australia Post Shipping Module.
 

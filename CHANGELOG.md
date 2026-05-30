@@ -1,10 +1,13 @@
 CHANGELOG
 =========
-AusPost Shipping Module + AusPost Overseas Shipping Module 2.6.0 27 May 2026
+AusPost Shipping Module + AusPost Overseas Shipping Module 2.6.0 30 May 2026
  - array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
  - check PHP 8.5 compatibility
  - parcel calc moved to function; parcel size optimised, letter size optimised 
  - processing time is no slower even with extra sizing calculations
+ - improved postcode validation; error messages if blank
+ - debugging css loaded from plugins
+ - admin invoice.php renamed to invoice.php.orig on install and reverted on uninstall so the provided plugins updated invoice is used.
  - caching is set to ON by default, so if nothing has changed on the shopping cart page a new request will NOT be made to the Australia Post servers
  
  AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9b  19 Apr 2026
