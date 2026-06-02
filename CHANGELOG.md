@@ -9,6 +9,7 @@ AusPost Shipping Module + AusPost Overseas Shipping Module 2.6.0 30 May 2026
  - debugging css loaded from plugins
  - admin invoice.php renamed to invoice.php.orig on install and reverted on uninstall so the provided plugins updated invoice is used.
  - caching is set to ON by default, so if nothing has changed on the shopping cart page a new request will NOT be made to the Australia Post servers
+ - invoice css from plugins; invoice has dashed fold line controlled by a switch in the file.
  
  AusPost Shipping Module + AusPost Overseas Shipping Module2.5.9b  19 Apr 2026
  
