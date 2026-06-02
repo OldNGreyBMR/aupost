@@ -23,9 +23,7 @@ declare(strict_types=1);
  *  pull in degugging css from plugins template_default
 */
 if (!defined('VERSION_AU')) {     define('VERSION_AU', '2.6.0'); }
-echo  file_get_contents(DIR_FS_CATALOG . "zc_plugins/AustraliaPost/" . "v" .VERSION_AU . "/catalog/includes/templates/template_default/css/stylesheet_zczaupost.php") ;
-
-
+echo  file_get_contents(DIR_FS_CATALOG . "zc_plugins/AustraliaPost/" . "V" .VERSION_AU . "/catalog/includes/templates/template_default/css/stylesheet_zczaupost.php") ;
 
 // BMHDEBUG switches // WARNING DO NOT ENABLE FOR PRODUCTION
 define('BMHDEBUG1', 'No');                 // No or Yes  2nd level debug
@@ -293,12 +291,11 @@ class aupost extends base
         $order->delivery['postcode'] = $topcode;
 
         // Check if $topcode is not blank before validating
-        if (empty($topcode)) {
-            echo ('<p class="aupost-debug" ><strong> An error occurred. Blank Aus Post destination code. ');
-            return;
-            }
+        if (($topcode == "") && ($dest_country == "AU")) {
+            return; // no error message 
+        }  
 
-        // Check format of $topcode is not blank before validating
+        // Check format of $topcode preoceeding
         if (!$this->validate_au_postcode($topcode, $dest_country, $order)) {
               echo ('<p class="aupost-debug" ><strong> An error occurred. Not a valid Aus Post destination code. ');
             return;
@@ -401,10 +398,12 @@ class aupost extends base
 
         $tare = MODULE_SHIPPING_AUPOST_TARE;                    // percentage to add for packing etc
 
+        /*
         if (($topcode == "") && ($dest_country == "AU")) {
             return;
         }           //  This will occur with guest user first quote where no postcode is available
-
+        */
+        
         /* BMH not developed
         $FlatText = " Using AusPost Flat Rate." ;
             This concept requires prices for each packaging option in addition to the calculated postage cost.

@@ -14,10 +14,16 @@ declare(strict_types=1);
  *  v2.6.0  2026-05-01 update manifest; update version number; allow for add value to be 0 or empty
  *          2026-05-25 parcel calc moved to function; parcel size optimised
  */
+/**
+ *  pull in degugging css from plugins template_default
+*/
+if (!defined('VERSION_AU')) {     define('VERSION_AU', '2.6.0'); }
+echo  file_get_contents(DIR_FS_CATALOG . "zc_plugins/AustraliaPost/" . "V" .VERSION_AU . "/catalog/includes/templates/template_default/css/stylesheet_zczaupost.php") ;
+
 // BMHDEBUG switches
 define('BMHDEBUG_INT1', 'No');           // BMH 2nd level debug to display all returned data from Aus Post
 define('BMHDEBUG_INT2', 'No');           // BMH 3rd level debug to display all returned data from Aus Post
-define('USE_CACHE_INT', 'No');           // BMH disable cache // set to 'No' for testing;
+define('USE_CACHE_INT', 'Yes');           // BMH disable cache // set to 'No' for testing;
 define('MINEXTRACOVER_OVERIDE', 'Yes');  // BMH obtain cost for extra cover even if $ordervalue < $MINVALUEEXTRACOVER_INT // Used for testing.
 
 //BMH declare constants
@@ -1477,7 +1483,7 @@ class aupostoverseas extends base
      * @param mixed $url
      * @return bool|string
      */
-    function get_auspost_api_int($url)
+    private function get_auspost_api_int($url)
     {
         $xml = [];
         global $customer_id;
