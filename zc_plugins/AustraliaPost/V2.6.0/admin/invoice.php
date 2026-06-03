@@ -9,7 +9,7 @@
 //          ln21 check IMAGE_ON_INVOICE_IMAGE_SHOW to switch images
 //          check address for pickup
 // BMH 2026-04-13 changes for Aus Post 2026-05-31 change requiring telephone and email for every parcel lodgement
-// BMH v2.6.0 included in plugins distribution
+// BMH v2.6.0 included in plugins distribution; hr css change to force to print; fold line selected by switch
 require('includes/application_top.php');
 // To override the $show_* or $attr_img_width values, see // https://docs.zen-cart.com/user/admin/site_specific_overrides/
 // variables  for values of heading displayed at bottom of shipping label
@@ -17,6 +17,7 @@ $email_heading = "Email: ";
 $telephone_heading = "Tel: ";
 $aupost_invoice_version = "v2.6.0";
 $SHOW_AP_TELEPHONE = "Yes"; // Yes or No - for AP to show additional telephone number and email on invoice at end of "ship to"
+$SHOW_AP_FOLDLINE = "No"; // Yes or No - for AP to show fold line for address sleeve
 
 $show_product_images = $show_product_images ?? true;
 $show_attrib_images = $show_attrib_images ?? true;
@@ -180,7 +181,9 @@ if (($order->billing['street_address'] != isset($order->delivery['street_address
                                     echo "</td>  </tr>";
                                     echo "<tr> <td><?php echo zen_draw_separator('pixel_trans.gif', '1', '5'); </td>  </tr>";
                                     if ($SHOW_AP_TELEPHONE == "Yes") {
-                                     echo " <tr> <td class='main-ship-name-small'> <hr>" . $telephone_heading . $order->customer['telephone'] . '<br>' . $email_heading . $order->customer['email_address'] . "</td> </tr>";
+                                     echo ' <tr> <td class="main-ship-name-small">  <hr>' 
+                                     //<img src= "images/pixel_ltgrey.gif" alt style="height:1px; width:100%;">'
+                                     . $telephone_heading . $order->customer['telephone'] . '<br>' . $email_heading . $order->customer['email_address'] . '</td> </tr> ';
                                 }
                                 } else {
                                     echo 'PICKUP' . '<br>';
@@ -190,10 +193,19 @@ if (($order->billing['street_address'] != isset($order->delivery['street_address
                         </table>
                     </td>
                 </tr>
-                <!-- BMH bof  moved from line 94 -->
+                </table>
+                <?php
+                 if ($SHOW_AP_FOLDLINE == "Yes") {
+                    // '<!-- BMH  dashed line for folding invoice --> '
+                    echo '<span class="main-ship-name-fold"><hr> </span>'; 
+                    //<!-- eof invoice fold line -->
+                    }
+                ?>
+
                 <?php
                 if ($show_customer == true) {
                     ?>
+                    <table>
                     <tr>
                         <td class="main-address1" colspan="2"><b><?php echo ENTRY_CUSTOMER; ?></b></td>
                     </tr>
@@ -202,9 +214,9 @@ if (($order->billing['street_address'] != isset($order->delivery['street_address
                             <?php echo zen_address_format($order->customer['format_id'], $order->customer, 1, '', '<br>'); ?>
                         </td>
                     </tr>
+                    </table> <br>
                 <?php } ?>
-                <!-- BMH eof - moved here to allow folding invoice -->
-            </table>
+
             <table>
                 <tr>
                     <td class="main"><strong><?php echo ENTRY_ORDER_ID; ?></strong></td>
