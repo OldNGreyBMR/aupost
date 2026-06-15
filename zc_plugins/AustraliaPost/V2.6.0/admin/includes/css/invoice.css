@@ -27,19 +27,41 @@ body {
 .pageHeadingTax {font-size:1.75rem; text-align:left !important;}
 
 .address_table {font-size: 2.75rem; width: 90%; border: 0;}
-.main-ship-name {font-size:1.75rem; width: 90%;}
-.main-ship-name-small {font-size:1.25rem; width: 90%; }
+.main-ship-name {font-size:1.5rem; width: 90%;} /*1.5rem = 19.5px */
+.main-ship-name-small {font-size:1rem; width: 90%; } /* 13px */
 
 .main-address1 {font-size: 1.25rem;}
 
 .main-ship-name-small hr {
   border: none;
+  border-top: 1px solid grey;
   height: 1px;
-  background-color: grey;
+  /* background-color: grey;
+  */
+  margin-top: 1rem;
   margin-bottom: 2px;
 }
 
+.main-ship-name-fold hr {
+    
+   border:none; border-top: 1px dashed grey;height:0; 
+   margin-top: 0;
+   margin-bottom: 0.5rem;
+}
+/*
 .main-ship-name-small {
     font-size: 13px;
-
+}
+    */
+@media print {
+    hr {
+        border-top: 1px solid grey !important;
+        background: transparent !important;
+    }
+    .main-ship-name-fold hr {
+        border:none; 
+        border-top: 1px dashed grey !important;
+        height:0; 
+        background: transparent !important;
+    }
 }
