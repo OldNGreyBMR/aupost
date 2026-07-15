@@ -1,6 +1,9 @@
 CHANGELOG
 =========
-AusPost Shipping Module + AusPost Overseas Shipping Module 3.0.0 12 June 2026
+AusPost Shipping Module + AusPost Overseas Shipping Module 3.0.1 16 July 2026
+ - correct upgrade call in installer
+ - trap undefined array key "postage_result"
+v 3.0.0
  - Total rewrite to use json API instead of XML API
  - Fully encapsulated plugin
  - array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
