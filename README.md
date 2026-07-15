@@ -1,8 +1,8 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 3.0.0 encapsulated plugin [json]
+AusPost Shipping Module 3.0.1 encapsulated plugin [json]
 -------------------------------
-Updated 12 June 2026 by OldNGrey 
+Updated 16 July 2026 by OldNGrey 
 
 ### This version tested on Zen Cart version 2.1.0, 2.2.0, 2.2.1, 2.2.2 and PHP 8.3, 8.4, 8.5;
 
