@@ -1,0 +1,51 @@
+                        if (in_array($parceltype_descriptor . " Insured (no sig)", $this->allowed_methods)) {
+
+                            if ($maxcoverexceeded === True) {
+                                if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
+                                    $this->_debug_output("n", '<p class="aupost-debug"> n2 ln' . __LINE__ . ' ' . $parceltype_descriptor . ' Insured (no sig) $maxcoverexceeded break', ""); // ** DEBUG
+                                }
+                                break;
+                            } else {
+                                $ordervalue = $ordervalue_ori;
+                            } // reset if max extra cover exceeded
+
+                            if ($ordervalue > $MINVALUEEXTRACOVER) {
+                                $optioncode = 'AUS_SERVICE_OPTION_STANDARD';
+
+                                $optionservicecode = ($json['services']['service'][$i]['code']);
+                                $suboptioncode = 'AUS_SERVICE_OPTION_EXTRA_COVER';
+                                $id_option = $id . str_replace("_", "", $optioncode) . str_replace("_", "", $suboptioncode);
+                                $allowed_option = $parceltype_descriptor . " Insured (no sig)";
+                                $option_offset1 = 0;
+
+                                $result_secondary_options = $this->_get_secondary_options(
+                                    $add,
+                                    $allowed_option,
+                                    $ordervalue,
+                                    $MINVALUEEXTRACOVER,
+                                    $dcode,
+                                    $parcellength,
+                                    $parcelwidth,
+                                    $parcelheight,
+                                    $parcelweight,
+                                    $optionservicecode,
+                                    $optioncode,
+                                    $suboptioncode,
+                                    $id_option,
+                                    $description,
+                                    $details,
+                                    $dest_country,
+                                    $order,
+                                    $currencies,
+                                    $aus_rate,
+                                    $this->ap_shipping_num_boxes
+                                );
+
+                                if ((MODULE_SHIPPING_AUPOST_DEBUG == "Yes") && (BMHDEBUG1 == "Yes") && (BMH_P_DEBUG2 == "Yes")) {
+                                    $this->_debug_output("d", '<br>ln' . __LINE__ . ' d2 $result_secondary_options = ', $result_secondary_options);
+                                }
+                                if (strlen($id) > 1) {
+                                    $methods[] = $result_secondary_options;
+                                }
+                            }
+                        }
