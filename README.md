@@ -1,8 +1,8 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 3.0.0 encapsulated plugin [json]
+AusPost Shipping Module 3.0.2 encapsulated plugin [json]
 -------------------------------
-Updated 12 June 2026 by OldNGrey 
+Updated 31 August 2026 by OldNGrey 
 
 ### This version tested on Zen Cart version 2.1.0, 2.2.0, 2.2.1, 2.2.2 and PHP 8.3, 8.4, 8.5;
 
@@ -13,9 +13,10 @@ The module:
 - Supports both domestic and international shipping options, including standard, express, and economy services.
 - Is easy to install and configure, with no coding required.
 - fully encapsulated plugin
+- includes Flat Rate packaging and Express Flat Rate packaging
 
 This encapsulated version will not install on versions prior to 2.1.0.  
-If you must run it on versions prior to 2.1.0 see the notes beloe.
+If you must run it on versions prior to 2.1.0 see the notes below.
 
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
@@ -44,6 +45,11 @@ Parcels:
 - Prepaid Satchel +sig 
 - Prepaid Satchel Insured +sig 
 - Prepaid Satchel Insured (no sig) 
+- Flat rate packaging 
+- Flat rate packaging +sig 
+- Flat rate packaging Insured +sig 
+- Flat rate packaging Insured (no sig)
+
 - Express Parcel 
 - Express Parcel +sig 
 - Express Parcel Insured +sig 
@@ -52,8 +58,12 @@ Parcels:
 - Prepaid Express Satchel +sig 
 - Prepaid Express Satchel Insured +sig 
 - Prepaid Express Satchel Insured (no sig) 
+- Express Flat rate packaging 
+- Express Flat rate packaging +sig 
+- Express Flat rate packaging Insured +sig 
+- Express Flat rate packaging Insured (no sig)
 
-Parcels do not include Australia Post prices that require additional AP packaging.
+Parcels NOW include Australia Post prices that require additional AP packaging. The cost os teh packaging should be included in the handling cost.
 
 International Delivery Options:
 ===============================
@@ -125,34 +135,29 @@ Congratulations! You have now successfully installed the Australia Post Shipping
 
 5 Additional Configurations
 =========================
-4.1 Select the postage options you wish to offer to customers.
-4.2 Add handling fees if you factor in costs for material and packaging.
-4.3 Cost on error is the default if a valid postage rate is not returned or the Australia Post servers cannot be reached. I recommend an amount large enough to cover most postage and that will be obvious eg 99.99.
-4.4 The Tare percent allows for weight of packaging etc when requesting postage rates. The default is 10.
+5.1 Select the postage options you wish to offer to customers.
+5.2 Add handling fees if you factor in costs for material and packaging.
+5.3 Cost on error is the default if a valid postage rate is not returned or the Australia Post servers cannot be reached. I recommend an amount large enough to cover most postage and that will be obvious eg 99.99.
+5.4 The Tare percent allows for weight of packaging etc when requesting postage rates. The default is 10.
 
-5   Configuration - Australia Post International
+6   Configuration - Australia Post International
 ================================================
-5.1 Repeat steps 4.1 above
-5.2 In Admin go to: modules > shipping > Australia Post International > click install
-5.3 Repeat step 4.1 to 4.4 above
-5.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
-5.7 Scroll down and click 'update'.
+6.1 Repeat steps 4.1 above
+6.2 In Admin go to: modules > shipping > Australia Post International > click install
+6.3 Repeat step 4.1 to 4.4 above
+6.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
+6.7 Scroll down and click 'update'.
 
 -------------------------------------------------
-6  Upgrading from Australia Post Shipping Module previous versions
+7  Upgrading from Australia Post Shipping Module previous versions
 -------------------------------------------------
-6.1  complete removal and reinstall is recommended.
-6.2. Note Australia Post API key and other settings.
-6.3 In Admin > Shipping Modules select Australia Post and click "-Remove Module" twice.
-6.4 Repeat for Australia Post International
-6.5 With ZenCart V1.5.8a you can now install the encapsulated version by following step 4 above.
+7.1  complete removal and reinstall is recommended.
+7.2. Note Australia Post API key and other settings.
+7.3 In Admin > Shipping Modules select Australia Post and click "-Remove Module" twice.
+7.4 Repeat for Australia Post International
+7.5 With ZenCart V1.5.8a you can now install the encapsulated version by following step 4 above.
+8  Zen Cart versions prior to ZenCart v1.5.8a are no longer supported.
 
-7  On versions prior to ZenCart v1.5.8a you will need to remove the modules and overwrite the files with the new fileset.
- 7.1 Note Australia Post API key and other settings.
- 7.2 In Admin > Shipping Modules select Australia Post and click "-Remove Module" twice.
- 7.3 Repeat for Australia Post International
- 7.4 copy /zc_plugins/AustraliaPost/v3.0.0/catalog/included folder to the root of your store
- 7.5 follow steps 5 above
 
 Tax (GST) Calculations
 ======================
