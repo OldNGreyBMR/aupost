@@ -1,10 +1,10 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-AusPost Shipping Module 3.0.2 encapsulated plugin [json]
+# AusPost Shipping Module 3.1 encapsulated plugin [json]
 -------------------------------
-Updated 31 August 2026 by OldNGrey 
+Updated 03 September 2026 by OldNGrey 
 
-### This version tested on Zen Cart version 2.1.0, 2.2.0, 2.2.1, 2.2.2 and PHP 8.3, 8.4, 8.5;
+## This version tested on Zen Cart version 2.1.0, 2.2.0, 2.2.1, 2.2.2 and PHP 8.3, 8.4, 8.5;
 
 This module uses the new Australia Post API [json interface] to get valid quotes for letters and parcels directly from the Australia Post server.
 The module:
@@ -16,7 +16,6 @@ The module:
 - includes Flat Rate packaging and Express Flat Rate packaging
 
 This encapsulated version will not install on versions prior to 2.1.0.  
-If you must run it on versions prior to 2.1.0 see the notes below.
 
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
@@ -24,7 +23,7 @@ To use this module, you must obtain a 36 digit API Key from the Auspost Developm
 The aupost.php module is required for postage rates within Australia only.
 The aupostoverseas.php module is required for postage rates for overseas only.
 
-Australian Delivery Options:
+## Australian Delivery Options:
 ============================
 Letters:
 -------
@@ -147,16 +146,6 @@ Congratulations! You have now successfully installed the Australia Post Shipping
 6.3 Repeat step 4.1 to 4.4 above
 6.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
 6.7 Scroll down and click 'update'.
-
--------------------------------------------------
-7  Upgrading from Australia Post Shipping Module previous versions
--------------------------------------------------
-7.1  complete removal and reinstall is recommended.
-7.2. Note Australia Post API key and other settings.
-7.3 In Admin > Shipping Modules select Australia Post and click "-Remove Module" twice.
-7.4 Repeat for Australia Post International
-7.5 With ZenCart V1.5.8a you can now install the encapsulated version by following step 4 above.
-8  Zen Cart versions prior to ZenCart v1.5.8a are no longer supported.
 
 
 Tax (GST) Calculations
