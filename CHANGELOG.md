@@ -2,8 +2,9 @@ CHANGELOG
 =========
 AusPost Shipping Module + AusPost Overseas Shipping Module 3.1 03 September 2026
 ------------------------------------------
-Total rewrite to use json API instead of XML API
-Fully encapsulated plugin
+#aupost
+ - Total rewrite to use json API instead of XML API
+ - Fully encapsulated plugin
  - array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
  - check PHP 8.5 compatibility
  - parcel calc moved to function; parcel size optimised, letter size optimised 
@@ -15,4 +16,10 @@ Fully encapsulated plugin
  - invoice css from plugins; invoice has dashed fold line controlled by a switch in the file.
  
  - includes Flat rate packaging
- - consolidated code to reduce redundancy
+ - consolidated code to reduce redundancy;  duplicate code moved to functions
+ - normalise: single service returned as object rather than array for when only one option is returned
+ 
+ #aupostoverseas
+ - consolidated code to reduce redundancy;  duplicate code moved to functions
+ - check and recover for invalid destination country
+ - normalise: single service returned as object rather than array for when only one option is returned
