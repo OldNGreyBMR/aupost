@@ -1,5 +1,14 @@
 # aupost Zen Cart Australia postage plug in
-# ==========================================
+# ========================================== 
+
+# AusPost Shipping Module 3.2.1 06 November 2026
+------------------------------------------------
+Main file: `v3.2.1/catalog/includes/modules/shipping/aupost.php` 
+- `AUPOST_SPLIT_OVERLIMIT` is now the admin setting `MODULE_SHIPPING_AUPOST_SPLIT_OVERLIMIT` (Yes/No radio options, default `Yes`;
+
+Installer:
+`v3.2.1/Installer/ScriptedInstaller.php`
+- `executeUpgrade()` now calls `ensureSplitOverlimitSetting()`, which inserts the new configuration row when it is missing and leaves an existing value untouched.
 
 # AusPost Shipping Module 3.2 04-05 November 2026
 --------------------------------------------
