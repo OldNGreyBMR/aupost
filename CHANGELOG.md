@@ -1,12 +1,20 @@
 CHANGELOG
 =========
+AusPost Shipping Module + AusPost Overseas Shipping Module 3.1.1 05 November 2026
+------------------------------------------
+#aupost
+v3.1.1 2026-11-05 hide debug lines for oversize and write to log file
+v3.1.1 2026-09-29 ensure admin warnings are only triggered when installed
+
+#aupostoverseas
+v3.1.1 2026-09-29 ensure admin warnings are only triggered when installed
+
+
 AusPost Shipping Module + AusPost Overseas Shipping Module 3.1 03 September 2026
 ------------------------------------------
 #aupost
  - Total rewrite to use json API instead of XML API
  - Fully encapsulated plugin
-Total rewrite to use json API instead of XML API
-Fully encapsulated plugin
  - array to string for logfile;  limit letter code to only when switch is set; set domestic check earlier;
  - check PHP 8.5 compatibility
  - parcel calc moved to function; parcel size optimised, letter size optimised 
@@ -17,12 +25,12 @@ Fully encapsulated plugin
  - caching is set to ON by default, so if nothing has changed on the shopping cart page a new request will NOT be made to the Australia Post servers
  - invoice css from plugins; invoice has dashed fold line controlled by a switch in the file.
  
- - includes Flat rate packaging
+ - includes Flat rate packaging and Express Flat Rate packaging
  - consolidated code to reduce redundancy;  duplicate code moved to functions
  - normalise: single service returned as object rather than array for when only one option is returned
+ - corrected observer to remove hard coded path to css file
  
  #aupostoverseas
  - consolidated code to reduce redundancy;  duplicate code moved to functions
  - check and recover for invalid destination country
  - normalise: single service returned as object rather than array for when only one option is returned
- - consolidated code to reduce redundancy
