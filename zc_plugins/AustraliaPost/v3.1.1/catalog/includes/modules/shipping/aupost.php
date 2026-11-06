@@ -26,10 +26,10 @@ if (!defined('VERSION_AU')) {
 }
 
 // ---- BMHDEBUG switches // WARNING DO NOT ENABLE FOR PRODUCTION
-define('BMHDEBUG1', 'Yes');         // No or Yes // BMH 2nd level debug
-define('BMH_P_DEBUG2', 'Yes');       // No or Yes // BMH 3nd level debug to display returned values  from AP
-define('BMH_P_DEBUG3', 'Yes');       // No or Yes // BMH 4th level debug to display allowed options
-define('BMH_P_DEBUG4', 'Yes');       // No or Yes // BMH 5th level debug to display functions and raw curl
+define('BMHDEBUG1', 'No');         // No or Yes // BMH 2nd level debug
+define('BMH_P_DEBUG2', 'No');       // No or Yes // BMH 3nd level debug to display returned values  from AP
+define('BMH_P_DEBUG3', 'No');       // No or Yes // BMH 4th level debug to display allowed options
+define('BMH_P_DEBUG4', 'No');       // No or Yes // BMH 5th level debug to display functions and raw curl
 define('BMH_P_DEBUG4_BOXES', 'No'); // No or Yes // BMH level debug to display BOXES Code - future development
 //
 define('BMH_L_DEBUG1', 'No');       // No or Yes // BMH 3nd level debug
