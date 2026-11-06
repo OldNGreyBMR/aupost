@@ -1,8 +1,12 @@
 aupost Zen Cart Australia postage plug in
 ==========================================
-# AusPost Shipping Module 3.1 encapsulated plugin [json]
+# AusPost Shipping Module 3.1.1 encapsulated plugin [json]
 -------------------------------
-Updated 03 September 2026 by OldNGrey 
+Updated 05 November 2026 by OldNGrey 
+hid 2 debug lines for oversize and write to log file
+
+
+Updated 29 September 2026 by OldNGrey 
 
 ## This version tested on Zen Cart version 2.1.0, 2.2.0, 2.2.1, 2.2.2 and PHP 8.3, 8.4, 8.5;
 
@@ -14,6 +18,9 @@ The module:
 - Is easy to install and configure, with no coding required.
 - fully encapsulated plugin
 - includes Flat Rate packaging and Express Flat Rate packaging
+- consolidated code to reduce redundancy;  duplicate code moved to functions
+- normalise: single service returned as object rather than array for when only one option is returned
+- corrected observer to remove hard coded path to css file
 
 This encapsulated version will not install on versions prior to 2.1.0.  
 
@@ -35,7 +42,7 @@ Letters:
 - Aust Express Insured (no sig)  
 
 Parcels:
-========
+-------
 - Regular Parcel  
 - Regular Parcel +sig 
 - Regular Parcel Insured +sig 
@@ -64,7 +71,7 @@ Parcels:
 
 Parcels NOW include Australia Post prices that require additional AP packaging. The cost os teh packaging should be included in the handling cost.
 
-International Delivery Options:
+## International Delivery Options:
 ===============================
 International letters are not offered as no items of commercial value can be send by International Letter
 - Sea Mail 
