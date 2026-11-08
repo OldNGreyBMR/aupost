@@ -1,5 +1,11 @@
 # aupost Zen Cart Australia postage plug in
 # ========================================== 
+# AusPost Shipping Module 3.2.2 07 November 2026
+- Parcels are numbered and items have a parcel number appended to the product name so this shows on the invoice and packing slip. This applies to packed/split parcels. 
+- This is now an admin setting `MODULE_SHIPPING_AUPOST_AUPOST_PARCEL_NAME_SUFFIX` (Yes/No radio options, default `Yes`;
+- An observer has been added to enable this.
+- Parcel numbers follow quote construction order: own-box units first (cart order), then packed normal items/split bins.
+- Works only for this shop's internal packing flow: any program that reads `orders_products.products_name` will show the suffix.
 
 # AusPost Shipping Module 3.2.1 06 November 2026
 ------------------------------------------------
@@ -10,7 +16,7 @@ Installer:
 `v3.2.1/Installer/ScriptedInstaller.php`
 - `executeUpgrade()` now calls `ensureSplitOverlimitSetting()`, which inserts the new configuration row when it is missing and leaves an existing value untouched.
 
-# AusPost Shipping Module 3.2 04-05 November 2026
+# AusPost Shipping Module 3.2 05 November 2026
 --------------------------------------------
  - calculateOptimalParcel() reworked: items ordered by volume first, 2D shelf packing with quantity splitting via gap candidates, and 3D stacking within each layer.
  - Products flagged product_ships_in_own_box now ship in their own box using raw product dimensions and raw weight. No packing tolerance, no packaging tare and no letter handling are applied to these parcels.
@@ -26,8 +32,34 @@ Installer:
  - The CALL_FOR_BOXES API request is skipped for split parcels.
  - Known limitation: handling fees apply per parcel.
  
+# AusPost Shipping Module 3.1.1 encapsulated plugin [json]
+-------------------------------
+Updated 29 September 2026 by OldNGrey 
+
+## This version tested on Zen Cart version 2.1.0, 2.2.0, 2.2.1, 2.2.2 and PHP 8.3, 8.4, 8.5;
+
+This module uses the new Australia Post API [json interface] to get valid quotes for letters and parcels directly from the Australia Post server.
+The module:
+- Calculates optimal parcel size
+- Displays Live/Real-Time Shipping rates on your Zen Cart Shopping Cart page
+- Supports both domestic and international shipping options, including standard, express, and economy services.
+- Is easy to install and configure, with no coding required.
+- fully encapsulated plugin
+- includes Flat Rate packaging and Express Flat Rate packaging
+- consolidated code to reduce redundancy;  duplicate code moved to functions
+- normalise: single service returned as object rather than array for when only one option is returned
+- corrected observer to remove hard coded path to css file
+
+** This encapsulated version will not install on versions prior to 2.1.0.  
+
+To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
+ https://developers.auspost.com.au/
  
+The aupost.php module is required for postage rates within Australia only.
+The aupostoverseas.php module is required for postage rates for overseas only.
+
 AusPost Shipping Module 3.0.2 encapsulated plugin [json]
+---------------------------------------------------------
 Updated 01 September 2026 by OldNGrey
 
 
@@ -47,7 +79,6 @@ The module:
 - fully encapsulated plugin
 
 This encapsulated version will not install on versions prior to 2.1.0.
-If you must run it on versions prior to 2.1.0 see the notes below.
 
 To use this module, you must obtain a 36 digit API Key from the Auspost Development Centre:
  https://developers.auspost.com.au/
@@ -113,19 +144,18 @@ Installation:
 ==============
 1 Data
 ------
-To obtain really accurate postage quotes directly from Australia Post the following fields are preferred. The module will still return quotations if dimensions are not provided.
+To obtain really accurate postage quotes directly from Australia Post the following fields are required. The module will still return approximate quotations if dimensions are not provided.
 
 To use this Zen Cart plugin for calculating postage with Australia Post IT IS PREFERRED that you
 have made the following customisation to Zen Cart.
 
-    The products table SHOULD include the following fields:
+ - The products table SHOULD include the following fields: 
     - products_width (included by default in Zen Cart)
     - products_length (included by default in Zen Cart 2.0)
     - products_height. (included by default in Zen Cart 2.0)
 
-    The latter three fields can be added to earlier versions of ZC by installing the "Numinix Product Fields" add on and adding the predefined custom group "products_dimensions". These fields must have valid values to calculate the postage charges correctly.
     Dimensions should be in cm, weight should be in grams (gms).
-    If you have used the OzPpost postage calculator previously you will have these fields.
+    If you have used the Australia Post postage calculator previously you will have these fields.
     If you do not add the extra fields and populate their values the module will use default values.
     The default values are 10cm x 10cm x 2cm which will be a small parcel.
 
@@ -170,21 +200,6 @@ Congratulations! You have now successfully installed the Australia Post Shipping
 5.6 Add the Tax Class defined in Zen Cart. Australian Postage includes GST. Overseas postage is GST exempt (tax free).
 5.7 Scroll down and click 'update'.
 
--------------------------------------------------
-6  Upgrading from Australia Post Shipping Module previous versions
--------------------------------------------------
-6.1  complete removal and reinstall is recommended.
-6.2. Note Australia Post API key and other settings.
-6.3 In Admin > Shipping Modules select Australia Post and click "-Remove Module" twice.
-6.4 Repeat for Australia Post International
-6.5 With ZenCart V1.5.8a you can now install the encapsulated version by following step 4 above.
-
-7  On versions prior to ZenCart v1.5.8a you will need to remove the modules and overwrite the files with the new fileset.
- 7.1 Note Australia Post API key and other settings.
- 7.2 In Admin > Shipping Modules select Australia Post and click "-Remove Module" twice.
- 7.3 Repeat for Australia Post International
- 7.4 copy /zc_plugins/AustraliaPost/v3.0.0/catalog/included folder to the root of your store
- 7.5 follow steps 5 above
 
 Tax (GST) Calculations
 ======================
@@ -195,15 +210,24 @@ Australia Post postage rates to Australian destinations includes GST. This is ta
     and that the Tax Class set in
         Admin | Modules |shipping |aupost is set to your tax rate that covers GST.
 Australia Post postage rates to overseas destinations do not include GST. Set your Tax Class in
-    Admin | Modules |shipping |aupostoverseas     to your tax rate that does not include GST.
+    Admin | Modules |shipping |aupostoverseas to your tax rate that does not include GST.
 
 Parcel sizing calculations
 ==========================
-The NEW sizing calculations follows the following process:
- * Items are sorted largest-first (by volume) for better packing efficiency.
-  - Each item quantity is split into a grid: items are placed side-by-side to minimise height, favouring a roughly square footprint.
-  - The parcel footprint grows to fit the widest/longest row of items.
-  - Height accumulates per product row (stacked on top of previous rows).
+The parcel sizing calculations were rewritten again in v3.2. 
+ - calculateOptimalParcel() reworked: items ordered by volume first, 2D shelf packing with quantity splitting via gap candidates, and 3D stacking within each layer.
+ - Products flagged product_ships_in_own_box now ship in their own box using raw product dimensions and raw weight. No packing tolerance, no packaging tare and no letter handling are applied to these parcels.
+ - Each own-box unit is treated as a separate parcel. Remaining (normal) cart items are still packed together as one shipment.
+ - Orders containing own-box items are split into multiple Australia Post quotes. Results are merged by service id, only services available for every parcel are offered, and their costs are summed into one shipping total. Titles show the parcel count.
+ - Identical own-box units are quoted once in memory and their cost is counted once per unit.
+ - Orders whose normal (non-own-box) items exceed Australia Post's maximum weight or cubic volume can now be split into multiple parcels. Each parcel is quoted separately and the results are merged into one total. This is controlled by AUPOST_SPLIT_OVERLIMIT at the top of aupost.php (default 'Yes'); set it to 'No' to keep the existing over-limit error quote.
+ - A single item that is itself over the weight or dimension limit is not split; the existing over-limit error quote is used.
+ - Normal split parcels still receive the configured packaging tare; own-box parcels do not.
+ - Split quotes bypass the single-parcel cache and use aupostSplitParcel / aupostSplitQuotes instead. A later single-method re-quote returns the combined split total.
+ - Split quotes allocate the order total across parcels in proportion to item value, with a minimum insurable value per parcel when the order total allows. This prevents extra cover being charged on the full order value for every parcel and keeps insured services available on each parcel.
+ - Non-AU destinations and invalid postcodes keep the previous no-quote behaviour.
+ - The CALL_FOR_BOXES API request is skipped for split parcels.
+ - Known limitation: handling fees apply per parcel.
 
 HISTORY
 =======
