@@ -1,5 +1,11 @@
 # aupost Zen Cart Australia postage plug in
 # ========================================== 
+
+# AusPost Shipping Module 3.2.3 10 November 2026
+- Correct conversion from kg to gms; The admin weight format is now read once at the start of the quote 
+    before any weight calculation.
+- Letter limits and the letter state variables are now always defined at the top of single quote and separated out from parcel quotes.
+
 # AusPost Shipping Module 3.2.2 07 November 2026
 - Parcels are numbered and items have a parcel number appended to the product name so this shows on the invoice and packing slip. This applies to packed/split parcels. 
 - This is now an admin setting `MODULE_SHIPPING_AUPOST_AUPOST_PARCEL_NAME_SUFFIX` (Yes/No radio options, default `Yes`;
